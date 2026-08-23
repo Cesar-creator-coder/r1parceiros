@@ -359,17 +359,6 @@
       border-color: var(--primary);
       transform: translateX(2px);
     }
-    .promo-ribbon {
-      position: absolute;
-      right: 0;
-      top: 0;
-      background: var(--primary);
-      color: var(--white);
-      padding: 4px 10px;
-      border-radius: 0 0 0 12px;
-      font-weight: 900;
-      font-size: 10px;
-    }
 
     .fab {
       position: fixed;
@@ -836,11 +825,6 @@
       .modal { align-items: center; }
       .sheet { border-radius: 20px; max-height: 88vh; }
     }
-    @media print {
-      body * { visibility: hidden; }
-      #printableArea, #printableArea * { visibility: visible; }
-      #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
-    }
   </style>
 </head>
 <body>
@@ -859,7 +843,7 @@
             <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
           </button>
           <button class="icon-btn" onclick="openModal('partnerModal')" title="Quero ser Parceiro">
-            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66-0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
           </button>
         </div>
       </div>
@@ -897,7 +881,7 @@
     </section>
 
     <div class="search">
-      <input type="text" id="search" placeholder="Buscar pratos, bebidas, produtos..." oninput="searchAll()">
+      <input type="text" id="search" placeholder="Buscar lojas, pratos, bebidas, produtos..." oninput="searchAll()">
       <button onclick="searchAll()">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </button>
@@ -1179,7 +1163,7 @@
           </select>
         </div>
         <div class="field">
-          <label>Logo / Foto da Loja (Link URL ou Upload)</label>
+          <label>Logo / Foto da Loja (Proporção Quadrada 1:1 - 400x400 px)</label>
           <input id="pLogoUrl" placeholder="Cole o link da imagem (https://...)" oninput="previewDirect('pLogoUrl', 'partnerPreview')">
           <input type="file" accept="image/*" onchange="previewUpload(this, 'partnerPreview', 'pLogoUrl', 400)">
           <div id="partnerPreview" class="file-preview">Prévia da Logo</div>
@@ -1193,7 +1177,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    /* CONFIGURAÇÃO DO FIREBASE */
+    /* CONFIGURAÇÃO DO FIREBASE COM PERSISTÊNCIA BLINDADA */
     const firebaseConfig = {
       apiKey: "SUA_API_KEY_AQUI",
       authDomain: "seu-app.firebaseapp.com",
@@ -1216,7 +1200,7 @@
       console.warn("Rodando com armazenamento local enquanto o Firebase não estiver configurado.");
     }
 
-    const DB_KEY = "r1_marketplace_red_black_v15";
+    const DB_KEY = "r1_marketplace_red_black_v16_stable";
     const seed = {
       config: {
         appName: "R1 Parceiros",
@@ -1356,15 +1340,16 @@
     let storyTimer = null;
     let deferredPrompt = null;
 
+    /* PERSISTÊNCIA SEGURA E ANTI-REINICIALIZAÇÃO */
     function save() {
       try {
         localStorage.setItem(DB_KEY, JSON.stringify(db));
       } catch (err) {
-        console.warn("LocalStorage cheio, priorizando armazenamento em nuvem/memória.");
+        console.warn("Armazenamento local em capacidade máxima.");
       }
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").set(db).catch(err => {
-          console.error("Erro ao salvar no Firestore:", err);
+          console.error("Erro ao sincronizar Firestore:", err);
         });
       }
     }
@@ -1372,8 +1357,11 @@
     function syncFromFirebase() {
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
-          if (doc.exists) {
+          if (doc.exists && doc.data() && doc.data().partners) {
             db = doc.data();
+            try {
+              localStorage.setItem(DB_KEY, JSON.stringify(db));
+            } catch (e) {}
             renderHome();
           }
         });
@@ -1458,12 +1446,13 @@
       }
     }
 
+    /* REDIMENSIONADOR E OTIMIZADOR DE IMAGENS */
     function previewUpload(input, previewElementId, targetInputId, maxDim = 600) {
       const file = input.files[0];
       if (!file) return;
 
       const previewEl = document.getElementById(previewElementId);
-      previewEl.innerHTML = "<small style='color:#666;'>Otimizando imagem...</small>";
+      previewEl.innerHTML = "<small style='color:#666;'>Processando...</small>";
 
       if (file.type.startsWith("video")) {
         const reader = new FileReader();
@@ -1502,7 +1491,7 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.82);
+          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.80);
 
           if (targetInputId) {
             const inputTarget = document.getElementById(targetInputId);
@@ -1648,14 +1637,22 @@
       document.getElementById("statusStoryModal").classList.remove("show");
     }
 
+    /* RENDERIZAÇÃO DA TELA INICIAL E BUSCA GLOBAL */
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
-      const q = (document.getElementById("search").value || "").toLowerCase();
+      const q = (document.getElementById("search").value || "").toLowerCase().trim();
       
       const partners = db.partners
         .filter(p => p.status === "approved" && !p.blocked)
-        .filter(p => (p.name + " " + p.category + " " + p.address).toLowerCase().includes(q));
+        .filter(p => {
+          if (!q) return true;
+          const matchStore = (p.name + " " + p.category + " " + p.address).toLowerCase().includes(q);
+          const matchProduct = p.categories && p.categories.some(c => 
+            c.products && c.products.some(prod => (prod.name + " " + (prod.desc || "")).toLowerCase().includes(q))
+          );
+          return matchStore || matchProduct;
+        });
 
       document.getElementById("storeCount").textContent = `${partners.length} lojas`;
       document.getElementById("stores").innerHTML = partners.map(p => `
@@ -1675,9 +1672,9 @@
             <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
         </article>
-      `).join("") || '<div class="panel">Nenhum parceiro disponível no momento.</div>';
+      `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
-      /* FILTRO DIRETO DAS PROMOÇÕES DO DIA */
+      /* FILTRO DA PROMOÇÃO DO DIA */
       let promo = [];
       db.partners.filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         p.categories.forEach(c => {
@@ -2199,7 +2196,7 @@
           <h3>Identidade & Logomarca da Plataforma</h3>
           
           <div class="spec-card">
-            <b>🖼️ Logo da Plataforma:</b> Imagem quadrada (400 x 400 px).
+            <b>📐 Logo Principal da Central:</b> Proporção Quadrada 1:1 (400 x 400 px), formato PNG ou JPG.
           </div>
 
           <div class="form">
@@ -2216,7 +2213,7 @@
               <input id="editAppLogo" value="${c.appLogo || ''}" placeholder="https://exemplo.com/logo-r1.png" oninput="previewDirect('editAppLogo', 'appLogoPreview')">
             </div>
             <div class="field">
-              <label>Ou faça Upload da Logomarca (400 x 400 px)</label>
+              <label>Ou faça Upload da Logomarca (1:1 - 400x400 px)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'appLogoPreview', 'editAppLogo', 400)">
               <div id="appLogoPreview" class="file-preview" style="height:120px;">${c.appLogo ? `<img src="${c.appLogo}">` : 'Sem logomarca customizada'}</div>
             </div>
@@ -2332,7 +2329,6 @@
       toast("Link da loja copiado!");
     }
 
-    /* GERENCIADOR ORGANIZADO DE PRODUTOS E PROMOÇÃO DO DIA */
     function renderProductManager(container, isCentral) {
       tempImageLink = "";
       const p = getTargetPartner();
@@ -2372,7 +2368,7 @@
               <input type="checkbox" id="newIsPromo">
               <label for="newIsPromo" style="cursor:pointer;margin:0;">
                 <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b><br>
-                <small style="color:#666;">Marque esta opção se este item for uma oferta em destaque.</small>
+                <small style="color:#666;">Marque esta opção para o produto aparecer nas ofertas do topo.</small>
               </label>
             </div>
 
@@ -2382,12 +2378,12 @@
             </div>
 
             <div class="field">
-              <label>5. Foto do Produto (Link direto URL)</label>
+              <label>5. Foto do Produto (Proporção Quadrada 1:1 - 600x600 px)</label>
               <input id="newImgUrl" placeholder="https://exemplo.com/foto.jpg" oninput="previewDirect('newImgUrl', 'productImgPreview')">
             </div>
 
             <div class="field">
-              <label>Ou faça Upload da Foto (Compactação Automática)</label>
+              <label>Ou faça Upload da Foto (1:1 - Otimização Automática)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 600)">
               <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
             </div>
@@ -2556,7 +2552,6 @@
       }
     }
 
-    /* ABA SEPARADA E ORGANIZADA: STORIES 9:16 E CAPA */
     function renderStatusMediaManager(container, isCentral) {
       tempStatusMedia = "";
       const p = getTargetPartner();
@@ -2573,10 +2568,10 @@
         ` : ''}
 
         <div class="panel">
-          <h3>📱 1. Status / Stories (Vertical 9:16) de ${p.name}</h3>
+          <h3>📱 1. Status / Stories (Proporção Vertical 9:16 - 1080x1920 px) de ${p.name}</h3>
 
           <div class="spec-card">
-            <b>Especificação Stories:</b> Formato vertical 9:16 (1080 x 1920 px), vídeos MP4 ou fotos. Aparece no topo do marketplace.
+            <b>Exibição:</b> Carrossel de Stories no topo da tela inicial. Formato Vertical 9:16 (1080 x 1920 px).
           </div>
 
           <div class="form">
@@ -2588,11 +2583,11 @@
               </select>
             </div>
             <div class="field">
-              <label>Link Direto URL da Mídia</label>
+              <label>Link Direto URL da Mídia (Recomendado para vídeos pesados)</label>
               <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou imagem.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
             </div>
             <div class="field">
-              <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto)</label>
+              <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto 9:16)</label>
               <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 1080)">
               <div id="statusPreviewBox" class="file-preview">Prévia do Status 9:16</div>
             </div>
@@ -2621,9 +2616,9 @@
         </div>
 
         <div class="panel">
-          <h3>🖼️ 2. Banner de Capa do Catálogo (Horizontal 21:9)</h3>
+          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal 21:9 - 1080x450 px)</h3>
           <div class="spec-card">
-            <b>Banner de Topo:</b> Imagem horizontal (1080 x 450 px) que fica no topo do cardápio da sua loja.
+            <b>Exibição:</b> Fundo de topo na tela do cardápio da loja. Formato Horizontal 21:9 (1080 x 450 px).
           </div>
           <div class="form">
             <div class="field">
@@ -2631,7 +2626,7 @@
               <input id="editBannerUrl" value="${p.banner || ''}" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('editBannerUrl', 'bannerPreview')">
             </div>
             <div class="field">
-              <label>Ou Upload da Imagem da Capa</label>
+              <label>Ou Upload da Imagem da Capa (21:9)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 900)">
               <div id="bannerPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem banner de capa'}</div>
             </div>
@@ -2788,7 +2783,7 @@
           <h3>Dados, Credenciais e Logomarca de ${p.name}</h3>
 
           <div class="spec-card">
-            <b>Logo da Loja:</b> Imagem quadrada (400 x 400 px) que representa o estabelecimento.
+            <b>📐 Logo da Loja:</b> Proporção Quadrada 1:1 (400 x 400 px).
           </div>
 
           <div class="form">
@@ -2821,7 +2816,7 @@
               <input value="${p.logo || ''}" id="editStoreLogo" placeholder="https://exemplo.com/minha-logo.jpg" oninput="previewDirect('editStoreLogo', 'storeLogoPreview')">
             </div>
             <div class="field">
-              <label>Ou faça Upload da Foto/Logo (400 x 400 px)</label>
+              <label>Ou faça Upload da Foto/Logo (1:1 - 400x400 px)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'storeLogoPreview', 'editStoreLogo', 400)">
               <div id="storeLogoPreview" class="file-preview" style="height:120px;">${renderMedia(p.logo, "")}</div>
             </div>
