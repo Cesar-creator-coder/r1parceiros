@@ -1192,316 +1192,1350 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    function togglePromoProduct(catName, prodIdx) {
-      const p = getTargetPartner();
-      const c = p.categories.find(x => x.name === catName);
-      if (c && c.products[prodIdx]) {
-        c.products[prodIdx].isPromo = !c.products[prodIdx].isPromo;
-        save();
-        renderHome();
-        if (adminMode === "central") centralTab("Produtos da Loja");
-        else storeTab("Produtos & Promoções");
-        toast(c.products[prodIdx].isPromo ? "Produto destacado na Promoção do Dia!" : "Produto removido das promoções.");
+    /* BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
+    const DB_NAME = "r1_marketplace_db_stable";
+    const STORE_NAME = "platform_data";
+
+    function openIDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function setIDB(key, val) {
+      try {
+        const db = await openIDB();
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).put(val, key);
+      } catch (e) {
+        console.warn("Falha no IndexedDB:", e);
       }
     }
 
-    function togglePauseProduct(catName, prodIdx) {
-      const p = getTargetPartner();
-      const c = p.categories.find(x => x.name === catName);
-      if (c && c.products[prodIdx]) {
-        c.products[prodIdx].paused = !c.products[prodIdx].paused;
-        save();
-        renderHome();
-        if (adminMode === "central") centralTab("Produtos da Loja");
-        else storeTab("Produtos & Promoções");
-        toast("Status do produto alterado!");
+    async function getIDB(key) {
+      try {
+        const db = await openIDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const req = tx.objectStore(STORE_NAME).get(key);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
       }
     }
 
-    function removeProduct(catName, prodIdx) {
-      const p = getTargetPartner();
-      const c = p.categories.find(x => x.name === catName);
-      if (c && confirm("Deseja excluir este produto?")) {
-        c.products.splice(prodIdx, 1);
-        save();
-        renderHome();
-        if (adminMode === "central") centralTab("Produtos da Loja");
-        else storeTab("Produtos & Promoções");
-        toast("Produto removido.");
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY_AQUI",
+      authDomain: "seu-app.firebaseapp.com",
+      projectId: "seu-projeto-id",
+      storageBucket: "seu-app.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:000000000000"
+    };
+
+    let isFirebaseReady = false;
+    let fsDb = null;
+
+    try {
+      if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
+        firebase.initializeApp(firebaseConfig);
+        fsDb = firebase.firestore();
+        isFirebaseReady = true;
+      }
+    } catch (e) {
+      console.warn("Executando localmente enquanto o Firebase não estiver configurado.");
+    }
+
+    const DB_KEY = "r1_marketplace_red_black_v18_whatsapp_fixed";
+    const seed = {
+      config: {
+        appName: "R1 Parceiros",
+        appSubtitle: "Marketplace Oficial",
+        appLogo: "",
+        adminUser: "admin",
+        adminPass: "1234"
+      },
+      partners: [
+        {
+          id: 1,
+          name: "Pudim da Claudinha",
+          owner: "Claudinha",
+          username: "claudinha",
+          pass: "1234",
+          whatsapp: "5518991111111",
+          pixType: "Celular",
+          pixKey: "18991111111",
+          address: "Rua João de Castro, 243 - IV Centenário",
+          category: "Alimentação",
+          status: "approved",
+          open: true,
+          blocked: false,
+          delivery: "R$ 7,00",
+          time: "25 - 40 min",
+          minOrder: 15.00,
+          logo: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=200",
+          banner: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800",
+          statuses: [
+            { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4" },
+            { type: "image", url: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800" }
+          ],
+          categories: [
+            {
+              name: "PUDIM CAKE - SOB ENCOMENDA",
+              products: [
+                { id: "p1", name: "Pudim Tradicional Especial", desc: "Pudim cremoso com calda de caramelo artesanal feito sob encomenda.", price: 15, isPromo: true, image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=300", paused: false },
+                { id: "p2", name: "Pudim de Chocolate Nobre", desc: "Chocolate cremoso 50% cacau sob encomenda.", price: 18, isPromo: false, image: "", paused: false }
+              ]
+            },
+            {
+              name: "DOCES GOURMET",
+              products: [
+                { id: "p3", name: "Brigadeiro Artesanal", desc: "Unidade feita com chocolate belga.", price: 3.5, isPromo: false, image: "", paused: false }
+              ]
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: "Açaí na Garrafa NH",
+          owner: "Açaí NH",
+          username: "acainh",
+          pass: "1234",
+          whatsapp: "5518992222222",
+          pixType: "CNPJ",
+          pixKey: "12.345.678/0001-90",
+          address: "Rua Prefeito Welson David Aschkar, 464",
+          category: "Alimentação",
+          status: "approved",
+          open: true,
+          blocked: false,
+          delivery: "R$ 7,50",
+          time: "45 - 60 min",
+          minOrder: 20.00,
+          logo: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=200",
+          banner: "",
+          statuses: [
+            { type: "image", url: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=800" }
+          ],
+          categories: [
+            {
+              name: "AÇAÍ",
+              products: [
+                { id: "p4", name: "Copo de Açaí 770ml", desc: "Monte seu pedido com adicionais.", price: 30, isPromo: true, image: "", paused: false },
+                { id: "p5", name: "Copo de Açaí 500ml", desc: "Açaí cremoso.", price: 22, isPromo: false, image: "", paused: false }
+              ]
+            }
+          ]
+        },
+        {
+          id: 3,
+          name: "Farmácia Central R1",
+          owner: "Farmácia",
+          username: "farmacia",
+          pass: "1234",
+          whatsapp: "5518993333333",
+          pixType: "Chave Aleatória",
+          pixKey: "e3b0c442-98fc-1c14-9afb-f4c799e69f8d",
+          address: "Av. Central, 100 - Centro",
+          category: "Farmácia",
+          status: "approved",
+          open: true,
+          blocked: false,
+          delivery: "R$ 6,00",
+          time: "20 - 35 min",
+          minOrder: 10.00,
+          logo: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200",
+          banner: "",
+          statuses: [],
+          categories: [
+            {
+              name: "ANTISSÉPTICOS",
+              products: [
+                { id: "p6", name: "Babymed 45g", desc: "Pomada dermatológica.", price: 12.9, isPromo: true, image: "", paused: false },
+                { id: "p7", name: "Bepantriz Assaduras 30g", desc: "Pomada dermatológica.", price: 15.9, isPromo: false, image: "", paused: false }
+              ]
+            }
+          ]
+        }
+      ],
+      pending: [],
+      orders: []
+    };
+
+    let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || seed;
+    if (!db.config) db.config = seed.config;
+    if (!db.orders) db.orders = [];
+
+    let currentPartner = null;
+    let cart = [];
+    let delivery = "R1";
+    let adminMode = null;
+    let loggedPartnerId = null;
+    let centralSelectedPartnerId = null;
+    let tempImageLink = "";
+    let tempStatusMedia = "";
+    let reportFilterPeriod = "todos";
+
+    let adminSessionActive = false;
+    let adminTabHistory = [];
+    let logoSecretClicks = 0;
+    let logoSecretTimer = null;
+
+    let activeStoryPartner = null;
+    let activeStoryIndex = 0;
+    let storyTimer = null;
+    let deferredPrompt = null;
+
+    /* GRAVAÇÃO IMUTÁVEL NO BANCO LOCAL E NUVEM */
+    async function save() {
+      await setIDB("main_data", db);
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (err) {}
+
+      if (isFirebaseReady && fsDb) {
+        fsDb.collection("marketplace").doc("main_data").set(db).catch(err => {
+          console.warn("Nuvem não gravou (mantido 100% no celular):", err);
+        });
       }
     }
 
-    function renderCategoriesManager(container) {
-      const p = getTargetPartner();
+    async function initDatabase() {
+      const idbData = await getIDB("main_data");
+      if (idbData && idbData.partners && idbData.partners.length > 0) {
+        db = idbData;
+      }
+      renderHome();
+
+      if (isFirebaseReady && fsDb) {
+        fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
+          if (doc.exists && doc.data() && doc.data().partners) {
+            db = doc.data();
+            save();
+            renderHome();
+          }
+        });
+      }
+    }
+
+    function money(v) {
+      return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function toast(t) {
+      const x = document.getElementById("toast");
+      x.textContent = t;
+      x.style.display = "block";
+      clearTimeout(window.tt);
+      window.tt = setTimeout(() => x.style.display = "none", 2500);
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add("show"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      input.type = (input.type === "password") ? "text" : "password";
+    }
+
+    function handleSecretLogoClick() {
+      logoSecretClicks++;
+      clearTimeout(logoSecretTimer);
+      logoSecretTimer = setTimeout(() => { logoSecretClicks = 0; }, 1500);
+
+      if (logoSecretClicks >= 5) {
+        logoSecretClicks = 0;
+        document.getElementById("loginType").value = "central";
+        updateLoginHint();
+        if (adminSessionActive && adminMode === "central") {
+          openAdminPanel();
+        } else {
+          openModal("loginModal");
+        }
+      }
+    }
+
+    function openStoreLoginDirect(storeId) {
+      document.getElementById("loginType").value = "store";
+      const partner = db.partners.find(p => p.id === storeId);
+      if (partner) {
+        document.getElementById("loginUser").value = partner.username || partner.id;
+      }
+      updateLoginHint();
+      openModal("loginModal");
+    }
+
+    function updateAppHeaderVisuals() {
+      const c = db.config;
+      document.getElementById("headerAppTitle").textContent = c.appName || "R1 Parceiros";
+      document.getElementById("headerAppSubtitle").textContent = c.appSubtitle || "Marketplace Oficial";
+      const logoEl = document.getElementById("headerAppLogo");
+      if (c.appLogo && (c.appLogo.startsWith("http") || c.appLogo.startsWith("data:image"))) {
+        logoEl.innerHTML = `<img src="${c.appLogo}" alt="Logo">`;
+      } else {
+        logoEl.innerHTML = "R1";
+      }
+    }
+
+    function renderMedia(src, fallbackText) {
+      if (src && (src.startsWith("http") || src.startsWith("data:image") || src.startsWith("blob:"))) {
+        return `<img src="${src}" alt="media">`;
+      }
+      return `<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:#888;"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>`;
+    }
+
+    function previewDirect(inputId, previewId) {
+      const val = document.getElementById(inputId).value.trim();
+      const el = document.getElementById(previewId);
+      if (val) {
+        el.innerHTML = val.endsWith(".mp4") 
+          ? `<video src="${val}" controls style="width:100%;height:100%;object-fit:contain;"></video>`
+          : `<img src="${val}" alt="preview">`;
+      } else {
+        el.innerHTML = "Prévia";
+      }
+    }
+
+    function previewUpload(input, previewElementId, targetInputId, maxDim = 600) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const previewEl = document.getElementById(previewElementId);
+      previewEl.innerHTML = "<small style='color:#666;'>Processando arquivo...</small>";
+
+      if (file.type.startsWith("video")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          if (targetInputId) document.getElementById(targetInputId).value = base64;
+          else tempStatusMedia = base64;
+          previewEl.innerHTML = `<video src="${base64}" controls style="width:100%;height:100%;object-fit:contain;"></video>`;
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.75);
+
+          if (targetInputId) {
+            const inputTarget = document.getElementById(targetInputId);
+            if (inputTarget) inputTarget.value = optimizedBase64;
+          } else {
+            tempImageLink = optimizedBase64;
+            tempStatusMedia = optimizedBase64;
+          }
+
+          previewEl.innerHTML = `<img src="${optimizedBase64}" alt="preview">`;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function sharePlatform() {
+      const shareData = {
+        title: `${db.config.appName || 'R1 Parceiros'} - Marketplace & Entregas`,
+        text: "Peça nos melhores comércios locais com rapidez e entrega garantida!",
+        url: window.location.href
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        toast("Link da plataforma copiado!");
+      }
+    }
+
+    function shareStore() {
+      if (!currentPartner) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?loja=${currentPartner.id}`;
+      const shareData = {
+        title: `${currentPartner.name} - ${db.config.appName || 'R1 Parceiros'}`,
+        text: `Confira o cardápio e faça seu pedido em ${currentPartner.name}!`,
+        url: shareUrl
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareUrl);
+        toast(`Link de ${currentPartner.name} copiado!`);
+      }
+    }
+
+    function renderStatusList() {
+      const partnersWithStatus = db.partners.filter(p => p.status === "approved" && !p.blocked);
+      document.getElementById("statusList").innerHTML = partnersWithStatus.map(p => {
+        const hasStories = p.statuses && p.statuses.length > 0;
+        return `
+          <div class="status-item" onclick="openStatusStories(${p.id})">
+            <div class="status-ring ${hasStories ? 'has-status' : ''}">
+              <div class="status-avatar">${renderMedia(p.logo, "")}</div>
+            </div>
+            <span class="status-name">${p.name}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openStatusStories(partnerId) {
+      const p = db.partners.find(x => x.id === partnerId);
+      if (!p || p.blocked) return;
+
+      activeStoryPartner = p;
+      activeStoryIndex = 0;
+
+      if (!p.statuses || p.statuses.length === 0) {
+        p.statuses = [{ type: "image", url: p.logo || p.banner || "" }];
+      }
+
+      document.getElementById("storyHeaderTitle").textContent = p.name;
+      document.getElementById("storyHeaderAvatar").innerHTML = renderMedia(p.logo, "");
+      
+      const modal = document.getElementById("statusStoryModal");
+      modal.classList.add("show");
+
+      renderStorySegments();
+      showCurrentStory();
+    }
+
+    function renderStorySegments() {
+      const container = document.getElementById("storyProgressContainer");
+      container.innerHTML = activeStoryPartner.statuses.map((_, i) => `
+        <div class="story-progress-seg">
+          <div class="story-progress-fill" id="storyFill_${i}"></div>
+        </div>
+      `).join("");
+    }
+
+    function showCurrentStory() {
+      clearTimeout(storyTimer);
+      const statuses = activeStoryPartner.statuses;
+      if (!statuses || !statuses[activeStoryIndex]) {
+        closeStatusStories();
+        return;
+      }
+
+      statuses.forEach((_, i) => {
+        const fill = document.getElementById(`storyFill_${i}`);
+        if (fill) {
+          fill.style.width = (i <= activeStoryIndex) ? "100%" : "0%";
+        }
+      });
+
+      const current = statuses[activeStoryIndex];
+      const container = document.getElementById("storyMediaContainer");
+      const isVideo = current.type === "video" || (current.url && (current.url.endsWith(".mp4") || current.url.startsWith("data:video")));
+
+      if (isVideo) {
+        container.innerHTML = `<video id="storyVideoEl" src="${current.url}" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+        const videoEl = document.getElementById("storyVideoEl");
+        videoEl.onended = () => nextStory();
+        videoEl.onerror = () => { storyTimer = setTimeout(() => nextStory(), 4000); };
+      } else {
+        container.innerHTML = `<img src="${current.url}" alt="Status Story 9:16" style="width:100%;height:100%;object-fit:cover;">`;
+        storyTimer = setTimeout(() => nextStory(), 5000);
+      }
+    }
+
+    function nextStory() {
+      if (!activeStoryPartner || !activeStoryPartner.statuses) return;
+      if (activeStoryIndex < activeStoryPartner.statuses.length - 1) {
+        activeStoryIndex++;
+        showCurrentStory();
+      } else {
+        closeStatusStories();
+      }
+    }
+
+    function prevStory() {
+      if (activeStoryIndex > 0) {
+        activeStoryIndex--;
+        showCurrentStory();
+      }
+    }
+
+    function closeStatusStories() {
+      clearTimeout(storyTimer);
+      const v = document.getElementById("storyVideoEl");
+      if (v) v.pause();
+      document.getElementById("statusStoryModal").classList.remove("show");
+    }
+
+    /* RENDERIZAÇÃO DA TELA INICIAL E BUSCA GLOBAL */
+    function renderHome() {
+      updateAppHeaderVisuals();
+      renderStatusList();
+      const q = (document.getElementById("search").value || "").toLowerCase().trim();
+      
+      const partners = db.partners
+        .filter(p => p.status === "approved" && !p.blocked)
+        .filter(p => {
+          if (!q) return true;
+          const matchStore = (p.name + " " + p.category + " " + p.address).toLowerCase().includes(q);
+          const matchProduct = p.categories && p.categories.some(c => 
+            c.products && c.products.some(prod => (prod.name + " " + (prod.desc || "")).toLowerCase().includes(q))
+          );
+          return matchStore || matchProduct;
+        });
+
+      document.getElementById("storeCount").textContent = `${partners.length} lojas`;
+      document.getElementById("stores").innerHTML = partners.map(p => `
+        <article class="store-card" onclick="openCatalog(${p.id})">
+          <div class="store-img">${renderMedia(p.logo, "")}</div>
+          <div>
+            <h3>${p.name}</h3>
+            <div class="address">📍 ${p.address}</div>
+            <span class="status ${p.open ? '' : 'closed'}">${p.open ? '● Aberto' : '● Fechado'}</span>
+            <div class="store-meta">
+              <span>◷ ${p.time}</span>
+              <span>Min: ${money(p.minOrder || 0)}</span>
+              <b>🏍️ ${p.delivery}</b>
+            </div>
+          </div>
+          <div class="store-arrow">
+            <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
+        </article>
+      `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
+
+      /* FILTRO DA PROMOÇÃO DO DIA */
+      let promo = [];
+      db.partners.filter(p => p.status === "approved" && !p.blocked).forEach(p => {
+        p.categories.forEach(c => {
+          c.products.forEach(x => {
+            if (x.isPromo && !x.paused) {
+              promo.push({ ...x, store: p.name, partner: p.id });
+            }
+          });
+        });
+      });
+
+      promo = promo.slice(0, 10);
+      document.getElementById("promos").innerHTML = promo.map(x => `
+        <div class="promo" onclick="openCatalog(${x.partner})">
+          <div class="promo-img">${renderMedia(x.image, "")}</div>
+          <span class="tag">🔥 PROMOÇÃO</span>
+          <h3>${x.name}</h3>
+          <div class="price">${money(x.price)}</div>
+          <small style="color:var(--muted)">${x.store}</small>
+        </div>
+      `).join("") || '<p style="color:var(--muted);padding:10px;">Nenhum produto marcado como Promoção do Dia no momento.</p>';
+    }
+
+    function searchAll() { renderHome(); }
+
+    function openCatalog(id) {
+      currentPartner = db.partners.find(p => p.id === id);
+      if (!currentPartner || currentPartner.blocked) {
+        return toast("Estabelecimento indisponível no momento.");
+      }
+      cart = [];
+      updateCart();
+
+      document.getElementById("catalogName").textContent = currentPartner.name;
+      document.getElementById("catalogAddress").textContent = "📍 " + currentPartner.address;
+
+      document.getElementById("pixTypeLabel").textContent = currentPartner.pixType || "Chave Pix";
+      document.getElementById("pixKeyDisplay").value = currentPartner.pixKey || "Consulte com a loja";
+
+      document.getElementById("catalogContent").innerHTML = `
+        <div class="catalog-cover">
+          <div class="cover-media">${renderMedia(currentPartner.banner || currentPartner.logo, "")}</div>
+          <h2>${currentPartner.name}</h2>
+          <p>${currentPartner.category} · ${currentPartner.address}</p>
+          <div class="catalog-badges">
+            <span class="catalog-badge" style="background:${currentPartner.open ? 'var(--green)' : 'var(--primary)'}">
+              ${currentPartner.open ? '● Aberta Agora' : '● Fechada'}
+            </span>
+            <span class="catalog-badge">◷ ${currentPartner.time}</span>
+            <span class="catalog-badge">Pedido mínimo ${money(currentPartner.minOrder || 0)}</span>
+            <span class="catalog-badge">Entrega: ${currentPartner.delivery}</span>
+          </div>
+        </div>
+        <div class="catalog-cats">
+          ${currentPartner.categories.map(c => `
+            <section class="cat">
+              <button class="cat-head" onclick="this.parentElement.classList.toggle('open')">
+                <span>${c.name} (${c.products.filter(x => !x.paused).length})</span>
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+              </button>
+              <div class="products">
+                ${c.products.map(x => `
+                  <article class="product ${x.paused ? 'paused' : ''}">
+                    <div>
+                      ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO DO DIA</span><br>` : ''}
+                      <h3>${x.name} ${x.paused ? '<small style="color:red">(Pausado)</small>' : ''}</h3>
+                      <p>${x.desc || ""}</p>
+                      <div class="price">${money(Number(x.price))}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;">
+                      <div class="prod-media">${renderMedia(x.image, "")}</div>
+                      ${!x.paused ? `<button class="add" onclick='addCart(${JSON.stringify(x.name)}, ${Number(x.price)}, ${JSON.stringify(x.image || '')})'>+</button>` : ''}
+                    </div>
+                  </article>
+                `).join("") || '<p style="padding:15px;color:var(--muted)">Nenhum produto nesta categoria.</p>'}
+              </div>
+            </section>
+          `).join("") || '<div class="panel">Nenhuma categoria cadastrada ainda.</div>'}
+        </div>
+
+        <div style="text-align:center;padding:25px 0 10px;">
+          <button style="background:transparent;border:0;color:#999;font-size:12px;text-decoration:underline;" onclick="openStoreLoginDirect(${currentPartner.id})">
+            Área do Lojista (${currentPartner.name})
+          </button>
+        </div>
+      `;
+
+      openModal("catalogModal");
+    }
+
+    function addCart(name, price, image) {
+      let x = cart.find(i => i.name === name);
+      if (x) x.qty++;
+      else cart.push({ name, price, image, qty: 1 });
+      updateCart();
+      toast("Adicionado ao pedido");
+    }
+
+    function updateCart() {
+      const n = cart.reduce((a, x) => a + x.qty, 0);
+      const t = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      
+      document.getElementById("fab").classList.toggle("hidden", !n);
+      document.getElementById("fabCount").textContent = `${n} item${n === 1 ? '' : 's'}`;
+      document.getElementById("fabTotal").textContent = money(t);
+
+      const catBar = document.getElementById("catalogFloatingBar");
+      if (catBar) {
+        catBar.classList.toggle("hidden", !n);
+        document.getElementById("catalogBarItems").textContent = `${n} item${n === 1 ? '' : 's'}`;
+        document.getElementById("catalogBarTotal").textContent = money(t);
+      }
+    }
+
+    function goToCheckoutFromCatalog() {
+      const minVal = currentPartner?.minOrder || 0;
+      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      if (total < minVal) {
+        toast(`⚠️ Pedido mínimo de ${money(minVal)}. Adicione mais itens!`);
+        return;
+      }
+      closeModal("catalogModal");
+      openCart();
+    }
+
+    function openCart() {
+      const savedClient = JSON.parse(localStorage.getItem("r1_customer_profile") || "null");
+      if (savedClient) {
+        if (!document.getElementById("cName").value) document.getElementById("cName").value = savedClient.name || "";
+        if (!document.getElementById("cPhone").value) document.getElementById("cPhone").value = savedClient.phone || "";
+        if (!document.getElementById("cAddress").value) document.getElementById("cAddress").value = savedClient.address || "";
+      }
+      renderCart();
+      openModal("cartModal");
+    }
+
+    function renderCart() {
+      const t = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const minVal = currentPartner?.minOrder || 0;
+      
+      document.getElementById("cartTotal").textContent = money(t);
+
+      const warnEl = document.getElementById("minOrderWarning");
+      if (t < minVal) {
+        warnEl.textContent = `⚠️ Atenção: O pedido mínimo desta loja é de ${money(minVal)}.`;
+        warnEl.style.display = "block";
+      } else {
+        warnEl.style.display = "none";
+      }
+
+      document.getElementById("cartItems").innerHTML = cart.length ? `
+        <div class="cart-items">
+          ${cart.map((x, i) => `
+            <div class="cart-item">
+              <div>
+                <b>${x.name}</b><br>
+                <small style="color:var(--muted)">${money(x.price)} cada</small>
+              </div>
+              <div class="qty">
+                <button onclick="qty(${i}, -1)">−</button>
+                <b>${x.qty}</b>
+                <button onclick="qty(${i}, 1)">+</button>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      ` : '<div class="panel">Seu pedido está vazio.</div>';
+      handlePaymentChange();
+    }
+
+    function qty(i, n) {
+      cart[i].qty += n;
+      if (cart[i].qty <= 0) cart.splice(i, 1);
+      updateCart();
+      renderCart();
+    }
+
+    function chooseDelivery(x) {
+      delivery = x;
+      document.getElementById("r1Delivery").classList.toggle("active", x === "R1");
+      document.getElementById("otherDelivery").classList.toggle("active", x === "OUTRO");
+    }
+
+    function handlePaymentChange() {
+      const pay = document.getElementById("cPayment").value;
+      const pixBox = document.getElementById("pixContainer");
+      const cashBox = document.getElementById("cashContainer");
+
+      pixBox.classList.toggle("hidden", pay !== "Pix");
+      cashBox.classList.toggle("hidden", pay !== "Dinheiro");
+      calculateChange();
+    }
+
+    function copyPixKey() {
+      const k = document.getElementById("pixKeyDisplay").value;
+      navigator.clipboard.writeText(k);
+      toast("Chave Pix copiada com sucesso!");
+    }
+
+    function handleNeedChange() {
+      const need = document.getElementById("needChange").value;
+      document.getElementById("changeInputGroup").classList.toggle("hidden", need !== "sim");
+      calculateChange();
+    }
+
+    function calculateChange() {
+      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const need = document.getElementById("needChange").value;
+      const cashVal = Number(document.getElementById("cashAmount").value);
+      const resEl = document.getElementById("changeResult");
+
+      if (need === "sim" && cashVal > 0) {
+        if (cashVal < total) {
+          resEl.textContent = `⚠️ O valor informado (${money(cashVal)}) é menor que o total (${money(total)}).`;
+          resEl.style.color = "var(--primary)";
+        } else {
+          const change = cashVal - total;
+          resEl.textContent = `Troco a devolver: ${money(change)}`;
+          resEl.style.color = "var(--green)";
+        }
+      } else {
+        resEl.textContent = "";
+      }
+    }
+
+    function openMap() {
+      const a = document.getElementById("cAddress").value.trim();
+      if (!a) return toast("Digite o endereço primeiro.");
+      const cleanAddress = encodeURIComponent(a);
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${cleanAddress}`, "_blank");
+    }
+
+    /* ENVIO DO PEDIDO PARA WHATSAPP CORRIGIDO E ESTRUTURADO */
+    function sendOrder() {
+      if (!currentPartner || !cart.length) return toast("Adicione produtos ao pedido.");
+      const minVal = currentPartner?.minOrder || 0;
+      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+
+      if (total < minVal) {
+        return toast(`⚠️ O valor total do pedido (${money(total)}) não atinge o mínimo de ${money(minVal)}.`);
+      }
+
+      const name = document.getElementById("cName").value.trim();
+      const phone = document.getElementById("cPhone").value.trim();
+      const address = document.getElementById("cAddress").value.trim();
+      const note = document.getElementById("cNote").value.trim();
+      const pay = document.getElementById("cPayment").value;
+
+      if (!name || !phone || !address) return toast("Preencha nome, WhatsApp e endereço.");
+
+      localStorage.setItem("r1_customer_profile", JSON.stringify({ name, phone, address }));
+
+      const id = "R1-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+
+      let lines = [];
+      lines.push(`🛵 *NOVO PEDIDO: ${id}*`);
+      lines.push(`🏪 *Estabelecimento:* ${currentPartner.name}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`📋 *ITENS DO PEDIDO:*`);
+      cart.forEach(item => {
+        lines.push(`▪️ ${item.qty}x ${item.name} — ${money(item.qty * item.price)}`);
+      });
+      lines.push(`-----------------------------------`);
+      lines.push(`💰 *TOTAL DOS PRODUTOS:* ${money(total)}`);
+      lines.push(`💳 *Forma de Pagamento:* ${pay}`);
+
+      if (pay === "Dinheiro") {
+        const need = document.getElementById("needChange").value;
+        const cashVal = Number(document.getElementById("cashAmount").value);
+        if (need === "sim" && cashVal > total) {
+          lines.push(`💵 *Troco para:* ${money(cashVal)} (Voltar: ${money(cashVal - total)})`);
+        } else {
+          lines.push(`💵 *Troco:* Não precisa (valor exato)`);
+        }
+      } else if (pay === "Pix") {
+        lines.push(`⚡ *Pagamento Pix:* Comprovante anexado`);
+      }
+
+      lines.push(`🚀 *Tipo de Entrega:* ${delivery === "R1" ? "Solicitar Motoboy R1" : "Entrega Própria da Loja"}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`👤 *DADOS DO CLIENTE:*`);
+      lines.push(`*Nome:* ${name}`);
+      lines.push(`*Contato:* ${phone}`);
+      lines.push(`*Endereço:* ${address}`);
+      lines.push(`📍 *Rota no Google Maps:* ${mapLink}`);
+      if (note) lines.push(`*Observação:* ${note}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`_Pedido gerado via App ${db.config.appName || 'R1 Parceiros'}._`);
+
+      const fullMessageText = lines.join("\n");
+
+      // Higienização do WhatsApp da Loja (Garante 55 + DDD + Número)
+      let storePhoneClean = (currentPartner.whatsapp || "").replace(/\D/g, "");
+      if (storePhoneClean.length === 10 || storePhoneClean.length === 11) {
+        storePhoneClean = "55" + storePhoneClean;
+      }
+
+      // Salva no Histórico do Banco de Dados
+      db.orders.unshift({
+        id,
+        storeId: currentPartner.id,
+        storeName: currentPartner.name,
+        customerName: name,
+        customerPhone: phone,
+        customerAddress: address,
+        note: note,
+        items: [...cart],
+        total: total,
+        payment: pay,
+        delivery: delivery,
+        date: new Date().toISOString()
+      });
+      save();
+
+      // Redireciona para o WhatsApp com a mensagem codificada perfeitamente
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${storePhoneClean}&text=${encodeURIComponent(fullMessageText)}`;
+      window.open(whatsappUrl, "_blank");
+      
+      cart = [];
+      updateCart();
+      closeModal("cartModal");
+      closeModal("catalogModal");
+
+      document.getElementById("cNote").value = "";
+      document.getElementById("cashAmount").value = "";
+      document.getElementById("changeResult").textContent = "";
+
+      toast("✅ Pedido enviado ao WhatsApp da loja com sucesso!");
+    }
+
+    function updateLoginHint() {
+      const type = document.getElementById("loginType").value;
+      const hint = document.getElementById("loginHint");
+      if (type === "central") {
+        hint.innerHTML = "Acesso Central R1: informe seu login e senha de administrador.";
+      } else {
+        hint.innerHTML = "Acesso Lojista: informe o usuário e senha da sua loja.";
+      }
+    }
+
+    function doLogin() {
+      const type = document.getElementById("loginType").value;
+      const u = document.getElementById("loginUser").value.trim();
+      const p = document.getElementById("loginPass").value.trim();
+
+      if (type === "central") {
+        const c = db.config;
+        if (u === (c.adminUser || "admin") && p === (c.adminPass || "1234")) {
+          adminMode = "central";
+          loggedPartnerId = null;
+          centralSelectedPartnerId = db.partners[0]?.id || 1;
+          adminSessionActive = true;
+          adminTabHistory = [];
+          closeModal("loginModal");
+          openAdminPanel();
+          return;
+        }
+      } else {
+        const partner = db.partners.find(x => 
+          (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
+          x.id.toString() === u
+        );
+        if (partner && (partner.pass || "1234") === p) {
+          adminMode = "store";
+          loggedPartnerId = partner.id;
+          adminSessionActive = true;
+          adminTabHistory = [];
+          closeModal("loginModal");
+          openAdminPanel();
+          return;
+        }
+      }
+      toast("Usuário ou senha inválidos.");
+    }
+
+    function logoutAdmin() {
+      adminSessionActive = false;
+      adminMode = null;
+      loggedPartnerId = null;
+      adminTabHistory = [];
+      closeModal("adminModal");
+      toast("Sessão administrativa encerrada.");
+    }
+
+    function openAdminPanel() {
+      document.getElementById("adminTitle").textContent = adminMode === "central" ? (db.config.appName || "Central R1") : "Painel do Lojista";
+      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, identidade visual, vídeos e relatórios" : "Produtos, promoções, status 9:16 e relatórios";
+      
+      const tabs = adminMode === "central" 
+        ? ["Visão geral", "Identidade & App", "Parceiros", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
+        : ["Dashboard", "Produtos & Promoções", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+        
+      document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
+        <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
+      `).join("");
+      
+      adminTab(tabs[0], document.querySelector(".tab"), true);
+      openModal("adminModal");
+    }
+
+    function adminTab(tab, btn, recordHistory = true) {
+      if (recordHistory) {
+        if (!adminTabHistory.length || adminTabHistory[adminTabHistory.length - 1] !== tab) {
+          adminTabHistory.push(tab);
+        }
+      }
+      document.querySelectorAll(".tab").forEach(x => {
+        x.classList.toggle("active", x.textContent.trim() === tab);
+      });
+      if (adminMode === "central") centralTab(tab);
+      else storeTab(tab);
+    }
+
+    function adminGoBackInternal() {
+      if (adminTabHistory.length > 1) {
+        adminTabHistory.pop();
+        const prevTab = adminTabHistory[adminTabHistory.length - 1];
+        adminTab(prevTab, null, false);
+      } else {
+        toast("Você já está na aba inicial do painel.");
+      }
+    }
+
+    function getTargetPartner() {
+      if (adminMode === "central") {
+        return db.partners.find(p => p.id === centralSelectedPartnerId) || db.partners[0];
+      }
+      return db.partners.find(p => p.id === loggedPartnerId) || db.partners[0];
+    }
+
+    function centralTab(tab) {
+      const body = document.getElementById("adminBody");
+      if (tab === "Visão geral") {
+        const approved = db.partners.filter(p => p.status === "approved" && !p.blocked).length;
+        const blocked = db.partners.filter(p => p.blocked).length;
+        const pending = db.pending.length;
+        const totalSales = db.orders.reduce((acc, o) => acc + (o.total || 0), 0);
+        body.innerHTML = `
+          <div class="admin-grid">
+            <div class="metric"><small>Lojas Ativas</small><strong>${approved}</strong></div>
+            <div class="metric"><small>Lojas Bloqueadas</small><strong class="danger">${blocked}</strong></div>
+            <div class="metric"><small>Total Pedidos</small><strong>${db.orders.length}</strong></div>
+            <div class="metric"><small>Faturamento Total</small><strong class="success">${money(totalSales)}</strong></div>
+          </div>
+          <div class="panel" style="margin-top:12px;">
+            <h3>Central Administrativa R1</h3>
+            <p class="hint">Controle de parceiros, promoções, vídeos 9:16 (Stories), produtos e relatórios de todos os estabelecimentos.</p>
+          </div>
+        `;
+      } else if (tab === "Identidade & App") {
+        renderAppIdentityManager(body);
+      } else if (tab === "Parceiros") {
+        body.innerHTML = `
+          <div class="panel">
+            <h3>Lojas e Parceiros Cadastrados (${db.partners.length})</h3>
+            <div class="list">
+              ${db.partners.map((p, idx) => `
+                <div class="row" style="flex-wrap:wrap;">
+                  <span>
+                    <b>${p.name} (ID: ${p.id})</b> - Usuário: <code>${p.username || p.id}</code>
+                    ${p.blocked ? '<span class="status closed" style="font-size:10px;padding:2px 6px;">BLOQUEADA</span>' : (p.open ? '<span class="status" style="font-size:10px;padding:2px 6px;">ABERTA</span>' : '<span class="status closed" style="font-size:10px;padding:2px 6px;">FECHADA</span>')}<br>
+                    <small style="color:var(--muted)">${p.category} · Min: ${money(p.minOrder || 0)} · Whats: ${p.whatsapp}</small>
+                  </span>
+                  <div style="display:flex;gap:5px;margin-top:4px;">
+                    <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreOpenStatus(${p.id})">
+                      ${p.open ? 'Pausar/Fechar' : 'Abrir Loja'}
+                    </button>
+                    <button class="btn ${p.blocked ? 'green' : 'warning'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreBlockStatus(${p.id})">
+                      ${p.blocked ? 'Desbloquear' : 'Bloquear'}
+                    </button>
+                    <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removePartner(${idx})">
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      } else if (tab === "Produtos da Loja") {
+        renderProductManager(body, true);
+      } else if (tab === "Status & Vídeos 9:16") {
+        renderStatusMediaManager(body, true);
+      } else if (tab === "Relatórios Financeiros") {
+        renderReportsManager(body, true);
+      } else if (tab === "Cadastros") {
+        body.innerHTML = `
+          <div class="panel">
+            <h3>Novos Interessados Pendentes</h3>
+            ${db.pending.length ? db.pending.map((p, i) => `
+              <div class="row">
+                <span>
+                  <b>${p.name}</b><br>
+                  <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp}</small>
+                </span>
+                <span>
+                  <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approve(${i})">Aprovar</button>
+                </span>
+              </div>
+            `).join("") : '<p class="hint">Nenhum cadastro pendente no momento.</p>'}
+          </div>
+        `;
+      }
+    }
+
+    function toggleStoreOpenStatus(id) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.open = !p.open;
+        save();
+        renderHome();
+        centralTab("Parceiros");
+        toast(`Status de ${p.name} alterado.`);
+      }
+    }
+
+    function toggleStoreBlockStatus(id) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.blocked = !p.blocked;
+        save();
+        renderHome();
+        centralTab("Parceiros");
+        toast(`Estabelecimento ${p.name} ${p.blocked ? 'BLOQUEADO' : 'DESBLOQUEADO'} na plataforma.`);
+      }
+    }
+
+    function renderAppIdentityManager(container) {
+      const c = db.config;
       container.innerHTML = `
         <div class="panel">
-          <h3>Categorias de ${p.name}</h3>
-          <div class="list">
-            ${p.categories.map((c, idx) => `
-              <div class="row">
-                <b>${c.name}</b>
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <small style="color:var(--muted)">${c.products.length} itens</small>
-                  <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeCategory(${idx})">✕</button>
-                </div>
-              </div>
-            `).join("")}
+          <h3>Identidade & Logomarca da Plataforma</h3>
+          
+          <div class="spec-card">
+            <b>📐 Logo Principal da Central:</b> Proporção Quadrada 1:1 (400 x 400 px), formato PNG ou JPG.
           </div>
-          <div class="form" style="margin-top:14px;">
+
+          <div class="form">
             <div class="field">
-              <label>Nova Categoria</label>
-              <input id="catName" placeholder="Ex: PUDIM CAKE, COMBOS, BEBIDAS">
+              <label>Título da Plataforma</label>
+              <input id="editAppName" value="${c.appName || 'R1 Parceiros'}" placeholder="Ex: R1 Parceiros">
             </div>
-            <button class="btn red" onclick="addCategoryToStore()">Criar categoria</button>
+            <div class="field">
+              <label>Subtítulo / Slogan</label>
+              <input id="editAppSubtitle" value="${c.appSubtitle || 'Marketplace Oficial'}" placeholder="Ex: Marketplace Oficial">
+            </div>
+            <div class="field">
+              <label>Logomarca Principal (Link direto URL)</label>
+              <input id="editAppLogo" value="${c.appLogo || ''}" placeholder="https://exemplo.com/logo-r1.png" oninput="previewDirect('editAppLogo', 'appLogoPreview')">
+            </div>
+            <div class="field">
+              <label>Ou faça Upload da Logomarca (1:1 - 400x400 px)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'appLogoPreview', 'editAppLogo', 400)">
+              <div id="appLogoPreview" class="file-preview" style="height:120px;">${c.appLogo ? `<img src="${c.appLogo}">` : 'Sem logomarca customizada'}</div>
+            </div>
+            
+            <h4 style="margin:12px 0 4px;">Credenciais de Acesso da Central</h4>
+            <div class="field">
+              <label>Usuário de Administrador</label>
+              <input id="editAdminUser" value="${c.adminUser || 'admin'}">
+            </div>
+            <div class="field">
+              <label>Senha de Administrador</label>
+              <div class="password-wrapper">
+                <input type="password" id="editAdminPass" value="${c.adminPass || '1234'}">
+                <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editAdminPass')">
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <button class="btn red" onclick="saveAppIdentity()">Salvar Alterações da Central</button>
           </div>
         </div>
       `;
     }
 
-    function addCategoryToStore() {
-      const p = getTargetPartner();
-      const n = document.getElementById("catName").value.trim().toUpperCase();
-      if (!n) return toast("Digite o nome da categoria.");
-      if (p.categories.some(c => c.name === n)) return toast("Categoria já existente.");
-
-      p.categories.push({ name: n, products: [] });
+    function saveAppIdentity() {
+      db.config.appName = document.getElementById("editAppName").value.trim() || "R1 Parceiros";
+      db.config.appSubtitle = document.getElementById("editAppSubtitle").value.trim() || "Marketplace Oficial";
+      db.config.appLogo = document.getElementById("editAppLogo").value.trim();
+      db.config.adminUser = document.getElementById("editAdminUser").value.trim() || "admin";
+      db.config.adminPass = document.getElementById("editAdminPass").value.trim() || "1234";
       save();
-      storeTab("Categorias");
-      toast("Categoria criada!");
+      renderHome();
+      updateAppHeaderVisuals();
+      toast("Configurações salvas com sucesso!");
     }
 
-    function removeCategory(idx) {
-      const p = getTargetPartner();
-      if (confirm(`Excluir a categoria "${p.categories[idx].name}" e seus itens?`)) {
-        p.categories.splice(idx, 1);
+    function removePartner(idx) {
+      if (confirm("Deseja realmente excluir este parceiro?")) {
+        db.partners.splice(idx, 1);
         save();
-        storeTab("Categorias");
-        toast("Categoria removida.");
+        renderHome();
+        centralTab("Parceiros");
+        toast("Parceiro removido.");
       }
     }
 
-    function renderStatusMediaManager(container, isCentral) {
-      tempStatusMedia = "";
+    function approve(i) {
+      const p = db.pending.splice(i, 1)[0];
+      p.id = Date.now();
+      p.status = "approved";
+      p.open = true;
+      p.blocked = false;
+      p.username = "loja" + p.id.toString().slice(-4);
+      p.pass = "1234";
+      p.logo = p.logo || "";
+      p.pixType = "Celular";
+      p.pixKey = p.whatsapp;
+      p.delivery = "R$ 7,00";
+      p.time = "30 - 50 min";
+      p.minOrder = 15.00;
+      p.statuses = [];
+      p.categories = [ { name: "GERAL", products: [] } ];
+      db.partners.push(p);
+      save();
+      renderHome();
+      centralTab("Cadastros");
+      toast(`Parceiro aprovado! Usuário: ${p.username} / Senha: ${p.pass}`);
+    }
+
+    function storeTab(tab) {
+      const body = document.getElementById("adminBody");
       const p = getTargetPartner();
-      if (!p.statuses) p.statuses = [];
+
+      if (tab === "Dashboard") {
+        const prodCount = p.categories.reduce((a, c) => a + c.products.length, 0);
+        const promoCount = p.categories.reduce((a, c) => a + c.products.filter(x => x.isPromo).length, 0);
+        const myOrders = db.orders.filter(o => o.storeId === p.id);
+        const myTotal = myOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+
+        body.innerHTML = `
+          <div class="admin-grid">
+            <div class="metric"><small>Loja Conectada</small><strong>${p.name}</strong></div>
+            <div class="metric"><small>Total de Produtos</small><strong>${prodCount}</strong></div>
+            <div class="metric"><small>Promoções Ativas</small><strong style="color:var(--promo-gold);">${promoCount}</strong></div>
+            <div class="metric"><small>Faturamento</small><strong class="success">${money(myTotal)}</strong></div>
+          </div>
+          <div class="panel" style="margin-top:12px;">
+            <h3>Seu Link de Compartilhamento Direto</h3>
+            <p class="hint">Envie este link para seus clientes abrirem direto o seu catálogo:</p>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <input value="${window.location.origin}${window.location.pathname}?loja=${p.id}" readonly id="myDirectStoreLink">
+              <button class="btn dark" style="width:auto;padding:8px 12px;" onclick="copyDirectLink()">Copiar</button>
+            </div>
+          </div>
+        `;
+      } else if (tab === "Produtos & Promoções") {
+        renderProductManager(body, false);
+      } else if (tab === "Categorias") {
+        renderCategoriesManager(body);
+      } else if (tab === "Status 9:16 & Capa") {
+        renderStatusMediaManager(body, false);
+      } else if (tab === "Relatório de Vendas") {
+        renderReportsManager(body, false);
+      } else {
+        renderStoreDataManager(body);
+      }
+    }
+
+    function copyDirectLink() {
+      const link = document.getElementById("myDirectStoreLink").value;
+      navigator.clipboard.writeText(link);
+      toast("Link da loja copiado!");
+    }
+
+    /* GERENCIADOR ORGANIZADO DE PRODUTOS E PROMOÇÃO DO DIA */
+    function renderProductManager(container, isCentral) {
+      tempImageLink = "";
+      const p = getTargetPartner();
 
       container.innerHTML = `
         ${isCentral ? `
           <div class="panel">
-            <label style="font-weight:900;font-size:13px;display:block;margin-bottom:6px;">Selecione a Loja para Gerenciar Stories 9:16:</label>
-            <select onchange="changeCentralPartner(this.value, 'Status & Vídeos 9:16')">
+            <label style="font-weight:900;font-size:13px;display:block;margin-bottom:6px;">Selecione a Loja para Gerenciar:</label>
+            <select onchange="changeCentralPartner(this.value, 'Produtos da Loja')">
               ${db.partners.map(store => `<option value="${store.id}" ${store.id === p.id ? 'selected' : ''}>${store.name}</option>`).join("")}
             </select>
           </div>
         ` : ''}
 
         <div class="panel">
-          <h3>📱 1. Status / Stories (Proporção Vertical 9:16 - 1080x1920 px) de ${p.name}</h3>
-
-          <div class="spec-card">
-            <b>Exibição:</b> Carrossel de Stories no topo da tela inicial. Formato Vertical 9:16 (1080 x 1920 px).
-          </div>
+          <h3>➕ Cadastrar Novo Produto em ${p.name}</h3>
 
           <div class="form">
             <div class="field">
-              <label>Tipo de Mídia do Status</label>
-              <select id="newStatusType">
-                <option value="video">Vídeo Vertical MP4 (9:16)</option>
-                <option value="image">Foto / Arte Vertical (9:16)</option>
+              <label>1. Categoria do Produto</label>
+              <select id="newCat">
+                ${p.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
               </select>
             </div>
+            
             <div class="field">
-              <label>Link Direto URL da Mídia (Recomendado para vídeos)</label>
-              <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou imagem.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
+              <label>2. Nome do Produto / Item</label>
+              <input id="newName" placeholder="Ex: Pudim Cake Tradicional">
             </div>
+
             <div class="field">
-              <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto 9:16)</label>
-              <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 1080)">
-              <div id="statusPreviewBox" class="file-preview">Prévia do Status 9:16</div>
+              <label>3. Preço de Venda (R$)</label>
+              <input id="newPrice" type="number" step="0.01" placeholder="Ex: 25.00">
             </div>
-            <button class="btn red" onclick="addStatusToStore(${isCentral})">+ Publicar Status Stories</button>
+
+            <div class="field-checkbox">
+              <input type="checkbox" id="newIsPromo">
+              <label for="newIsPromo" style="cursor:pointer;margin:0;">
+                <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b><br>
+                <small style="color:#666;">Marque esta opção para o produto aparecer nas ofertas do topo.</small>
+              </label>
+            </div>
+
+            <div class="field">
+              <label>4. Descrição do Produto (Ingredientes, Porção, Detalhes)</label>
+              <textarea id="newDesc" placeholder="Descreva o produto para o cliente..."></textarea>
+            </div>
+
+            <div class="field">
+              <label>5. Foto do Produto (Proporção Quadrada 1:1 - 600x600 px)</label>
+              <input id="newImgUrl" placeholder="https://exemplo.com/foto.jpg" oninput="previewDirect('newImgUrl', 'productImgPreview')">
+            </div>
+
+            <div class="field">
+              <label>Ou faça Upload da Foto (1:1 - Otimização Automática)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 600)">
+              <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
+            </div>
+
+            <button class="btn red" onclick="addProductToStore()">+ Adicionar Produto ao Cardápio</button>
           </div>
         </div>
 
         <div class="panel">
-          <h3>Stories Ativos no Topo (${p.statuses.length})</h3>
-          <div class="list">
-            ${p.statuses.map((st, sIdx) => `
+          <h3>📋 Itens Cadastrados no Cardápio (${p.categories.reduce((acc, c) => acc + c.products.length, 0)})</h3>
+          ${p.categories.map(c => `
+            <p style="margin:14px 0 6px;font-size:14px;color:var(--dark);"><b>📂 Categoria: ${c.name}</b></p>
+            ${c.products.map((x, pIdx) => `
               <div class="row">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:40px;height:60px;background:#000;border-radius:6px;overflow:hidden;display:grid;place-items:center;">
-                    ${st.type === 'video' ? '<span style="color:#fff;font-size:10px;">VÍDEO</span>' : `<img src="${st.url}" style="width:100%;height:100%;object-fit:cover;">`}
+                  <div style="width:45px;height:45px;border-radius:8px;overflow:hidden;background:#f0f0f0;display:grid;place-items:center;">
+                    ${renderMedia(x.image, "")}
                   </div>
                   <span>
-                    <b>${st.type === 'video' ? 'Vídeo 9:16' : 'Foto 9:16'}</b><br>
-                    <small style="color:var(--muted);max-width:220px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${st.url}</small>
+                    ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO ATIVA</span> ` : ''}
+                    <b>${x.name}</b> — <span style="color:var(--green);font-weight:900;">${money(Number(x.price))}</span><br>
+                    <small style="color:var(--muted)">${x.paused ? '<b style="color:red">Pausado</b>' : 'Ativo'}</small>
                   </span>
                 </div>
-                <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeStatusFromStore(${sIdx}, ${isCentral})">Excluir</button>
-              </div>
-            `).join("") || '<p class="hint">Nenhum status publicado ainda.</p>'}
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal 21:9 - 1080x450 px)</h3>
-          <div class="spec-card">
-            <b>Exibição:</b> Fundo de topo na tela do cardápio da loja. Formato Horizontal 21:9 (1080 x 450 px).
-          </div>
-          <div class="form">
-            <div class="field">
-              <label>Link da Imagem da Capa</label>
-              <input id="editBannerUrl" value="${p.banner || ''}" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('editBannerUrl', 'bannerPreview')">
-            </div>
-            <div class="field">
-              <label>Ou Upload da Imagem da Capa (21:9)</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 900)">
-              <div id="bannerPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem banner de capa'}</div>
-            </div>
-            <button class="btn dark" onclick="saveBannerOnly(${isCentral})">Salvar Banner de Capa</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function addStatusToStore(isCentral) {
-      const p = getTargetPartner();
-      if (!p.statuses) p.statuses = [];
-
-      const type = document.getElementById("newStatusType").value;
-      const url = document.getElementById("newStatusUrl").value.trim() || tempStatusMedia;
-
-      if (!url) return toast("Selecione um arquivo ou cole o link da mídia.");
-
-      p.statuses.push({ type, url });
-      tempStatusMedia = "";
-      save();
-      renderHome();
-      
-      const body = document.getElementById("adminBody");
-      renderStatusMediaManager(body, isCentral);
-      toast("Status Stories 9:16 publicado com sucesso!");
-    }
-
-    function removeStatusFromStore(sIdx, isCentral) {
-      const p = getTargetPartner();
-      if (confirm("Deseja excluir este status?")) {
-        p.statuses.splice(sIdx, 1);
-        save();
-        renderHome();
-        const body = document.getElementById("adminBody");
-        renderStatusMediaManager(body, isCentral);
-        toast("Status removido!");
-      }
-    }
-
-    function saveBannerOnly(isCentral) {
-      const p = getTargetPartner();
-      p.banner = document.getElementById("editBannerUrl").value.trim();
-      save();
-      renderHome();
-      toast("Banner de Capa atualizado!");
-    }
-
-    function renderReportsManager(container, isCentral) {
-      const p = getTargetPartner();
-      let orders = isCentral ? db.orders : db.orders.filter(o => o.storeId === p.id);
-
-      const now = new Date();
-      if (reportFilterPeriod === "hoje") {
-        orders = orders.filter(o => new Date(o.date).toDateString() === now.toDateString());
-      } else if (reportFilterPeriod === "semana") {
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        orders = orders.filter(o => new Date(o.date) >= weekAgo);
-      } else if (reportFilterPeriod === "mes") {
-        orders = orders.filter(o => {
-          const d = new Date(o.date);
-          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        });
-      }
-
-      const totalVal = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-      const avgTicket = orders.length ? totalVal / orders.length : 0;
-
-      container.innerHTML = `
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <h3>Histórico & Dashboard de Vendas</h3>
-            <button class="btn dark" style="width:auto;padding:7px 12px;font-size:12px;" onclick="printReport()">
-              <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
-              Imprimir / Baixar PDF
-            </button>
-          </div>
-
-          ${isCentral ? `
-            <div style="margin-bottom:12px;">
-              <label style="font-weight:800;font-size:12px;">Filtrar por Loja na Central:</label>
-              <select onchange="changeCentralPartner(this.value, 'Relatórios Financeiros')">
-                <option value="">Todas as Lojas</option>
-                ${db.partners.map(store => `<option value="${store.id}" ${store.id === p.id ? 'selected' : ''}>${store.name}</option>`).join("")}
-              </select>
-            </div>
-          ` : ''}
-
-          <div style="margin-bottom:12px;">
-            <label style="font-weight:800;font-size:12px;">Filtrar por Período:</label>
-            <select id="repFilter" onchange="changeReportFilter(this.value, ${isCentral})">
-              <option value="todos" ${reportFilterPeriod === 'todos' ? 'selected' : ''}>Todo o Histórico</option>
-              <option value="hoje" ${reportFilterPeriod === 'hoje' ? 'selected' : ''}>Hoje</option>
-              <option value="semana" ${reportFilterPeriod === 'semana' ? 'selected' : ''}>Últimos 7 dias</option>
-              <option value="mes" ${reportFilterPeriod === 'mes' ? 'selected' : ''}>Este Mês</option>
-            </select>
-          </div>
-
-          <div class="admin-grid" style="margin-bottom:14px;">
-            <div class="metric"><small>Pedidos no Filtro</small><strong>${orders.length}</strong></div>
-            <div class="metric"><small>Faturamento Bruto</small><strong class="success">${money(totalVal)}</strong></div>
-            <div class="metric"><small>Ticket Médio</small><strong>${money(avgTicket)}</strong></div>
-            <div class="metric"><small>Entregas R1</small><strong>${orders.filter(o => o.delivery === 'R1').length}</strong></div>
-          </div>
-
-          <div id="printableArea">
-            <h4 style="margin:10px 0;">Relatório Detalhado - ${isCentral ? (db.config.appName || 'Central R1') : p.name}</h4>
-            <small style="color:var(--muted);display:block;margin-bottom:10px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</small>
-
-            ${orders.map((o, idx) => `
-              <div class="order-card-history">
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px;">
-                  <b>${o.id} - ${o.storeName}</b>
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="color:var(--green);font-weight:900;">${money(o.total)}</span>
-                    <button class="btn red" style="width:auto;padding:3px 6px;font-size:10px;" onclick="removeOrderLog(${idx}, ${isCentral})">✕</button>
-                  </div>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn ${x.isPromo ? 'warning' : 'outline'}" style="padding:5px 8px;font-size:11px;" onclick="togglePromoProduct('${c.name}', ${pIdx})">
+                    ${x.isPromo ? 'Tirar Promo' : 'Fazer Promo'}
+                  </button>
+                  <button class="btn dark" style="padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${pIdx})">
+                    ${x.paused ? 'Ativar' : 'Pausar'}
+                  </button>
+                  <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removeProduct('${c.name}', ${pIdx})">✕</button>
                 </div>
-                <div><b>Cliente:</b> ${o.customerName} (${o.customerPhone})</div>
-                <div><b>Endereço:</b> ${o.customerAddress}</div>
-                <div><b>Pagamento:</b> ${o.payment} · <b>Entrega:</b> ${o.delivery === 'R1' ? 'Motoboy R1' : 'Outro Motoboy'}</div>
-                <div style="margin-top:4px;color:#555;"><b>Itens:</b> ${o.items.map(it => `${it.qty}x ${it.name}`).join(", ")}</div>
-                <small style="color:#888;display:block;margin-top:4px;">Data/Hora: ${new Date(o.date).toLocaleString('pt-BR')}</small>
               </div>
-            `).join("") || '<p class="hint">Nenhum registro de pedido encontrado para o período selecionado.</p>'}
-          </div>
+            `).join("") || '<p class="hint">Nenhum produto nesta categoria.</p>'}
+          `).join("")}
         </div>
       `;
     }
 
-    function changeReportFilter(val, isCentral) {
-      reportFilterPeriod = val;
-      const body = document.getElementById("adminBody");
-      renderReportsManager(body, isCentral);
+    function changeCentralPartner(id, returnTab) {
+      centralSelectedPartnerId = Number(id);
+      centralTab(returnTab || "Produtos da Loja");
     }
 
-    function removeOrderLog(idx, isCentral) {
-      if (confirm("Deseja apagar este registro do relatório?")) {
-        db.orders.splice(idx, 1);
-        save();
-        renderReportsManager(document.getElementById("adminBody"), isCentral);
-        toast("Registro removido do relatório!");
+    function addProductToStore() {
+      const p = getTargetPartner();
+      const n = document.getElementById("newName").value.trim();
+      const price = Number(document.getElementById("newPrice").value);
+      const cat = document.getElementById("newCat").value;
+      const desc = document.getElementById("newDesc").value.trim();
+      const isPromo = document.getElementById("newIsPromo").checked;
+      const imgUrl = document.getElementById("newImgUrl").value.trim() || tempImageLink;
+
+      if (!n || isNaN(price) || price <= 0) return toast("Preencha nome e preço válido.");
+
+      let c = p.categories.find(x => x.name === cat);
+      if (!c) {
+        c = { name: cat || "GERAL", products: [] };
+        p.categories.push(c);
       }
-    }
 
-    function printReport() {
-      window.print();
+      c.products.push({
+        id: "p_" + Date.now(),
+        name: n,
+        isPromo: isPromo,
+        desc: desc,
+        price: price,
+        image: imgUrl || "",
+        paused: false
+      });
+
+      tempImageLink = "";
+      save();
+      renderHome();
+      if (adminMode === "central") centralTab("Produtos da Loja");
+      else storeTab("Produtos & Promoções");
+      toast("Produto adicionado com sucesso!");
     }
 
     function renderStoreDataManager(container) {
