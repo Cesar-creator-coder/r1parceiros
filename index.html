@@ -1061,7 +1061,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE LOGIN ADMIN -->
   <div id="loginModal" class="modal">
     <div class="sheet center">
       <div class="sheet-head">
@@ -1097,7 +1096,6 @@
     </div>
   </div>
 
-  <!-- MODAL DO PAINEL ADMIN GERAL & LOJISTA -->
   <div id="adminModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
@@ -1177,7 +1175,48 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    /* CONFIGURAÇÃO DO FIREBASE COM PERSISTÊNCIA BLINDADA */
+    /* BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
+    const DB_NAME = "r1_marketplace_db_stable";
+    const STORE_NAME = "platform_data";
+
+    function openIDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function setIDB(key, val) {
+      try {
+        const db = await openIDB();
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).put(val, key);
+      } catch (e) {
+        console.warn("Falha no IndexedDB:", e);
+      }
+    }
+
+    async function getIDB(key) {
+      try {
+        const db = await openIDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const req = tx.objectStore(STORE_NAME).get(key);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
     const firebaseConfig = {
       apiKey: "SUA_API_KEY_AQUI",
       authDomain: "seu-app.firebaseapp.com",
@@ -1197,10 +1236,10 @@
         isFirebaseReady = true;
       }
     } catch (e) {
-      console.warn("Rodando com armazenamento local enquanto o Firebase não estiver configurado.");
+      console.warn("Executando localmente enquanto o Firebase não estiver configurado.");
     }
 
-    const DB_KEY = "r1_marketplace_red_black_v16_stable";
+    const DB_KEY = "r1_marketplace_red_black_v17_permanent";
     const seed = {
       config: {
         appName: "R1 Parceiros",
@@ -1340,28 +1379,32 @@
     let storyTimer = null;
     let deferredPrompt = null;
 
-    /* PERSISTÊNCIA SEGURA E ANTI-REINICIALIZAÇÃO */
-    function save() {
+    /* GRAVAÇÃO IMUTÁVEL NO BANCO LOCAL E NUVEM */
+    async function save() {
+      await setIDB("main_data", db);
       try {
         localStorage.setItem(DB_KEY, JSON.stringify(db));
-      } catch (err) {
-        console.warn("Armazenamento local em capacidade máxima.");
-      }
+      } catch (err) {}
+
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").set(db).catch(err => {
-          console.error("Erro ao sincronizar Firestore:", err);
+          console.warn("Nuvem não gravou (mantido 100% no celular):", err);
         });
       }
     }
 
-    function syncFromFirebase() {
+    async function initDatabase() {
+      const idbData = await getIDB("main_data");
+      if (idbData && idbData.partners && idbData.partners.length > 0) {
+        db = idbData;
+      }
+      renderHome();
+
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
           if (doc.exists && doc.data() && doc.data().partners) {
             db = doc.data();
-            try {
-              localStorage.setItem(DB_KEY, JSON.stringify(db));
-            } catch (e) {}
+            save();
             renderHome();
           }
         });
@@ -1446,13 +1489,12 @@
       }
     }
 
-    /* REDIMENSIONADOR E OTIMIZADOR DE IMAGENS */
     function previewUpload(input, previewElementId, targetInputId, maxDim = 600) {
       const file = input.files[0];
       if (!file) return;
 
       const previewEl = document.getElementById(previewElementId);
-      previewEl.innerHTML = "<small style='color:#666;'>Processando...</small>";
+      previewEl.innerHTML = "<small style='color:#666;'>Processando arquivo...</small>";
 
       if (file.type.startsWith("video")) {
         const reader = new FileReader();
@@ -1491,7 +1533,7 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.80);
+          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.75);
 
           if (targetInputId) {
             const inputTarget = document.getElementById(targetInputId);
@@ -1637,7 +1679,6 @@
       document.getElementById("statusStoryModal").classList.remove("show");
     }
 
-    /* RENDERIZAÇÃO DA TELA INICIAL E BUSCA GLOBAL */
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
@@ -1674,7 +1715,6 @@
         </article>
       `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
-      /* FILTRO DA PROMOÇÃO DO DIA */
       let promo = [];
       db.partners.filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         p.categories.forEach(c => {
@@ -2583,7 +2623,7 @@
               </select>
             </div>
             <div class="field">
-              <label>Link Direto URL da Mídia (Recomendado para vídeos pesados)</label>
+              <label>Link Direto URL da Mídia (Recomendado para vídeos)</label>
               <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou imagem.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
             </div>
             <div class="field">
@@ -2913,18 +2953,12 @@
       toast("Cadastro enviado para a Central R1!");
     }
 
-    /* PWA Service Worker Registration */
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").then((reg) => {
-          console.log("Service Worker ativo:", reg.scope);
-        }).catch((err) => {
-          console.log("Erro Service Worker:", err);
-        });
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
       });
     }
 
-    /* PWA Install Trigger */
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -2942,7 +2976,7 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
-      syncFromFirebase();
+      initDatabase();
       const params = new URLSearchParams(window.location.search);
       const storeParam = params.get("loja");
       if (storeParam) {
@@ -2950,8 +2984,6 @@
         if (found && !found.blocked) openCatalog(found.id);
       }
     });
-
-    renderHome();
   </script>
 </body>
 </html>
