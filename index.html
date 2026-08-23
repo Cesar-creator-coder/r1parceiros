@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#d9233e">
-  <title>R1 Parceiros - Marketplace & Gestão</title>
+  <title>R1 SHOP - Marketplace & Gestão</title>
   
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -36,7 +36,7 @@
       font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 80px;
+      padding-bottom: 85px;
     }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
@@ -102,7 +102,7 @@
     .icon-btn:hover { background: rgba(255,255,255,.2); }
     .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
-    /* BOTÃO DE INSTALAÇÃO NO CANTO INFERIOR DIREITO */
+    /* BOTÃO FIXO DE INSTALAÇÃO NO CANTO INFERIOR DIREITO */
     .bottom-install-btn {
       position: fixed;
       bottom: 20px;
@@ -864,7 +864,7 @@
         <div class="brand">
           <div class="logo" id="headerAppLogo" onclick="handleSecretLogoClick()" title="R1">R1</div>
           <div>
-            <h1 id="headerAppTitle">R1 Parceiros</h1>
+            <h1 id="headerAppTitle">R1 SHOP</h1>
             <small id="headerAppSubtitle">Marketplace Oficial</small>
           </div>
         </div>
@@ -886,7 +886,7 @@
     </button>
 
     <div id="pwaBanner" class="pwa-install-banner hidden">
-      <div style="font-size:13px;font-weight:700;">📲 Deseja instalar o aplicativo R1 na tela do seu celular?</div>
+      <div style="font-size:13px;font-weight:700;">📲 Deseja instalar o app R1 SHOP no seu celular?</div>
       <div style="display:flex;gap:6px;">
         <button class="btn green" style="width:auto;padding:6px 12px;font-size:11px;" onclick="triggerInstallFlow()">Instalar</button>
         <button class="btn outline" style="width:auto;padding:6px 8px;font-size:11px;" onclick="document.getElementById('pwaBanner').classList.add('hidden')">✕</button>
@@ -1230,7 +1230,55 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    /* BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
+    /* 1. REGISTRO IMEDIATO DO SERVICE WORKER NO TOPO */
+    let deferredPrompt = null;
+    window.deferredPrompt = null;
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).then((reg) => {
+        console.log("Service Worker registrado com sucesso:", reg.scope);
+      }).catch((err) => {
+        console.warn("Falha no registro do Service Worker:", err);
+      });
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      window.deferredPrompt = e;
+      const banner = document.getElementById("pwaBanner");
+      if (banner) banner.classList.remove("hidden");
+    });
+
+    function triggerInstallFlow() {
+      const promptEvent = window.deferredPrompt || deferredPrompt;
+      if (promptEvent) {
+        promptEvent.prompt();
+        promptEvent.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            toast("✅ Aplicativo R1 SHOP instalado com sucesso!");
+          }
+          deferredPrompt = null;
+          window.deferredPrompt = null;
+          const banner = document.getElementById("pwaBanner");
+          if (banner) banner.classList.add("hidden");
+        });
+      } else {
+        toast("Toque nos 3 pontinhos do Chrome > 'Adicionar à tela inicial' / 'Instalar'");
+      }
+    }
+
+    function installAppPwa() {
+      triggerInstallFlow();
+    }
+
+    window.addEventListener("appinstalled", () => {
+      toast("🎉 App R1 SHOP instalado na tela inicial!");
+      const banner = document.getElementById("pwaBanner");
+      if (banner) banner.classList.add("hidden");
+    });
+
+    /* 2. BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
     const DB_NAME = "r1_marketplace_db_stable";
     const STORE_NAME = "platform_data";
 
@@ -1294,10 +1342,10 @@
       console.warn("Executando localmente enquanto o Firebase não estiver configurado.");
     }
 
-    const DB_KEY = "r1_marketplace_red_black_v20_perfect";
+    const DB_KEY = "r1_marketplace_red_black_v21_final";
     const seed = {
       config: {
-        appName: "R1 Parceiros",
+        appName: "R1 SHOP",
         appSubtitle: "Marketplace Oficial",
         appLogo: "",
         adminUser: "admin",
@@ -1433,7 +1481,6 @@
     let activeStoryPartner = null;
     let activeStoryIndex = 0;
     let storyTimer = null;
-    let deferredPrompt = null;
 
     /* GRAVAÇÃO IMUTÁVEL NO BANCO LOCAL E NUVEM */
     async function save() {
@@ -1516,7 +1563,7 @@
 
     function updateAppHeaderVisuals() {
       const c = db.config;
-      document.getElementById("headerAppTitle").textContent = c.appName || "R1 Parceiros";
+      document.getElementById("headerAppTitle").textContent = c.appName || "R1 SHOP";
       document.getElementById("headerAppSubtitle").textContent = c.appSubtitle || "Marketplace Oficial";
       const logoEl = document.getElementById("headerAppLogo");
       if (c.appLogo && (c.appLogo.startsWith("http") || c.appLogo.startsWith("data:image"))) {
@@ -1608,7 +1655,7 @@
 
     function sharePlatform() {
       const shareData = {
-        title: `${db.config.appName || 'R1 Parceiros'} - Marketplace & Entregas`,
+        title: `${db.config.appName || 'R1 SHOP'} - Marketplace & Entregas`,
         text: "Peça nos melhores comércios locais com rapidez e entrega garantida!",
         url: window.location.href
       };
@@ -1624,7 +1671,7 @@
       if (!currentPartner) return;
       const shareUrl = `${window.location.origin}${window.location.pathname}?loja=${currentPartner.id}`;
       const shareData = {
-        title: `${currentPartner.name} - ${db.config.appName || 'R1 Parceiros'}`,
+        title: `${currentPartner.name} - ${db.config.appName || 'R1 SHOP'}`,
         text: `Confira o cardápio e faça seu pedido em ${currentPartner.name}!`,
         url: shareUrl
       };
@@ -1735,7 +1782,6 @@
       document.getElementById("statusStoryModal").classList.remove("show");
     }
 
-    /* RENDERIZAÇÃO DA TELA INICIAL E BUSCA GLOBAL */
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
@@ -2099,7 +2145,7 @@
 
       if (note) lines.push(`*Observação:* ${note}`);
       lines.push(`-----------------------------------`);
-      lines.push(`_Pedido gerado via App ${db.config.appName || 'R1 Parceiros'}._`);
+      lines.push(`_Pedido gerado via App ${db.config.appName || 'R1 SHOP'}._`);
 
       const fullMessageText = lines.join("\n");
 
@@ -2350,7 +2396,7 @@
           <div class="form">
             <div class="field">
               <label>Título da Plataforma</label>
-              <input id="editAppName" value="${c.appName || 'R1 Parceiros'}" placeholder="Ex: R1 Parceiros">
+              <input id="editAppName" value="${c.appName || 'R1 SHOP'}" placeholder="Ex: R1 SHOP">
             </div>
             <div class="field">
               <label>Subtítulo / Slogan</label>
@@ -2388,7 +2434,7 @@
     }
 
     function saveAppIdentity() {
-      db.config.appName = document.getElementById("editAppName").value.trim() || "R1 Parceiros";
+      db.config.appName = document.getElementById("editAppName").value.trim() || "R1 SHOP";
       db.config.appSubtitle = document.getElementById("editAppSubtitle").value.trim() || "Marketplace Oficial";
       db.config.appLogo = document.getElementById("editAppLogo").value.trim();
       db.config.adminUser = document.getElementById("editAdminUser").value.trim() || "admin";
@@ -2956,7 +3002,7 @@
               <div class="password-wrapper">
                 <input type="password" id="editStorePass" value="${p.pass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editStorePass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
@@ -3062,50 +3108,6 @@
       closeModal("partnerModal");
       toast("Cadastro enviado para a Central R1!");
     }
-
-    /* MOTOR PWA COM DISPARO INSTANTÂNEO */
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
-      });
-    }
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      window.deferredPrompt = e;
-      const banner = document.getElementById("pwaBanner");
-      if (banner) banner.classList.remove("hidden");
-    });
-
-    function triggerInstallFlow() {
-      const promptEvent = window.deferredPrompt || deferredPrompt;
-      if (promptEvent) {
-        promptEvent.prompt();
-        promptEvent.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === "accepted") {
-            toast("✅ Aplicativo R1 instalado com sucesso!");
-          }
-          deferredPrompt = null;
-          window.deferredPrompt = null;
-          const banner = document.getElementById("pwaBanner");
-          if (banner) banner.classList.add("hidden");
-        });
-      } else {
-        // Fallback direto e sem travas para navegadores que exigem menu
-        toast("Toque nos 3 pontinhos do Chrome > 'Instalar' ou 'Adicionar à tela'");
-      }
-    }
-
-    function installAppPwa() {
-      triggerInstallFlow();
-    }
-
-    window.addEventListener("appinstalled", () => {
-      toast("🎉 App R1 instalado na tela inicial!");
-      const banner = document.getElementById("pwaBanner");
-      if (banner) banner.classList.add("hidden");
-    });
 
     window.addEventListener("DOMContentLoaded", () => {
       initDatabase();
