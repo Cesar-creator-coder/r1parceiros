@@ -1230,9 +1230,26 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    /* 1. REGISTRO IMEDIATO DO SERVICE WORKER NO TOPO */
+    /* 1. REGISTRO IMEDIATO DO SERVICE WORKER E CONTROLE DE INSTALAÇÃO DO PWA */
     let deferredPrompt = null;
     window.deferredPrompt = null;
+
+    function isAppInstalled() {
+      return window.matchMedia('(display-mode: standalone)').matches || 
+             window.navigator.standalone === true || 
+             document.referrer.includes('android-app://');
+    }
+
+    function checkInstallButtonsVisibility() {
+      const isStandalone = isAppInstalled();
+      const floatingBtn = document.getElementById("floatingInstallBtn");
+      const banner = document.getElementById("pwaBanner");
+
+      if (isStandalone) {
+        if (floatingBtn) floatingBtn.style.display = "none";
+        if (banner) banner.classList.add("hidden");
+      }
+    }
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js", { scope: "./" }).then((reg) => {
@@ -1246,8 +1263,13 @@
       e.preventDefault();
       deferredPrompt = e;
       window.deferredPrompt = e;
-      const banner = document.getElementById("pwaBanner");
-      if (banner) banner.classList.remove("hidden");
+
+      if (!isAppInstalled()) {
+        const banner = document.getElementById("pwaBanner");
+        if (banner) banner.classList.remove("hidden");
+        const floatingBtn = document.getElementById("floatingInstallBtn");
+        if (floatingBtn) floatingBtn.style.display = "inline-flex";
+      }
     });
 
     function triggerInstallFlow() {
@@ -1257,15 +1279,21 @@
         promptEvent.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === "accepted") {
             toast("✅ Aplicativo R1 SHOP instalado com sucesso!");
+            hideAllInstallPrompts();
           }
           deferredPrompt = null;
           window.deferredPrompt = null;
-          const banner = document.getElementById("pwaBanner");
-          if (banner) banner.classList.add("hidden");
         });
       } else {
         toast("Toque nos 3 pontinhos do Chrome > 'Adicionar à tela inicial' / 'Instalar'");
       }
+    }
+
+    function hideAllInstallPrompts() {
+      const banner = document.getElementById("pwaBanner");
+      if (banner) banner.classList.add("hidden");
+      const floatingBtn = document.getElementById("floatingInstallBtn");
+      if (floatingBtn) floatingBtn.style.display = "none";
     }
 
     function installAppPwa() {
@@ -1274,8 +1302,7 @@
 
     window.addEventListener("appinstalled", () => {
       toast("🎉 App R1 SHOP instalado na tela inicial!");
-      const banner = document.getElementById("pwaBanner");
-      if (banner) banner.classList.add("hidden");
+      hideAllInstallPrompts();
     });
 
     /* 2. BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
@@ -1482,7 +1509,7 @@
     let activeStoryIndex = 0;
     let storyTimer = null;
 
-    /* GRAVAÇÃO IMUTÁVEL NO BANCO LOCAL E NUVEM */
+    /* GRAVAÇÃO NO BANCO LOCAL E NUVEM */
     async function save() {
       await setIDB("main_data", db);
       try {
@@ -1502,6 +1529,7 @@
         db = idbData;
       }
       renderHome();
+      checkInstallButtonsVisibility();
 
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
@@ -1785,6 +1813,7 @@
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
+      checkInstallButtonsVisibility();
       const q = (document.getElementById("search").value || "").toLowerCase().trim();
       
       const partners = db.partners
@@ -3002,7 +3031,7 @@
               <div class="password-wrapper">
                 <input type="password" id="editStorePass" value="${p.pass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editStorePass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
