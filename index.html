@@ -36,7 +36,7 @@
       font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 85px;
+      padding-bottom: 95px;
     }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
@@ -105,7 +105,7 @@
     /* BOTÃO FIXO DE INSTALAÇÃO NO CANTO INFERIOR DIREITO */
     .bottom-install-btn {
       position: fixed;
-      bottom: 20px;
+      bottom: 75px;
       right: 16px;
       z-index: 34;
       background: #1e2229;
@@ -129,6 +129,59 @@
       width: 16px;
       height: 16px;
       fill: var(--primary);
+    }
+
+    /* BARRA DE NAVEGAÇÃO INFERIOR FIXA (RODAPÉ) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(780px, 100%);
+      height: 65px;
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 38;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    }
+    .nav-tab-btn {
+      flex: 1;
+      height: 100%;
+      background: transparent;
+      border: 0;
+      color: #8c96a5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .nav-tab-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+    .nav-tab-btn.active {
+      color: var(--primary);
+    }
+    .nav-badge-count {
+      position: absolute;
+      top: 6px;
+      right: calc(50% - 18px);
+      background: var(--primary);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 10px;
+      border: 2px solid var(--dark);
     }
 
     .hero {
@@ -393,7 +446,7 @@
 
     .fab {
       position: fixed;
-      bottom: 20px;
+      bottom: 75px;
       left: 16px;
       z-index: 35;
       border: 0;
@@ -952,6 +1005,27 @@
     </button>
   </div>
 
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR FIXA (BOTTOM BAR) -->
+  <nav class="bottom-nav">
+    <button class="nav-tab-btn active" onclick="navToHome()">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Início
+    </button>
+    <button class="nav-tab-btn" onclick="navToSearch()">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      Buscar
+    </button>
+    <button class="nav-tab-btn" onclick="navToCart()">
+      <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      <span id="navCartBadge" class="nav-badge-count hidden">0</span>
+      Carrinho
+    </button>
+    <button class="nav-tab-btn" onclick="openModal('loginModal')">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      Painel
+    </button>
+  </nav>
+
   <!-- MODAL STORIES / STATUS 9:16 VERTICAL -->
   <div id="statusStoryModal" class="status-story-modal">
     <div class="story-container">
@@ -1305,7 +1379,28 @@
       hideAllInstallPrompts();
     });
 
-    /* 2. BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
+    /* 2. CONTROLE DE NAVEGAÇÃO DA BARRA DE RODAPÉ */
+    function navToHome() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function navToSearch() {
+      const s = document.getElementById("search");
+      if (s) {
+        s.focus();
+        s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function navToCart() {
+      if (cart.length > 0) {
+        openCart();
+      } else {
+        toast("Seu carrinho está vazio.");
+      }
+    }
+
+    /* 3. BANCO DE DADOS LOCAL BLINDADO (INDEXEDDB + FIREBASE) */
     const DB_NAME = "r1_marketplace_db_stable";
     const STORE_NAME = "platform_data";
 
@@ -1953,6 +2048,12 @@
       document.getElementById("fab").classList.toggle("hidden", !n);
       document.getElementById("fabCount").textContent = `${n} item${n === 1 ? '' : 's'}`;
       document.getElementById("fabTotal").textContent = money(t);
+
+      const navBadge = document.getElementById("navCartBadge");
+      if (navBadge) {
+        navBadge.textContent = n;
+        navBadge.classList.toggle("hidden", !n);
+      }
 
       const catBar = document.getElementById("catalogFloatingBar");
       if (catBar) {
@@ -3031,7 +3132,7 @@
               <div class="password-wrapper">
                 <input type="password" id="editStorePass" value="${p.pass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editStorePass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
