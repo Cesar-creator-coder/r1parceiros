@@ -1215,7 +1215,7 @@
           <div class="password-wrapper">
             <input type="password" id="loginPass" placeholder="Sua senha">
             <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('loginPass')">
-              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
             </button>
           </div>
         </div>
@@ -1614,14 +1614,16 @@
       await setIDB("main_data", db);
       try {
         localStorage.setItem(DB_KEY, JSON.stringify(db));
-      } catch (err) {
-        console.warn("Armazenado exclusivamente via IndexedDB para suportar imagens/vídeos.");
-      }
+      } catch (err) {}
 
       if (isFirebaseReady && fsDb) {
-        fsDb.collection("marketplace").doc("main_data").set(db).catch(err => {
-          console.warn("Erro ao salvar no Firestore:", err);
-        });
+        fsDb.collection("marketplace").doc("main_data").set(db)
+          .then(() => {
+            console.log("Sincronizado na nuvem com sucesso!");
+          })
+          .catch(err => {
+            console.warn("Erro ao sincronizar nuvem:", err);
+          });
       }
     }
 
@@ -1629,18 +1631,31 @@
       const idbData = await getIDB("main_data");
       if (idbData && idbData.partners && idbData.partners.length > 0) {
         db = idbData;
+      } else {
+        const local = localStorage.getItem(DB_KEY);
+        if (local) {
+          try { db = JSON.parse(local); } catch (e) {}
+        }
       }
+
       renderHome();
       checkInstallButtonsVisibility();
 
       if (isFirebaseReady && fsDb) {
-        fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
+        try {
+          const doc = await fsDb.collection("marketplace").doc("main_data").get();
           if (doc.exists && doc.data() && doc.data().partners) {
             db = doc.data();
-            save();
+            await setIDB("main_data", db);
+            try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) {}
             renderHome();
+          } else {
+            // Se for o primeiro acesso e a nuvem estiver vazia, sobe a base inicial
+            save();
           }
-        });
+        } catch (e) {
+          console.warn("Usando base local offline:", e);
+        }
       }
     }
 
@@ -1723,7 +1738,7 @@
       }
     }
 
-    function previewUpload(input, previewElementId, targetInputId, maxDim = 600) {
+    function previewUpload(input, previewElementId, targetInputId, maxDim = 400) {
       const file = input.files[0];
       if (!file) return;
 
@@ -1766,7 +1781,8 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.70);
+          // Qualidade otimizada para caber com folga no Firebase (45KB)
+          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.65);
 
           if (targetInputId) {
             const inputTarget = document.getElementById(targetInputId);
@@ -2555,7 +2571,7 @@
               <div class="password-wrapper">
                 <input type="password" id="editAdminPass" value="${c.adminPass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editAdminPass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
@@ -2704,13 +2720,13 @@
             </div>
 
             <div class="field">
-              <label>5. Foto do Produto (Proporção Quadrada 1:1 - 600x600 px)</label>
+              <label>5. Foto do Produto (Proporção Quadrada 1:1 - 400x400 px)</label>
               <input id="newImgUrl" placeholder="Cole o link direto da foto (https://...)" oninput="previewDirect('newImgUrl', 'productImgPreview')">
             </div>
 
             <div class="field">
               <label>Ou faça Upload da Foto (1:1 - Otimização Automática)</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 600)">
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 400)">
               <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
             </div>
 
@@ -2786,7 +2802,7 @@
       renderHome();
       if (adminMode === "central") centralTab("Produtos da Loja");
       else storeTab("Produtos & Promoções");
-      toast("Produto adicionado e gravado com sucesso!");
+      toast("Produto gravado com sucesso!");
     }
 
     function togglePromoProduct(catName, prodIdx) {
@@ -2895,7 +2911,7 @@
           <h3>📱 1. Status / Stories (Proporção Vertical 9:16 - 1080x1920 px) de ${p.name}</h3>
 
           <div class="spec-card">
-            <b>Exibição:</b> Carrossel de Stories no topo da tela inicial. Formato Vertical 9:16 (1080 x 1920 px).
+            <b>Exibição:</b> Carrossel de Stories no topo da tela inicial. Formato Vertical 9:16.
           </div>
 
           <div class="form">
@@ -2912,7 +2928,7 @@
             </div>
             <div class="field">
               <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto 9:16)</label>
-              <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 1080)">
+              <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 400)">
               <div id="statusPreviewBox" class="file-preview">Prévia do Status 9:16</div>
             </div>
             <button class="btn red" onclick="addStatusToStore(${isCentral})">+ Publicar Status Stories</button>
@@ -2942,7 +2958,7 @@
         <div class="panel">
           <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal 21:9 - 1080x450 px)</h3>
           <div class="spec-card">
-            <b>Exibição:</b> Fundo de topo na tela do cardápio da loja. Formato Horizontal 21:9 (1080 x 450 px).
+            <b>Exibição:</b> Fundo de topo na tela do cardápio da loja. Formato Horizontal 21:9.
           </div>
           <div class="form">
             <div class="field">
@@ -2951,7 +2967,7 @@
             </div>
             <div class="field">
               <label>Ou Upload da Imagem da Capa (21:9)</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 900)">
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 500)">
               <div id="bannerPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem banner de capa'}</div>
             </div>
             <button class="btn dark" onclick="saveBannerOnly(${isCentral})">Salvar Banner de Capa</button>
@@ -2975,7 +2991,7 @@
       
       const body = document.getElementById("adminBody");
       renderStatusMediaManager(body, isCentral);
-      toast("Status Stories 9:16 gravado com sucesso!");
+      toast("Status Stories gravado com sucesso!");
     }
 
     function removeStatusFromStore(sIdx, isCentral) {
@@ -3130,7 +3146,7 @@
               <div class="password-wrapper">
                 <input type="password" id="editStorePass" value="${p.pass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editStorePass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
@@ -3205,7 +3221,7 @@
       save();
       renderHome();
       storeTab("Dados da Loja");
-      toast("Dados, credenciais e logo salvos e gravados com sucesso!");
+      toast("Dados salvos e gravados com sucesso!");
     }
 
     function submitPartner() {
