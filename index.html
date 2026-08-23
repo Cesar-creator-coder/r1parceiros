@@ -36,7 +36,7 @@
       font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 70px;
+      padding-bottom: 80px;
     }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
@@ -102,23 +102,23 @@
     .icon-btn:hover { background: rgba(255,255,255,.2); }
     .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
-    /* BOTÃO DE INSTALAÇÃO NO CANTO INFERIOR */
+    /* BOTÃO DE INSTALAÇÃO NO CANTO INFERIOR DIREITO */
     .bottom-install-btn {
       position: fixed;
       bottom: 20px;
-      left: 16px;
+      right: 16px;
       z-index: 34;
       background: #1e2229;
       color: #ffffff;
       border: 1px solid rgba(255,255,255,0.25);
       border-radius: 25px;
-      padding: 9px 14px;
-      font-size: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
       font-weight: 800;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+      gap: 7px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       transition: transform 0.2s, background 0.2s;
     }
     .bottom-install-btn:hover {
@@ -126,8 +126,8 @@
       transform: translateY(-2px);
     }
     .bottom-install-btn svg {
-      width: 15px;
-      height: 15px;
+      width: 16px;
+      height: 16px;
       fill: var(--primary);
     }
 
@@ -393,8 +393,8 @@
 
     .fab {
       position: fixed;
-      bottom: 16px;
-      right: 16px;
+      bottom: 20px;
+      left: 16px;
       z-index: 35;
       border: 0;
       border-radius: 25px;
@@ -879,15 +879,16 @@
       </div>
     </header>
 
-    <button class="bottom-install-btn" onclick="triggerInstallFlow()" title="Instalar aplicativo">
+    <!-- BOTÃO FIXO NO CANTO INFERIOR DIREITO -->
+    <button class="bottom-install-btn" id="floatingInstallBtn" onclick="triggerInstallFlow()" title="Instalar aplicativo">
       <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
       Instalar App
     </button>
 
     <div id="pwaBanner" class="pwa-install-banner hidden">
-      <div style="font-size:13px;font-weight:700;">📲 Deseja instalar o aplicativo R1 na sua tela inicial?</div>
+      <div style="font-size:13px;font-weight:700;">📲 Deseja instalar o aplicativo R1 na tela do seu celular?</div>
       <div style="display:flex;gap:6px;">
-        <button class="btn green" style="width:auto;padding:6px 12px;font-size:11px;" onclick="installAppPwa()">Instalar</button>
+        <button class="btn green" style="width:auto;padding:6px 12px;font-size:11px;" onclick="triggerInstallFlow()">Instalar</button>
         <button class="btn outline" style="width:auto;padding:6px 8px;font-size:11px;" onclick="document.getElementById('pwaBanner').classList.add('hidden')">✕</button>
       </div>
     </div>
@@ -944,6 +945,7 @@
       <div class="stores" id="stores"></div>
     </section>
 
+    <!-- BOTÃO FLUTUANTE DE VER CARRINHO NO CANTO INFERIOR ESQUERDO -->
     <button id="fab" class="fab hidden" onclick="openCart()">
       <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
       Ver Pedido <span id="fabCount">0 itens</span> · <strong id="fabTotal">R$ 0,00</strong>
@@ -1020,7 +1022,7 @@
       <div id="minOrderWarning" style="color:var(--primary);font-size:13px;font-weight:800;margin-bottom:8px;display:none;"></div>
 
       <div class="form">
-        <!-- SELEÇÃO DE ENTREGA OU RETIRADA -->
+        <!-- ESCOLHA: ENTREGA OU RETIRADA -->
         <div class="field">
           <label>Como deseja receber seu pedido?</label>
           <div class="delivery-choice">
@@ -1292,7 +1294,7 @@
       console.warn("Executando localmente enquanto o Firebase não estiver configurado.");
     }
 
-    const DB_KEY = "r1_marketplace_red_black_v19_final";
+    const DB_KEY = "r1_marketplace_red_black_v20_perfect";
     const seed = {
       config: {
         appName: "R1 Parceiros",
@@ -1414,7 +1416,7 @@
 
     let currentPartner = null;
     let cart = [];
-    let orderType = "entrega"; // "entrega" ou "retirada"
+    let orderType = "entrega";
     let delivery = "R1";
     let adminMode = null;
     let loggedPartnerId = null;
@@ -1733,6 +1735,7 @@
       document.getElementById("statusStoryModal").classList.remove("show");
     }
 
+    /* RENDERIZAÇÃO DA TELA INICIAL E BUSCA GLOBAL */
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
@@ -1769,6 +1772,7 @@
         </article>
       `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
+      /* FILTRO DA PROMOÇÃO DO DIA */
       let promo = [];
       db.partners.filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         p.categories.forEach(c => {
@@ -2473,6 +2477,7 @@
       toast("Link da loja copiado!");
     }
 
+    /* GERENCIADOR ORGANIZADO DE PRODUTOS E PROMOÇÃO DO DIA */
     function renderProductManager(container, isCentral) {
       tempImageLink = "";
       const p = getTargetPartner();
@@ -3058,7 +3063,7 @@
       toast("Cadastro enviado para a Central R1!");
     }
 
-    /* PWA SERVICE WORKER E INSTALAÇÃO */
+    /* MOTOR PWA COM DISPARO INSTANTÂNEO */
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
@@ -3068,30 +3073,39 @@
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
+      window.deferredPrompt = e;
       const banner = document.getElementById("pwaBanner");
       if (banner) banner.classList.remove("hidden");
     });
 
     function triggerInstallFlow() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
+      const promptEvent = window.deferredPrompt || deferredPrompt;
+      if (promptEvent) {
+        promptEvent.prompt();
+        promptEvent.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === "accepted") {
-            toast("Aplicativo instalado com sucesso!");
+            toast("✅ Aplicativo R1 instalado com sucesso!");
           }
           deferredPrompt = null;
+          window.deferredPrompt = null;
           const banner = document.getElementById("pwaBanner");
           if (banner) banner.classList.add("hidden");
         });
       } else {
-        // Dica inteligente de instalação no Android/iOS
-        toast("Toque nos 3 pontinhos do Chrome > 'Adicionar à tela inicial'");
+        // Fallback direto e sem travas para navegadores que exigem menu
+        toast("Toque nos 3 pontinhos do Chrome > 'Instalar' ou 'Adicionar à tela'");
       }
     }
 
     function installAppPwa() {
       triggerInstallFlow();
     }
+
+    window.addEventListener("appinstalled", () => {
+      toast("🎉 App R1 instalado na tela inicial!");
+      const banner = document.getElementById("pwaBanner");
+      if (banner) banner.classList.add("hidden");
+    });
 
     window.addEventListener("DOMContentLoaded", () => {
       initDatabase();
