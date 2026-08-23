@@ -1,10 +1,10 @@
-const CACHE_NAME = "r1-shop-v3";
+const CACHE_NAME = "r1-shop-v4";
 const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "/r1parceiros/",
+  "/r1parceiros/index.html",
+  "/r1parceiros/manifest.json",
+  "/r1parceiros/icon-192.png",
+  "/r1parceiros/icon-512.png"
 ];
 
 self.addEventListener("install", (e) => {
@@ -30,4 +30,3 @@ self.addEventListener("fetch", (e) => {
     fetch(e.request).catch(() => caches.match(e.request))
   );
 });
-
