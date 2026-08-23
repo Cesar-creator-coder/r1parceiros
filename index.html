@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#d9233e">
   <title>R1 Parceiros - Marketplace & Gestão</title>
   
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
 
   <style>
     :root {
@@ -23,6 +26,7 @@
       --border: #e2e5e9;
       --green: #168a55;
       --warning: #d97706;
+      --promo-gold: #ff8a00;
       --shadow-card: 0 6px 20px rgba(18,20,23,0.06);
       --shadow-hover: 0 12px 30px rgba(217,35,62,0.12);
     }
@@ -265,7 +269,7 @@
     }
     .tag-highlight {
       display: inline-block;
-      background: #ff8a00;
+      background: var(--promo-gold);
       color: #fff;
       border-radius: 8px;
       padding: 2px 6px;
@@ -276,7 +280,6 @@
     .promo h3 { margin: 8px 2px 4px; font-size: 15px; }
     .promo .price { color: var(--green); font-weight: 900; font-size: 16px; }
     
-    /* CARDS DE LOJA REESTILIZADOS E EXPRESSIVOS */
     .stores { display: grid; gap: 14px; padding-bottom: 90px; }
     .store-card {
       position: relative;
@@ -323,6 +326,7 @@
       font-weight: 900;
     }
     .status.closed { background: #fee2e2; color: #b91c1c; }
+    .status.blocked { background: #333; color: #fff; }
     .store-meta {
       display: flex;
       flex-wrap: wrap;
@@ -348,11 +352,7 @@
       color: var(--dark);
       transition: all 0.2s ease;
     }
-    .store-arrow svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
+    .store-arrow svg { width: 16px; height: 16px; fill: currentColor; }
     .store-card:hover .store-arrow {
       background: var(--primary);
       color: var(--white);
@@ -582,14 +582,24 @@
       border: 1px solid #d9dde2;
       border-radius: 10px;
     }
+    .field-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff8f0;
+      border: 1px dashed var(--promo-gold);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .field-checkbox input { width: auto; cursor: pointer; }
+    .field-checkbox b { font-size: 13px; color: #b45309; }
     .password-wrapper {
       position: relative;
       display: flex;
       align-items: center;
     }
-    .password-wrapper input {
-      padding-right: 42px;
-    }
+    .password-wrapper input { padding-right: 42px; }
     .toggle-password-btn {
       position: absolute;
       right: 8px;
@@ -763,7 +773,6 @@
     .story-nav-prev { left: 0; }
     .story-nav-next { right: 0; }
 
-    /* BANNER DE INSTALAÇÃO PWA/TWA */
     .pwa-install-banner {
       position: fixed;
       top: 65px;
@@ -856,7 +865,6 @@
       </div>
     </header>
 
-    <!-- BANNER DE INSTALAÇÃO DO APP (TWA / PWA) -->
     <div id="pwaBanner" class="pwa-install-banner hidden">
       <div style="font-size:13px;font-weight:700;">📲 Instalar aplicativo no seu celular?</div>
       <div style="display:flex;gap:6px;">
@@ -865,7 +873,6 @@
       </div>
     </div>
 
-    <!-- CARROSSEL DE STATUS STORIES -->
     <div class="status-container">
       <div class="status-list" id="statusList"></div>
     </div>
@@ -899,7 +906,7 @@
     <section class="section">
       <div class="section-title">
         <h2>
-          <svg viewBox="0 0 24 24"><path d="M19.48 12.35c-1.57-.56-2.54-1.19-3.55-2.35-.95-1.09-1.57-2.48-1.57-3.99 0-.48.06-.94.17-1.39-2.92.83-5.07 3.52-5.07 6.72 0 1.25.33 2.43.91 3.45.19.33.1.75-.2 1-.3.25-.72.24-1-.02-.85-.75-1.46-1.74-2.86-.09-.37-.4-.64-.78-.65-.38-.01-.72.23-.84.6C5.28 14.44 5 16.19 5 18c0 3.86 3.14 7 7 7s7-3.14 7-7c0-1.89-.75-3.6-1.97-4.85-.27-.28-.35-.7-.2-1.04.14-.34.48-.56.85-.56.09 0 .18.01.27.05.53.19 1.03.45 1.53.75z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M19.48 12.35c-1.57-.56-2.54-1.19-3.55-2.35-.95-1.09-1.57-2.48-1.57-3.99 0-.48.06-.94.17-1.39-2.92.83-5.07 3.52-5.07 6.72 0 1.25.33 2.43.91 3.45.19.33.1.75-.2 1-.3.25-.72.24-1-.02-.85-.75-1.46-1.74-1.74-2.86-.09-.37-.4-.64-.78-.65-.38-.01-.72.23-.84.6C5.28 14.44 5 16.19 5 18c0 3.86 3.14 7 7 7s7-3.14 7-7c0-1.89-.75-3.6-1.97-4.85-.27-.28-.35-.7-.2-1.04.14-.34.48-.56.85-.56.09 0 .18.01.27.05.53.19 1.03.45 1.53.75z"/></svg>
           Promoção do Dia
         </h2>
         <span>Ofertas</span>
@@ -1172,9 +1179,9 @@
           </select>
         </div>
         <div class="field">
-          <label>Logo / Foto da Loja (Link URL ou Upload 400x400 px)</label>
+          <label>Logo / Foto da Loja (Link URL ou Upload)</label>
           <input id="pLogoUrl" placeholder="Cole o link da imagem (https://...)" oninput="previewDirect('pLogoUrl', 'partnerPreview')">
-          <input type="file" accept="image/*" onchange="previewUpload(this, 'partnerPreview', 'pLogoUrl')">
+          <input type="file" accept="image/*" onchange="previewUpload(this, 'partnerPreview', 'pLogoUrl', 400)">
           <div id="partnerPreview" class="file-preview">Prévia da Logo</div>
         </div>
         <button class="btn green" onclick="submitPartner()">Enviar cadastro para análise</button>
@@ -1186,9 +1193,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    /* ==========================================================================
-       CONFIGURAÇÃO DO FIREBASE (Cole suas credenciais aqui quando criar o projeto)
-       ========================================================================== */
+    /* CONFIGURAÇÃO DO FIREBASE */
     const firebaseConfig = {
       apiKey: "SUA_API_KEY_AQUI",
       authDomain: "seu-app.firebaseapp.com",
@@ -1200,20 +1205,18 @@
 
     let isFirebaseReady = false;
     let fsDb = null;
-    let fsStorage = null;
 
     try {
       if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
         firebase.initializeApp(firebaseConfig);
         fsDb = firebase.firestore();
-        fsStorage = firebase.storage();
         isFirebaseReady = true;
       }
     } catch (e) {
       console.warn("Rodando com armazenamento local enquanto o Firebase não estiver configurado.");
     }
 
-    const DB_KEY = "r1_marketplace_red_black_v13";
+    const DB_KEY = "r1_marketplace_red_black_v15";
     const seed = {
       config: {
         appName: "R1 Parceiros",
@@ -1246,19 +1249,18 @@
             { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4" },
             { type: "image", url: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800" }
           ],
-          promo: true,
           categories: [
             {
               name: "PUDIM CAKE - SOB ENCOMENDA",
               products: [
-                { id: "p1", name: "Pudim Tradicional Especial", desc: "Pudim cremoso com calda de caramelo artesanal feito sob encomenda.", price: 15, tag: "DESTAQUE", image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=300", paused: false },
-                { id: "p2", name: "Pudim de Chocolate Nobre", desc: "Chocolate cremoso 50% cacau sob encomenda.", price: 18, tag: "SOB ENCOMENDA", image: "", paused: false }
+                { id: "p1", name: "Pudim Tradicional Especial", desc: "Pudim cremoso com calda de caramelo artesanal feito sob encomenda.", price: 15, isPromo: true, image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=300", paused: false },
+                { id: "p2", name: "Pudim de Chocolate Nobre", desc: "Chocolate cremoso 50% cacau sob encomenda.", price: 18, isPromo: false, image: "", paused: false }
               ]
             },
             {
               name: "DOCES GOURMET",
               products: [
-                { id: "p3", name: "Brigadeiro Artesanal", desc: "Unidade feita com chocolate belga.", price: 3.5, tag: "", image: "", paused: false }
+                { id: "p3", name: "Brigadeiro Artesanal", desc: "Unidade feita com chocolate belga.", price: 3.5, isPromo: false, image: "", paused: false }
               ]
             }
           ]
@@ -1285,13 +1287,12 @@
           statuses: [
             { type: "image", url: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=800" }
           ],
-          promo: true,
           categories: [
             {
               name: "AÇAÍ",
               products: [
-                { id: "p4", name: "Copo de Açaí 770ml", desc: "Monte seu pedido com adicionais.", price: 30, tag: "MAIS VENDIDO", image: "", paused: false },
-                { id: "p5", name: "Copo de Açaí 500ml", desc: "Açaí cremoso.", price: 22, tag: "", image: "", paused: false }
+                { id: "p4", name: "Copo de Açaí 770ml", desc: "Monte seu pedido com adicionais.", price: 30, isPromo: true, image: "", paused: false },
+                { id: "p5", name: "Copo de Açaí 500ml", desc: "Açaí cremoso.", price: 22, isPromo: false, image: "", paused: false }
               ]
             }
           ]
@@ -1316,13 +1317,12 @@
           logo: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200",
           banner: "",
           statuses: [],
-          promo: true,
           categories: [
             {
               name: "ANTISSÉPTICOS",
               products: [
-                { id: "p6", name: "Babymed 45g", desc: "Pomada dermatológica.", price: 12.9, tag: "", image: "", paused: false },
-                { id: "p7", name: "Bepantriz Assaduras 30g", desc: "Pomada dermatológica.", price: 15.9, tag: "", image: "", paused: false }
+                { id: "p6", name: "Babymed 45g", desc: "Pomada dermatológica.", price: 12.9, isPromo: true, image: "", paused: false },
+                { id: "p7", name: "Bepantriz Assaduras 30g", desc: "Pomada dermatológica.", price: 15.9, isPromo: false, image: "", paused: false }
               ]
             }
           ]
@@ -1346,24 +1346,22 @@
     let tempStatusMedia = "";
     let reportFilterPeriod = "todos";
 
-    // Sessão e Histórico Interno
     let adminSessionActive = false;
     let adminTabHistory = [];
-
-    // Gatilho secreto 5 cliques
     let logoSecretClicks = 0;
     let logoSecretTimer = null;
 
-    // Stories 9:16
     let activeStoryPartner = null;
     let activeStoryIndex = 0;
     let storyTimer = null;
-
-    // PWA Install Prompt Event
     let deferredPrompt = null;
 
     function save() {
-      localStorage.setItem(DB_KEY, JSON.stringify(db));
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (err) {
+        console.warn("LocalStorage cheio, priorizando armazenamento em nuvem/memória.");
+      }
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").set(db).catch(err => {
           console.error("Erro ao salvar no Firestore:", err);
@@ -1460,20 +1458,63 @@
       }
     }
 
-    function previewUpload(input, previewElementId, targetInputId) {
+    function previewUpload(input, previewElementId, targetInputId, maxDim = 600) {
       const file = input.files[0];
       if (!file) return;
+
+      const previewEl = document.getElementById(previewElementId);
+      previewEl.innerHTML = "<small style='color:#666;'>Otimizando imagem...</small>";
+
+      if (file.type.startsWith("video")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          if (targetInputId) document.getElementById(targetInputId).value = base64;
+          else tempStatusMedia = base64;
+          previewEl.innerHTML = `<video src="${base64}" controls style="width:100%;height:100%;object-fit:contain;"></video>`;
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
-        const base64 = e.target.result;
-        if (targetInputId) {
-          document.getElementById(targetInputId).value = base64;
-        } else {
-          tempStatusMedia = base64;
-        }
-        document.getElementById(previewElementId).innerHTML = file.type.startsWith("video") 
-          ? `<video src="${base64}" controls style="width:100%;height:100%;object-fit:contain;"></video>` 
-          : `<img src="${base64}" alt="preview">`;
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.82);
+
+          if (targetInputId) {
+            const inputTarget = document.getElementById(targetInputId);
+            if (inputTarget) inputTarget.value = optimizedBase64;
+          } else {
+            tempImageLink = optimizedBase64;
+            tempStatusMedia = optimizedBase64;
+          }
+
+          previewEl.innerHTML = `<img src="${optimizedBase64}" alt="preview">`;
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
@@ -1621,7 +1662,6 @@
         <article class="store-card" onclick="openCatalog(${p.id})">
           <div class="store-img">${renderMedia(p.logo, "")}</div>
           <div>
-            ${p.promo ? '<div class="promo-ribbon">★ PROMOÇÃO</div>' : ''}
             <h3>${p.name}</h3>
             <div class="address">📍 ${p.address}</div>
             <span class="status ${p.open ? '' : 'closed'}">${p.open ? '● Aberto' : '● Fechado'}</span>
@@ -1637,25 +1677,28 @@
         </article>
       `).join("") || '<div class="panel">Nenhum parceiro disponível no momento.</div>';
 
+      /* FILTRO DIRETO DAS PROMOÇÕES DO DIA */
       let promo = [];
       db.partners.filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         p.categories.forEach(c => {
           c.products.forEach(x => {
-            if (p.promo && !x.paused) promo.push({ ...x, store: p.name, partner: p.id });
+            if (x.isPromo && !x.paused) {
+              promo.push({ ...x, store: p.name, partner: p.id });
+            }
           });
         });
       });
 
-      promo = promo.slice(0, 8);
+      promo = promo.slice(0, 10);
       document.getElementById("promos").innerHTML = promo.map(x => `
         <div class="promo" onclick="openCatalog(${x.partner})">
           <div class="promo-img">${renderMedia(x.image, "")}</div>
-          <span class="tag">OFERTA</span>
+          <span class="tag">🔥 PROMOÇÃO</span>
           <h3>${x.name}</h3>
-          <div class="price">A partir de ${money(x.price)}</div>
+          <div class="price">${money(x.price)}</div>
           <small style="color:var(--muted)">${x.store}</small>
         </div>
-      `).join("") || '<p style="color:var(--muted);padding:10px;">Sem ofertas no momento.</p>';
+      `).join("") || '<p style="color:var(--muted);padding:10px;">Nenhum produto marcado como Promoção do Dia no momento.</p>';
     }
 
     function searchAll() { renderHome(); }
@@ -1699,10 +1742,10 @@
                 ${c.products.map(x => `
                   <article class="product ${x.paused ? 'paused' : ''}">
                     <div>
-                      ${x.tag ? `<span class="tag-highlight">${x.tag}</span><br>` : ''}
+                      ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO DO DIA</span><br>` : ''}
                       <h3>${x.name} ${x.paused ? '<small style="color:red">(Pausado)</small>' : ''}</h3>
                       <p>${x.desc || ""}</p>
-                      <div class="price">A partir de ${money(Number(x.price))}</div>
+                      <div class="price">${money(Number(x.price))}</div>
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:center;">
                       <div class="prod-media">${renderMedia(x.image, "")}</div>
@@ -1761,7 +1804,6 @@
     }
 
     function openCart() {
-      // Auto-preenche os dados salvos do cliente
       const savedClient = JSON.parse(localStorage.getItem("r1_customer_profile") || "null");
       if (savedClient) {
         if (!document.getElementById("cName").value) document.getElementById("cName").value = savedClient.name || "";
@@ -1885,7 +1927,6 @@
 
       if (!name || !phone || !address) return toast("Preencha nome, WhatsApp e endereço.");
 
-      // Salva o perfil do cliente para os próximos pedidos
       localStorage.setItem("r1_customer_profile", JSON.stringify({ name, phone, address }));
 
       const id = "R1-" + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -1954,14 +1995,6 @@
       toast("✅ Pedido concluído com sucesso e gravado no relatório!");
     }
 
-    function openAdmin() {
-      if (adminSessionActive) {
-        openAdminPanel();
-      } else {
-        openModal("loginModal");
-      }
-    }
-
     function updateLoginHint() {
       const type = document.getElementById("loginType").value;
       const hint = document.getElementById("loginHint");
@@ -2018,11 +2051,11 @@
 
     function openAdminPanel() {
       document.getElementById("adminTitle").textContent = adminMode === "central" ? (db.config.appName || "Central R1") : "Painel do Lojista";
-      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, identidade visual, vídeos e relatórios" : "Produtos, credenciais, status 9:16 e relatórios";
+      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, identidade visual, vídeos e relatórios" : "Produtos, promoções, status 9:16 e relatórios";
       
       const tabs = adminMode === "central" 
         ? ["Visão geral", "Identidade & App", "Parceiros", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
-        : ["Dashboard", "Produtos", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+        : ["Dashboard", "Produtos & Promoções", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
         
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
         <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
@@ -2078,7 +2111,7 @@
           </div>
           <div class="panel" style="margin-top:12px;">
             <h3>Central Administrativa R1</h3>
-            <p class="hint">Controle de parceiros, bloqueio/pausa de comércios, logomarca oficial, vídeos 9:16 (Stories), produtos e relatórios de todos os estabelecimentos.</p>
+            <p class="hint">Controle de parceiros, promoções, vídeos 9:16 (Stories), produtos e relatórios de todos os estabelecimentos.</p>
           </div>
         `;
       } else if (tab === "Identidade & App") {
@@ -2166,8 +2199,7 @@
           <h3>Identidade & Logomarca da Plataforma</h3>
           
           <div class="spec-card">
-            <b>🖼️ Especificação da Logomarca do Marketplace:</b> Proporção 1:1 Quadrada (400 x 400 px), formato PNG com fundo transparente ou JPG.<br>
-            Ao salvar, o topo do aplicativo atualizará instantaneamente.
+            <b>🖼️ Logo da Plataforma:</b> Imagem quadrada (400 x 400 px).
           </div>
 
           <div class="form">
@@ -2185,7 +2217,7 @@
             </div>
             <div class="field">
               <label>Ou faça Upload da Logomarca (400 x 400 px)</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'appLogoPreview', 'editAppLogo')">
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'appLogoPreview', 'editAppLogo', 400)">
               <div id="appLogoPreview" class="file-preview" style="height:120px;">${c.appLogo ? `<img src="${c.appLogo}">` : 'Sem logomarca customizada'}</div>
             </div>
             
@@ -2243,7 +2275,6 @@
       p.logo = p.logo || "";
       p.pixType = "Celular";
       p.pixKey = p.whatsapp;
-      p.promo = false;
       p.delivery = "R$ 7,00";
       p.time = "30 - 50 min";
       p.minOrder = 15.00;
@@ -2262,14 +2293,15 @@
 
       if (tab === "Dashboard") {
         const prodCount = p.categories.reduce((a, c) => a + c.products.length, 0);
+        const promoCount = p.categories.reduce((a, c) => a + c.products.filter(x => x.isPromo).length, 0);
         const myOrders = db.orders.filter(o => o.storeId === p.id);
         const myTotal = myOrders.reduce((acc, o) => acc + (o.total || 0), 0);
 
         body.innerHTML = `
           <div class="admin-grid">
             <div class="metric"><small>Loja Conectada</small><strong>${p.name}</strong></div>
-            <div class="metric"><small>Pedido Mínimo</small><strong>${money(p.minOrder || 0)}</strong></div>
             <div class="metric"><small>Total de Produtos</small><strong>${prodCount}</strong></div>
+            <div class="metric"><small>Promoções Ativas</small><strong style="color:var(--promo-gold);">${promoCount}</strong></div>
             <div class="metric"><small>Faturamento</small><strong class="success">${money(myTotal)}</strong></div>
           </div>
           <div class="panel" style="margin-top:12px;">
@@ -2281,7 +2313,7 @@
             </div>
           </div>
         `;
-      } else if (tab === "Produtos") {
+      } else if (tab === "Produtos & Promoções") {
         renderProductManager(body, false);
       } else if (tab === "Categorias") {
         renderCategoriesManager(body);
@@ -2300,6 +2332,7 @@
       toast("Link da loja copiado!");
     }
 
+    /* GERENCIADOR ORGANIZADO DE PRODUTOS E PROMOÇÃO DO DIA */
     function renderProductManager(container, isCentral) {
       tempImageLink = "";
       const p = getTargetPartner();
@@ -2315,66 +2348,77 @@
         ` : ''}
 
         <div class="panel">
-          <h3>Cadastrar Novo Produto em ${p.name}</h3>
-          
-          <div class="spec-card">
-            <b>📐 Resolução Recomendada para Foto do Produto:</b> 600 x 600 px ou 800 x 800 px (Quadrada 1:1, JPG ou PNG).
-          </div>
+          <h3>➕ Cadastrar Novo Produto em ${p.name}</h3>
 
           <div class="form">
             <div class="field">
-              <label>Categoria de destino</label>
+              <label>1. Categoria do Produto</label>
               <select id="newCat">
                 ${p.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
               </select>
             </div>
+            
             <div class="field">
-              <label>Nome do produto</label>
-              <input id="newName" placeholder="Ex: Pudim Cake - Sob Encomenda">
+              <label>2. Nome do Produto / Item</label>
+              <input id="newName" placeholder="Ex: Pudim Cake Tradicional">
             </div>
+
             <div class="field">
-              <label>Tag / Destaque Visual (Opcional)</label>
-              <input id="newTag" placeholder="Ex: DESTAQUE, SOB ENCOMENDA, PROMOÇÃO DO DIA">
+              <label>3. Preço de Venda (R$)</label>
+              <input id="newPrice" type="number" step="0.01" placeholder="Ex: 25.00">
             </div>
-            <div class="field">
-              <label>Descrição do produto</label>
-              <textarea id="newDesc" placeholder="Ingredientes, porção, sabor..."></textarea>
+
+            <div class="field-checkbox">
+              <input type="checkbox" id="newIsPromo">
+              <label for="newIsPromo" style="cursor:pointer;margin:0;">
+                <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b><br>
+                <small style="color:#666;">Marque esta opção se este item for uma oferta em destaque.</small>
+              </label>
             </div>
+
             <div class="field">
-              <label>Preço (R$)</label>
-              <input id="newPrice" type="number" step="0.01" placeholder="Ex: 15.00">
+              <label>4. Descrição do Produto (Ingredientes, Porção, Detalhes)</label>
+              <textarea id="newDesc" placeholder="Descreva o produto para o cliente..."></textarea>
             </div>
+
             <div class="field">
-              <label>Imagem do Produto (Link direto URL)</label>
+              <label>5. Foto do Produto (Link direto URL)</label>
               <input id="newImgUrl" placeholder="https://exemplo.com/foto.jpg" oninput="previewDirect('newImgUrl', 'productImgPreview')">
             </div>
+
             <div class="field">
-              <label>Ou faça Upload da Foto (600x600 px)</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl')">
-              <div id="productImgPreview" class="file-preview">Prévia da Imagem</div>
+              <label>Ou faça Upload da Foto (Compactação Automática)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 600)">
+              <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
             </div>
-            <button class="btn red" onclick="addProductToStore()">+ Adicionar ao Catálogo</button>
+
+            <button class="btn red" onclick="addProductToStore()">+ Adicionar Produto ao Cardápio</button>
           </div>
         </div>
 
         <div class="panel">
-          <h3>Produtos Cadastrados em ${p.name}</h3>
+          <h3>📋 Itens Cadastrados no Cardápio (${p.categories.reduce((acc, c) => acc + c.products.length, 0)})</h3>
           ${p.categories.map(c => `
-            <p style="margin:14px 0 6px;"><b>${c.name}</b></p>
+            <p style="margin:14px 0 6px;font-size:14px;color:var(--dark);"><b>📂 Categoria: ${c.name}</b></p>
             ${c.products.map((x, pIdx) => `
               <div class="row">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;background:#f0f0f0;display:grid;place-items:center;">
+                  <div style="width:45px;height:45px;border-radius:8px;overflow:hidden;background:#f0f0f0;display:grid;place-items:center;">
                     ${renderMedia(x.image, "")}
                   </div>
                   <span>
-                    ${x.tag ? `<span class="tag-highlight">${x.tag}</span> ` : ''}
-                    <b>${x.name}</b> — ${money(Number(x.price))}<br>
+                    ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO ATIVA</span> ` : ''}
+                    <b>${x.name}</b> — <span style="color:var(--green);font-weight:900;">${money(Number(x.price))}</span><br>
                     <small style="color:var(--muted)">${x.paused ? '<b style="color:red">Pausado</b>' : 'Ativo'}</small>
                   </span>
                 </div>
-                <div style="display:flex;gap:6px;">
-                  <button class="btn dark" style="padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${pIdx})">${x.paused ? 'Ativar' : 'Pausar'}</button>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn ${x.isPromo ? 'warning' : 'outline'}" style="padding:5px 8px;font-size:11px;" onclick="togglePromoProduct('${c.name}', ${pIdx})">
+                    ${x.isPromo ? 'Tirar Promo' : 'Fazer Promo'}
+                  </button>
+                  <button class="btn dark" style="padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${pIdx})">
+                    ${x.paused ? 'Ativar' : 'Pausar'}
+                  </button>
                   <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removeProduct('${c.name}', ${pIdx})">✕</button>
                 </div>
               </div>
@@ -2395,8 +2439,8 @@
       const price = Number(document.getElementById("newPrice").value);
       const cat = document.getElementById("newCat").value;
       const desc = document.getElementById("newDesc").value.trim();
-      const tag = document.getElementById("newTag").value.trim().toUpperCase();
-      const imgUrl = document.getElementById("newImgUrl").value.trim();
+      const isPromo = document.getElementById("newIsPromo").checked;
+      const imgUrl = document.getElementById("newImgUrl").value.trim() || tempImageLink;
 
       if (!n || isNaN(price) || price <= 0) return toast("Preencha nome e preço válido.");
 
@@ -2409,10 +2453,10 @@
       c.products.push({
         id: "p_" + Date.now(),
         name: n,
-        tag: tag,
+        isPromo: isPromo,
         desc: desc,
         price: price,
-        image: imgUrl || tempImageLink || "",
+        image: imgUrl || "",
         paused: false
       });
 
@@ -2420,8 +2464,21 @@
       save();
       renderHome();
       if (adminMode === "central") centralTab("Produtos da Loja");
-      else storeTab("Produtos");
+      else storeTab("Produtos & Promoções");
       toast("Produto adicionado com sucesso!");
+    }
+
+    function togglePromoProduct(catName, prodIdx) {
+      const p = getTargetPartner();
+      const c = p.categories.find(x => x.name === catName);
+      if (c && c.products[prodIdx]) {
+        c.products[prodIdx].isPromo = !c.products[prodIdx].isPromo;
+        save();
+        renderHome();
+        if (adminMode === "central") centralTab("Produtos da Loja");
+        else storeTab("Produtos & Promoções");
+        toast(c.products[prodIdx].isPromo ? "Produto destacado na Promoção do Dia!" : "Produto removido das promoções.");
+      }
     }
 
     function togglePauseProduct(catName, prodIdx) {
@@ -2432,7 +2489,7 @@
         save();
         renderHome();
         if (adminMode === "central") centralTab("Produtos da Loja");
-        else storeTab("Produtos");
+        else storeTab("Produtos & Promoções");
         toast("Status do produto alterado!");
       }
     }
@@ -2445,7 +2502,7 @@
         save();
         renderHome();
         if (adminMode === "central") centralTab("Produtos da Loja");
-        else storeTab("Produtos");
+        else storeTab("Produtos & Promoções");
         toast("Produto removido.");
       }
     }
@@ -2499,6 +2556,7 @@
       }
     }
 
+    /* ABA SEPARADA E ORGANIZADA: STORIES 9:16 E CAPA */
     function renderStatusMediaManager(container, isCentral) {
       tempStatusMedia = "";
       const p = getTargetPartner();
@@ -2515,19 +2573,18 @@
         ` : ''}
 
         <div class="panel">
-          <h3>Adicionar Novo Status Stories (9:16 Vertical) para ${p.name}</h3>
+          <h3>📱 1. Status / Stories (Vertical 9:16) de ${p.name}</h3>
 
           <div class="spec-card">
-            <b>📱 Especificação dos Status / Stories:</b> Proporção Vertical 9:16 (1080 x 1920 px), formato MP4 (vídeo) ou JPG/PNG (foto).<br>
-            Você pode adicionar múltiplos status para serem exibidos no topo da plataforma.
+            <b>Especificação Stories:</b> Formato vertical 9:16 (1080 x 1920 px), vídeos MP4 ou fotos. Aparece no topo do marketplace.
           </div>
 
           <div class="form">
             <div class="field">
-              <label>Tipo de Mídia</label>
+              <label>Tipo de Mídia do Status</label>
               <select id="newStatusType">
                 <option value="video">Vídeo Vertical MP4 (9:16)</option>
-                <option value="image">Foto / Banner Vertical (9:16)</option>
+                <option value="image">Foto / Arte Vertical (9:16)</option>
               </select>
             </div>
             <div class="field">
@@ -2535,8 +2592,8 @@
               <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou imagem.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
             </div>
             <div class="field">
-              <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto 9:16)</label>
-              <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl')">
+              <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto)</label>
+              <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 1080)">
               <div id="statusPreviewBox" class="file-preview">Prévia do Status 9:16</div>
             </div>
             <button class="btn red" onclick="addStatusToStore(${isCentral})">+ Publicar Status Stories</button>
@@ -2544,7 +2601,7 @@
         </div>
 
         <div class="panel">
-          <h3>Status Stories Ativos de ${p.name} (${p.statuses.length})</h3>
+          <h3>Stories Ativos no Topo (${p.statuses.length})</h3>
           <div class="list">
             ${p.statuses.map((st, sIdx) => `
               <div class="row">
@@ -2559,20 +2616,23 @@
                 </div>
                 <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeStatusFromStore(${sIdx}, ${isCentral})">Excluir</button>
               </div>
-            `).join("") || '<p class="hint">Nenhum status publicado ainda para este estabelecimento.</p>'}
+            `).join("") || '<p class="hint">Nenhum status publicado ainda.</p>'}
           </div>
         </div>
 
         <div class="panel">
-          <h3>Banner de Capa do Catálogo (21:9 Panorâmico)</h3>
+          <h3>🖼️ 2. Banner de Capa do Catálogo (Horizontal 21:9)</h3>
+          <div class="spec-card">
+            <b>Banner de Topo:</b> Imagem horizontal (1080 x 450 px) que fica no topo do cardápio da sua loja.
+          </div>
           <div class="form">
             <div class="field">
-              <label>Link da Imagem da Capa (1080 x 450 px)</label>
+              <label>Link da Imagem da Capa</label>
               <input id="editBannerUrl" value="${p.banner || ''}" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('editBannerUrl', 'bannerPreview')">
             </div>
             <div class="field">
               <label>Ou Upload da Imagem da Capa</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl')">
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 900)">
               <div id="bannerPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem banner de capa'}</div>
             </div>
             <button class="btn dark" onclick="saveBannerOnly(${isCentral})">Salvar Banner de Capa</button>
@@ -2728,7 +2788,7 @@
           <h3>Dados, Credenciais e Logomarca de ${p.name}</h3>
 
           <div class="spec-card">
-            <b>🖼️ Logo da Loja:</b> Formato 1:1 Quadrado (400 x 400 px). Pode subir a foto ou colar link direto.
+            <b>Logo da Loja:</b> Imagem quadrada (400 x 400 px) que representa o estabelecimento.
           </div>
 
           <div class="form">
@@ -2762,7 +2822,7 @@
             </div>
             <div class="field">
               <label>Ou faça Upload da Foto/Logo (400 x 400 px)</label>
-              <input type="file" accept="image/*" onchange="previewUpload(this, 'storeLogoPreview', 'editStoreLogo')">
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'storeLogoPreview', 'editStoreLogo', 400)">
               <div id="storeLogoPreview" class="file-preview" style="height:120px;">${renderMedia(p.logo, "")}</div>
             </div>
             <div class="field">
@@ -2858,7 +2918,18 @@
       toast("Cadastro enviado para a Central R1!");
     }
 
-    /* PWA / TWA Install Trigger */
+    /* PWA Service Worker Registration */
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").then((reg) => {
+          console.log("Service Worker ativo:", reg.scope);
+        }).catch((err) => {
+          console.log("Erro Service Worker:", err);
+        });
+      });
+    }
+
+    /* PWA Install Trigger */
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
