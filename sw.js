@@ -1,10 +1,8 @@
-const CACHE_NAME = "r1-shop-v5";
+const CACHE_NAME = "r1-shop-v6";
 const ASSETS = [
-  "/r1parceiros/",
-  "/r1parceiros/index.html",
-  "/r1parceiros/manifest.json",
-  "/r1parceiros/icon-192.png",
-  "/r1parceiros/icon-512.png"
+  "/r1parceiros-/",
+  "/r1parceiros-/index.html",
+  "/r1parceiros-/manifest.json"
 ];
 
 self.addEventListener("install", (e) => {
