@@ -1,11 +1,10 @@
 {
-  "name": "R1 Parceiros - Marketplace & Entregas",
+  "name": "R1 Parceiros",
   "short_name": "R1 Parceiros",
-  "description": "Peça nos melhores comércios locais com rapidez e entrega garantida!",
+  "description": "Marketplace e Entregas Oficiais R1",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#121417",
   "theme_color": "#d9233e",
   "icons": [
