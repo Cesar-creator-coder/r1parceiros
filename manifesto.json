@@ -1,10 +1,12 @@
 {
-  "name": "R1 Parceiros",
-  "short_name": "R1 Parceiros",
-  "description": "Marketplace e Entregas Oficiais R1",
+  "id": "com.r1amobi.r1shop",
+  "name": "R1 SHOP - Marketplace & Entregas",
+  "short_name": "R1 SHOP",
+  "description": "Compre nos melhores comércios locais com rapidez e entrega garantida!",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#121417",
   "theme_color": "#d9233e",
   "icons": [
