@@ -218,6 +218,24 @@
       gap: 5px;
     }
     .chip svg { width: 13px; height: 13px; fill: currentColor; }
+
+    /* CARROSSEL DE BANNERS INSTITUCIONAIS DA CENTRAL */
+    .app-banners {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 14px 18px 0;
+    }
+    .app-banner-card {
+      min-width: 280px;
+      height: 120px;
+      border-radius: 16px;
+      background: #222;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .app-banner-card img { width: 100%; height: 100%; object-fit: cover; }
     
     .status-container { padding: 14px 18px 0; }
     .status-list {
@@ -240,13 +258,10 @@
       height: 62px;
       border-radius: 50%;
       padding: 3px;
-      background: #ccc;
-      display: grid;
-      place-items: center;
-    }
-    .status-ring.has-status {
       background: linear-gradient(135deg, var(--primary), #ff7a00);
       animation: pulseBorder 2s infinite;
+      display: grid;
+      place-items: center;
     }
     @keyframes pulseBorder {
       0% { transform: scale(1); }
@@ -547,6 +562,45 @@
     .cover-media img { width: 100%; height: 100%; object-fit: cover; }
     .catalog-cover h2 { margin: 0 0 4px; font-size: 19px; }
     .catalog-cover p { margin: 0; color: #ccc; font-size: 13px; line-height: 1.4; }
+    
+    .social-links {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .social-btn {
+      padding: 6px 10px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .social-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+    .payment-badges-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .pay-badge {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 3px 6px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #e2e5e9;
+    }
+
     .catalog-badges {
       display: flex;
       flex-wrap: wrap;
@@ -946,9 +1000,13 @@
       </div>
     </div>
 
-    <div class="status-container">
+    <!-- CARROSSEL DE STORIES CONDICIONAL (SÓ APARECE SE TIVER STATUS) -->
+    <div class="status-container hidden" id="statusContainerBox">
       <div class="status-list" id="statusList"></div>
     </div>
+
+    <!-- CARROSSEL DE BANNERS INSTITUCIONAIS DA CENTRAL -->
+    <div class="app-banners hidden" id="appBannersBox"></div>
 
     <section class="hero">
       <h2>Compre local. <span>Receba rápido.</span></h2>
@@ -1122,10 +1180,10 @@
 
         <div id="deliveryAddressGroup">
           <div class="field">
-            <label>CEP (Busca automática de Rua e Bairro)</label>
+            <label>CEP (Busca automática)</label>
             <div style="display:flex;gap:6px;">
               <input type="text" id="cCep" placeholder="19800-000" maxlength="9" onblur="buscarCep(this.value)">
-              <button type="button" class="btn dark" style="width:auto;padding:8px 12px;font-size:12px;" onclick="buscarCep(document.getElementById('cCep').value)">Buscar</button>
+              <button type="button" class="btn dark" style="width:auto;padding:8px 12px;font-size:12px;" onclick="buscarCep(document.getElementById('cCep').value)">Buscar CEP</button>
             </div>
           </div>
           <div class="field">
@@ -1274,6 +1332,50 @@
       </div>
       <div class="tabs" id="adminTabs"></div>
       <div id="adminBody"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDIÇÃO DE PRODUTO INDIVIDUAL -->
+  <div id="editProductModal" class="modal">
+    <div class="sheet center">
+      <div class="sheet-head">
+        <h2>✏️ Editar Produto</h2>
+        <button class="close" onclick="closeModal('editProductModal')">✕</button>
+      </div>
+      <div class="form">
+        <input type="hidden" id="editProdCatName">
+        <input type="hidden" id="editProdIndex">
+        <div class="field">
+          <label>Nome do Produto</label>
+          <input id="editProdName">
+        </div>
+        <div class="field">
+          <label>Preço de Venda (R$)</label>
+          <input id="editProdPrice" type="number" step="0.01">
+        </div>
+        <div class="field">
+          <label>Descrição</label>
+          <textarea id="editProdDesc"></textarea>
+        </div>
+        <div class="field">
+          <label>Link da Foto (URL)</label>
+          <input id="editProdImg" oninput="previewDirect('editProdImg', 'editProdPreview')">
+        </div>
+        <div class="field">
+          <label>Ou Upload da Foto (1:1)</label>
+          <input type="file" accept="image/*" onchange="previewUpload(this, 'editProdPreview', 'editProdImg', 400)">
+          <div id="editProdPreview" class="file-preview" style="height:110px;">Prévia</div>
+        </div>
+        <div class="field-checkbox">
+          <input type="checkbox" id="editProdIsPromo">
+          <label for="editProdIsPromo" style="cursor:pointer;margin:0;"><b>🔥 Destacar na Promoção do Dia</b></label>
+        </div>
+        <div class="field-checkbox" style="background:#f4f5f7;border-color:#ccc;">
+          <input type="checkbox" id="editProdPaused">
+          <label for="editProdPaused" style="cursor:pointer;margin:0;"><b>Pausar Produto (Indisponível temporariamente)</b></label>
+        </div>
+        <button class="btn red" onclick="saveProductEdits()">Salvar Alterações</button>
+      </div>
     </div>
   </div>
 
@@ -1503,13 +1605,14 @@
         appLogo: "",
         adminUser: "admin",
         adminPass: "1234",
-        mapProvider: "none", // none, mapbox, google, osrm
+        mapProvider: "none",
         mapApiKey: "",
-        aiProvider: "none",  // none, gemini, openai, claude
+        aiProvider: "none",
         aiApiKey: "",
         baseDeliveryKm: 4,
         baseDeliveryFee: 7.00,
-        extraKmFee: 0.80
+        extraKmFee: 0.80,
+        banners: []
       },
       partners: [
         {
@@ -1532,6 +1635,8 @@
           delivery: "R$ 7,00",
           time: "25 - 40 min",
           minOrder: 15.00,
+          socials: { instagram: "pudimclaudinha", facebook: "", youtube: "" },
+          acceptedPayments: ["Pix", "Dinheiro", "Visa", "Mastercard", "Elo", "Alelo"],
           logo: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=200",
           banner: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800",
           statuses: [
@@ -1550,12 +1655,15 @@
         }
       ],
       pending: [],
-      orders: []
+      orders: [],
+      clients: []
     };
 
     let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || seed;
     if (!db.config) db.config = seed.config;
+    if (!db.config.banners) db.config.banners = [];
     if (!db.orders) db.orders = [];
+    if (!db.clients) db.clients = [];
 
     let currentPartner = null;
     let cart = [];
@@ -1765,7 +1873,7 @@
       if (cleanCep.length !== 8) return;
 
       try {
-        toast("Buscando endereço pelo CEP...");
+        toast("Buscando CEP...");
         const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
         const data = await res.json();
         if (!data.erro) {
@@ -1773,7 +1881,7 @@
           document.getElementById("cNeighborhood").value = data.bairro || "";
           document.getElementById("cCity").value = `${data.localidade || 'Assis'} - ${data.uf || 'SP'}`;
           document.getElementById("cNumber").focus();
-          toast("Endereço preenchido com sucesso!");
+          toast("Endereço preenchido!");
         } else {
           toast("CEP não encontrado.");
         }
@@ -1792,7 +1900,7 @@
         navigator.share(shareData).catch(() => {});
       } else {
         navigator.clipboard.writeText(window.location.href);
-        toast("Link da plataforma copiado!");
+        toast("Link copiado!");
       }
     }
 
@@ -1808,35 +1916,37 @@
         navigator.share(shareData).catch(() => {});
       } else {
         navigator.clipboard.writeText(shareUrl);
-        toast(`Link de ${currentPartner.name} copiado!`);
+        toast(`Link copiado!`);
       }
     }
 
+    /* RENDERIZAÇÃO DE STORIES CONDICIONAL (SÓ MOSTRA SE TIVER STATUS) */
     function renderStatusList() {
-      const partnersWithStatus = db.partners.filter(p => p.status === "approved" && !p.blocked);
-      document.getElementById("statusList").innerHTML = partnersWithStatus.map(p => {
-        const hasStories = p.statuses && p.statuses.length > 0;
-        return `
-          <div class="status-item" onclick="openStatusStories(${p.id})">
-            <div class="status-ring ${hasStories ? 'has-status' : ''}">
-              <div class="status-avatar">${renderMedia(p.logo, "")}</div>
-            </div>
-            <span class="status-name">${p.name}</span>
+      const partnersWithStatus = db.partners.filter(p => p.status === "approved" && !p.blocked && p.statuses && p.statuses.length > 0);
+      const containerBox = document.getElementById("statusContainerBox");
+      
+      if (!partnersWithStatus.length) {
+        containerBox.classList.add("hidden");
+        return;
+      }
+
+      containerBox.classList.remove("hidden");
+      document.getElementById("statusList").innerHTML = partnersWithStatus.map(p => `
+        <div class="status-item" onclick="openStatusStories(${p.id})">
+          <div class="status-ring">
+            <div class="status-avatar">${renderMedia(p.logo, "")}</div>
           </div>
-        `;
-      }).join("");
+          <span class="status-name">${p.name}</span>
+        </div>
+      `).join("");
     }
 
     function openStatusStories(partnerId) {
       const p = db.partners.find(x => x.id === partnerId);
-      if (!p || p.blocked) return;
+      if (!p || p.blocked || !p.statuses || !p.statuses.length) return;
 
       activeStoryPartner = p;
       activeStoryIndex = 0;
-
-      if (!p.statuses || p.statuses.length === 0) {
-        p.statuses = [{ type: "image", url: p.logo || p.banner || "" }];
-      }
 
       document.getElementById("storyHeaderTitle").textContent = p.name;
       document.getElementById("storyHeaderAvatar").innerHTML = renderMedia(p.logo, "");
@@ -1911,9 +2021,26 @@
       document.getElementById("statusStoryModal").classList.remove("show");
     }
 
+    /* RENDERIZAÇÃO DOS BANNERS DA CENTRAL */
+    function renderAppBanners() {
+      const box = document.getElementById("appBannersBox");
+      const banners = db.config.banners || [];
+      if (!banners.length) {
+        box.classList.add("hidden");
+        return;
+      }
+      box.classList.remove("hidden");
+      box.innerHTML = banners.map(b => `
+        <div class="app-banner-card" onclick="${b.link ? `window.open('${b.link}', '_blank')` : ''}">
+          <img src="${b.image}" alt="${b.title || 'Banner'}">
+        </div>
+      `).join("");
+    }
+
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
+      renderAppBanners();
       checkInstallButtonsVisibility();
       const q = (document.getElementById("search").value || "").toLowerCase().trim();
       
@@ -1969,7 +2096,7 @@
           <div class="price">${money(x.price)}</div>
           <small style="color:var(--muted)">${x.store}</small>
         </div>
-      `).join("") || '<p style="color:var(--muted);padding:10px;">Nenhum produto marcado como Promoção do Dia no momento.</p>';
+      `).join("") || '<p style="color:var(--muted);padding:10px;">Nenhum produto em promoção no momento.</p>';
     }
 
     function searchAll() { renderHome(); }
@@ -1988,11 +2115,15 @@
       document.getElementById("pixTypeLabel").textContent = currentPartner.pixType || "Chave Pix";
       document.getElementById("pixKeyDisplay").value = currentPartner.pixKey || "Consulte com a loja";
 
+      const soc = currentPartner.socials || {};
+      const accepted = currentPartner.acceptedPayments || ["Pix", "Dinheiro", "Cartão na entrega"];
+
       document.getElementById("catalogContent").innerHTML = `
         <div class="catalog-cover">
           <div class="cover-media">${renderMedia(currentPartner.banner || currentPartner.logo, "")}</div>
           <h2>${currentPartner.name}</h2>
           <p>${currentPartner.category} · ${currentPartner.address}</p>
+          
           <div class="catalog-badges">
             <span class="catalog-badge" style="background:${currentPartner.open ? 'var(--green)' : 'var(--primary)'}">
               ${currentPartner.open ? '● Aberta Agora' : '● Fechada'}
@@ -2001,7 +2132,24 @@
             <span class="catalog-badge">Pedido mínimo ${money(currentPartner.minOrder || 0)}</span>
             <span class="catalog-badge">Entrega: ${currentPartner.delivery}</span>
           </div>
+
+          <!-- REDES SOCIAIS CONDICIONAIS -->
+          ${(soc.instagram || soc.facebook || soc.youtube || currentPartner.whatsapp) ? `
+            <div class="social-links">
+              ${soc.instagram ? `<a href="https://instagram.com/${soc.instagram.replace('@','')}" target="_blank" class="social-btn">📷 Instagram</a>` : ''}
+              ${soc.facebook ? `<a href="${soc.facebook}" target="_blank" class="social-btn">📘 Facebook</a>` : ''}
+              ${soc.youtube ? `<a href="${soc.youtube}" target="_blank" class="social-btn">📺 YouTube</a>` : ''}
+              ${currentPartner.whatsapp ? `<a href="https://wa.me/55${currentPartner.whatsapp.replace(/\D/g,'')}" target="_blank" class="social-btn" style="background:var(--green)">💬 WhatsApp</a>` : ''}
+            </div>
+          ` : ''}
+
+          <!-- FORMAS DE PAGAMENTO ACEITAS -->
+          <div class="payment-badges-list">
+            <small style="width:100%;color:#bbb;font-size:11px;display:block;">Formas de pagamento aceitas:</small>
+            ${accepted.map(pay => `<span class="pay-badge">✓ ${pay}</span>`).join("")}
+          </div>
         </div>
+
         <div class="catalog-cats">
           ${currentPartner.categories.map(c => `
             <section class="cat">
@@ -2013,7 +2161,7 @@
                 ${c.products.map(x => `
                   <article class="product ${x.paused ? 'paused' : ''}">
                     <div>
-                      ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO DO DIA</span><br>` : ''}
+                      ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO</span><br>` : ''}
                       <h3>${x.name} ${x.paused ? '<small style="color:red">(Pausado)</small>' : ''}</h3>
                       <p>${x.desc || ""}</p>
                       <div class="price">${money(Number(x.price))}</div>
@@ -2238,12 +2386,27 @@
       const note = document.getElementById("cNote").value.trim();
       const pay = document.getElementById("cPayment").value;
 
-      if (!name || !phone) return toast("Preencha seu nome e telefone WhatsApp.");
+      if (!name || !phone) return toast("Preencha seu nome e WhatsApp.");
       if (orderType === "entrega" && (!street || !num)) return toast("Informe Rua e Número para entrega.");
 
       const fullAddress = `${street}, ${num} - ${neighborhood}, ${city} (CEP: ${cep})`;
 
-      // Salva perfil no celular do cliente para próximas compras
+      // Salva no banco de clientes da plataforma
+      if (!db.clients) db.clients = [];
+      const cleanPhone = phone.replace(/\D/g, "");
+      const existingClient = db.clients.find(cl => cl.phone.replace(/\D/g, "") === cleanPhone);
+      if (existingClient) {
+        existingClient.name = name;
+        existingClient.address = fullAddress;
+        existingClient.lastOrder = new Date().toISOString();
+      } else {
+        db.clients.push({
+          id: "cli_" + Date.now(),
+          name, phone, address: fullAddress, lastOrder: new Date().toISOString()
+        });
+      }
+
+      // Salva localmente para próximas compras
       localStorage.setItem("r1_customer_profile", JSON.stringify({
         name, phone, cep, street, number: num, neighborhood, city
       }));
@@ -2265,7 +2428,7 @@
       if (orderType === "entrega") {
         lines.push(`🏍️ *Taxa de Entrega:* ${currentPartner.delivery || 'A combinar'}`);
         if (pay === "Cartão na entrega") {
-          lines.push(`💳 *Retorno Maquininha (50%):* Sim (Cobrança adicional para volta do motoboy)`);
+          lines.push(`💳 *Retorno Maquininha (50%):* Sim (Adicional para retorno do motoboy à loja)`);
         }
         lines.push(`📦 *MODO:* Entrega no Endereço (${delivery === 'R1' ? 'Motoboy R1' : 'Entrega da Loja'})`);
       } else {
@@ -2295,7 +2458,7 @@
         lines.push(`*Endereço:* ${fullAddress}`);
         lines.push(`📍 *Rota Google Maps:* ${mapLink}`);
       } else {
-        lines.push(`📍 *Retirada:* O cliente irá retirar no local`);
+        lines.push(`📍 *Retirada:* O cliente irá retirar no balcão`);
       }
 
       if (note) lines.push(`*Observação:* ${note}`);
@@ -2397,11 +2560,11 @@
 
     function openAdminPanel() {
       document.getElementById("adminTitle").textContent = adminMode === "central" ? (db.config.appName || "Central R1") : "Painel do Lojista";
-      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, APIs, parceiros, relatórios e cobranças" : "Produtos, importação em lote, status 9:16 e vendas";
+      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, clientes, APIs, relatórios e banners" : "Produtos, importação em lote, redes sociais e vendas";
       
       const tabs = adminMode === "central" 
-        ? ["Visão geral", "Identidade & App", "Módulos & APIs", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
-        : ["Dashboard", "Produtos & Promoções", "Importar Cardápio (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+        ? ["Visão geral", "Identidade & App", "Banners Central", "Módulos & APIs", "Clientes", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
+        : ["Dashboard", "Produtos & Promoções", "Importar Catálogo (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
         
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
         <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
@@ -2430,7 +2593,7 @@
         const prevTab = adminTabHistory[adminTabHistory.length - 1];
         adminTab(prevTab, null, false);
       } else {
-        toast("Você já está na aba inicial do painel.");
+        toast("Você já está na aba inicial.");
       }
     }
 
@@ -2446,7 +2609,6 @@
       if (tab === "Visão geral") {
         const approved = db.partners.filter(p => p.status === "approved" && !p.blocked).length;
         const blocked = db.partners.filter(p => p.blocked).length;
-        const pending = db.pending.length;
         const totalSales = db.orders.reduce((acc, o) => acc + (o.total || 0), 0);
         body.innerHTML = `
           <div class="admin-grid">
@@ -2457,13 +2619,17 @@
           </div>
           <div class="panel" style="margin-top:12px;">
             <h3>Central Administrativa R1</h3>
-            <p class="hint">Controle de parceiros, planos de cobrança, APIs de mapas/IA, vídeos Stories 9:16 e relatórios de quitação.</p>
+            <p class="hint">Gestão completa e modular de lojas, clientes cadastrados, APIs, banners e relatórios financeiros.</p>
           </div>
         `;
       } else if (tab === "Identidade & App") {
         renderAppIdentityManager(body);
+      } else if (tab === "Banners Central") {
+        renderCentralBannersManager(body);
       } else if (tab === "Módulos & APIs") {
         renderApiManager(body);
+      } else if (tab === "Clientes") {
+        renderClientsManager(body);
       } else if (tab === "Parceiros & Planos") {
         renderPartnersAndPlans(body);
       } else if (tab === "Produtos da Loja") {
@@ -2492,13 +2658,131 @@
       }
     }
 
+    /* GESTÃO DE CLIENTES NA CENTRAL */
+    function renderClientsManager(container) {
+      const clients = db.clients || [];
+      container.innerHTML = `
+        <div class="panel">
+          <h3>👥 Base de Clientes Cadastrados (${clients.length})</h3>
+          <p class="hint">Clientes que já realizaram pedidos na plataforma.</p>
+          <div class="list" style="margin-top:10px;">
+            ${clients.map((c, i) => `
+              <div class="row" style="flex-wrap:wrap;">
+                <span>
+                  <b>${c.name}</b> · ${c.phone}<br>
+                  <small style="color:var(--muted)">${c.address || 'Sem endereço completo'}</small>
+                </span>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn green" style="width:auto;padding:5px 8px;font-size:11px;" onclick="sendClientPromo('${c.phone}', '${c.name}')">
+                    Disparar Promoção
+                  </button>
+                  <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeClient(${i})">✕</button>
+                </div>
+              </div>
+            `).join("") || '<p class="hint">Nenhum cliente registrado ainda.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function sendClientPromo(phone, name) {
+      const clean = phone.replace(/\D/g, "");
+      const msg = `Olá ${name}! Confira as ofertas e novidades de hoje no ${db.config.appName || 'R1 SHOP'}: ${window.location.origin}${window.location.pathname}`;
+      window.open(`https://wa.me/55${clean}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+
+    function removeClient(i) {
+      if (confirm("Deseja remover este cliente da base?")) {
+        db.clients.splice(i, 1);
+        save();
+        centralTab("Clientes");
+        toast("Cliente removido.");
+      }
+    }
+
+    /* GESTÃO DE BANNERS DA CENTRAL */
+    function renderCentralBannersManager(container) {
+      if (!db.config.banners) db.config.banners = [];
+      const banners = db.config.banners;
+      container.innerHTML = `
+        <div class="panel">
+          <h3>🖼️ Banners de Divulgação da Central R1</h3>
+          <div class="spec-card">
+            <b>Exibição:</b> Carrossel no topo da tela inicial. Formato Panorâmico (1080x450 px).
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>Título / Descrição do Banner</label>
+              <input id="newBannerTitle" placeholder="Ex: Campanha Motoboy R1">
+            </div>
+            <div class="field">
+              <label>Link da Imagem (URL)</label>
+              <input id="newBannerImg" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('newBannerImg', 'bannerCentralPreview')">
+            </div>
+            <div class="field">
+              <label>Ou Upload da Imagem (21:9)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerCentralPreview', 'newBannerImg', 500)">
+              <div id="bannerCentralPreview" class="file-preview" style="height:100px;">Prévia</div>
+            </div>
+            <div class="field">
+              <label>Link de Redirecionamento ao Clicar (Opcional)</label>
+              <input id="newBannerLink" placeholder="https://instagram.com/r1amobi ou https://...">
+            </div>
+            <button class="btn red" onclick="addCentralBanner()">Adicionar Banner</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Banners Ativos (${banners.length})</h3>
+          <div class="list">
+            ${banners.map((b, idx) => `
+              <div class="row">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:70px;height:35px;border-radius:6px;overflow:hidden;background:#222;">
+                    <img src="${b.image}" style="width:100%;height:100%;object-fit:cover;">
+                  </div>
+                  <span><b>${b.title || 'Banner'}</b></span>
+                </div>
+                <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeCentralBanner(${idx})">✕</button>
+              </div>
+            `).join("") || '<p class="hint">Nenhum banner cadastrado.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function addCentralBanner() {
+      const title = document.getElementById("newBannerTitle").value.trim();
+      const image = document.getElementById("newBannerImg").value.trim();
+      const link = document.getElementById("newBannerLink").value.trim();
+
+      if (!image) return toast("Informe o link ou imagem do banner.");
+
+      if (!db.config.banners) db.config.banners = [];
+      db.config.banners.push({ title, image, link });
+      save();
+      renderHome();
+      centralTab("Banners Central");
+      toast("Banner adicionado!");
+    }
+
+    function removeCentralBanner(idx) {
+      if (confirm("Deseja remover este banner?")) {
+        db.config.banners.splice(idx, 1);
+        save();
+        renderHome();
+        centralTab("Banners Central");
+        toast("Banner removido.");
+      }
+    }
+
     function renderApiManager(container) {
       const c = db.config;
       container.innerHTML = `
         <div class="panel">
           <h3>🗺️ 1. Módulo de Mapas & Cálculo de Distância (Frete)</h3>
           <div class="spec-card">
-            <b>Fallback Seguro:</b> Se desativado ou sem chave, o sistema aplica automaticamente a taxa fixa padrão cadastrada por cada loja parceira.
+            <b>Fallback Seguro:</b> Se desativado ou sem chave, o sistema aplica automaticamente a taxa fixa padrão cadastrada por cada loja.
           </div>
           <div class="form">
             <div class="field">
@@ -2533,9 +2817,6 @@
 
         <div class="panel">
           <h3>🤖 2. Módulo de Inteligência Artificial (LLMs)</h3>
-          <div class="spec-card">
-            <b>Recursos com IA:</b> Separação automática de itens no importador em lote e relatórios financeiros inteligentes.
-          </div>
           <div class="form">
             <div class="field">
               <label>Provedor de Inteligência Artificial</label>
@@ -2567,7 +2848,7 @@
       db.config.aiApiKey = document.getElementById("apiAiKey").value.trim();
 
       save();
-      toast("Configurações de APIs e Frete salvas!");
+      toast("Configurações de APIs salvas!");
     }
 
     function renderPartnersAndPlans(container) {
@@ -2613,7 +2894,7 @@
       if (p) {
         p.plan = planVal;
         save();
-        toast(`Plano de ${p.name} alterado para ${planVal.toUpperCase()}.`);
+        toast(`Plano alterado para ${planVal.toUpperCase()}.`);
       }
     }
 
@@ -2623,7 +2904,7 @@
         p.paymentStatus = (p.paymentStatus === 'paid') ? 'pending' : 'paid';
         save();
         centralTab("Parceiros & Planos");
-        toast(`Status financeiro de ${p.name} atualizado!`);
+        toast(`Status financeiro atualizado!`);
       }
     }
 
@@ -2654,9 +2935,6 @@
       container.innerHTML = `
         <div class="panel">
           <h3>Identidade & Logomarca da Plataforma</h3>
-          <div class="spec-card">
-            <b>📐 Logo Principal da Central:</b> Proporção Quadrada 1:1 (400 x 400 px).
-          </div>
           <div class="form">
             <div class="field">
               <label>Título da Plataforma</label>
@@ -2740,7 +3018,7 @@
       save();
       renderHome();
       centralTab("Cadastros");
-      toast(`Parceiro aprovado! Usuário: ${p.username} / Senha: ${p.pass}`);
+      toast(`Parceiro aprovado! Login: ${p.username}`);
     }
 
     function storeTab(tab) {
@@ -2776,7 +3054,7 @@
         `;
       } else if (tab === "Produtos & Promoções") {
         renderProductManager(body, false);
-      } else if (tab === "Importar Cardápio (Lote)") {
+      } else if (tab === "Importar Catálogo (Lote)") {
         renderBatchImporter(body);
       } else if (tab === "Categorias") {
         renderCategoriesManager(body);
@@ -2795,14 +3073,14 @@
       toast("Link da loja copiado!");
     }
 
-    /* IMPORTADOR EM LOTE INTELIGENTE */
+    /* IMPORTADOR EM LOTE */
     function renderBatchImporter(container) {
       const p = getTargetPartner();
       container.innerHTML = `
         <div class="panel">
-          <h3>📋 Importação Rápida de Cardápio por Lote</h3>
+          <h3>📋 Importação Rápida de Produtos por Lote</h3>
           <div class="spec-card">
-            <b>Como usar:</b> Escolha a categoria e cole o cardápio no modelo:<br>
+            <b>Como usar:</b> Selecione a categoria e cole sua lista no formato:<br>
             <code>Nome do Item - Descrição detalhada do produto - Preço</code><br>
             <i>Exemplo: X-Bacon Especial - Pão, hambúrguer 150g, bacon crocante, cheddar - 28.50</i>
           </div>
@@ -2814,7 +3092,7 @@
               </select>
             </div>
             <div class="field">
-              <label>2. Cole a lista de itens (um por linha)</label>
+              <label>2. Cole os itens (um por linha)</label>
               <textarea id="batchText" style="min-height:160px;" placeholder="X-Burguer Tradicional - Pão, hambúrguer e queijo - 22.00&#10;X-Salada - Pão, hambúrguer, alface e tomate - 24.00"></textarea>
             </div>
             <button class="btn red" onclick="processBatchImport()">Processar e Cadastrar Todos</button>
@@ -2911,7 +3189,7 @@
               </label>
             </div>
             <div class="field">
-              <label>4. Descrição do Produto (Ingredientes, Detalhes)</label>
+              <label>4. Descrição do Produto</label>
               <textarea id="newDesc" placeholder="Descreva o produto para o cliente..."></textarea>
             </div>
             <div class="field">
@@ -2943,9 +3221,12 @@
                     <small style="color:var(--muted)">${x.paused ? '<b style="color:red">Pausado</b>' : 'Ativo'}</small>
                   </span>
                 </div>
-                <div style="display:flex;gap:4px;">
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  <button class="btn outline" style="padding:5px 8px;font-size:11px;" onclick="openEditProductModal('${c.name}', ${pIdx})">
+                    ✏️ Editar
+                  </button>
                   <button class="btn ${x.isPromo ? 'warning' : 'outline'}" style="padding:5px 8px;font-size:11px;" onclick="togglePromoProduct('${c.name}', ${pIdx})">
-                    ${x.isPromo ? 'Tirar Promo' : 'Fazer Promo'}
+                    ${x.isPromo ? 'Tirar Promo' : 'Promo'}
                   </button>
                   <button class="btn dark" style="padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${pIdx})">
                     ${x.paused ? 'Ativar' : 'Pausar'}
@@ -2995,7 +3276,53 @@
       renderHome();
       if (adminMode === "central") centralTab("Produtos da Loja");
       else storeTab("Produtos & Promoções");
-      toast("Produto gravado com sucesso!");
+      toast("Produto gravado!");
+    }
+
+    /* MODAL DE EDIÇÃO DE PRODUTO */
+    function openEditProductModal(catName, prodIdx) {
+      const p = getTargetPartner();
+      const c = p.categories.find(x => x.name === catName);
+      if (!c || !c.products[prodIdx]) return;
+
+      const prod = c.products[prodIdx];
+      document.getElementById("editProdCatName").value = catName;
+      document.getElementById("editProdIndex").value = prodIdx;
+      document.getElementById("editProdName").value = prod.name;
+      document.getElementById("editProdPrice").value = prod.price;
+      document.getElementById("editProdDesc").value = prod.desc || "";
+      document.getElementById("editProdImg").value = prod.image || "";
+      document.getElementById("editProdIsPromo").checked = !!prod.isPromo;
+      document.getElementById("editProdPaused").checked = !!prod.paused;
+      
+      const prevEl = document.getElementById("editProdPreview");
+      prevEl.innerHTML = prod.image ? `<img src="${prod.image}">` : "Sem Foto";
+
+      openModal("editProductModal");
+    }
+
+    function saveProductEdits() {
+      const p = getTargetPartner();
+      const catName = document.getElementById("editProdCatName").value;
+      const prodIdx = parseInt(document.getElementById("editProdIndex").value);
+
+      const c = p.categories.find(x => x.name === catName);
+      if (c && c.products[prodIdx]) {
+        const prod = c.products[prodIdx];
+        prod.name = document.getElementById("editProdName").value.trim() || prod.name;
+        prod.price = Number(document.getElementById("editProdPrice").value) || prod.price;
+        prod.desc = document.getElementById("editProdDesc").value.trim();
+        prod.image = document.getElementById("editProdImg").value.trim();
+        prod.isPromo = document.getElementById("editProdIsPromo").checked;
+        prod.paused = document.getElementById("editProdPaused").checked;
+
+        save();
+        renderHome();
+        closeModal("editProductModal");
+        if (adminMode === "central") centralTab("Produtos da Loja");
+        else storeTab("Produtos & Promoções");
+        toast("Produto atualizado com sucesso!");
+      }
     }
 
     function togglePromoProduct(catName, prodIdx) {
@@ -3007,7 +3334,7 @@
         renderHome();
         if (adminMode === "central") centralTab("Produtos da Loja");
         else storeTab("Produtos & Promoções");
-        toast(c.products[prodIdx].isPromo ? "Produto na Promoção do Dia!" : "Produto removido das promoções.");
+        toast(c.products[prodIdx].isPromo ? "Produto em promoção!" : "Promoção desativada.");
       }
     }
 
@@ -3101,7 +3428,7 @@
         ` : ''}
 
         <div class="panel">
-          <h3>📱 1. Status / Stories (Proporção Vertical 9:16 - 1080x1920 px) de ${p.name}</h3>
+          <h3>📱 1. Status / Stories (Proporção Vertical 9:16) de ${p.name}</h3>
           <div class="form">
             <div class="field">
               <label>Tipo de Mídia do Status</label>
@@ -3139,7 +3466,7 @@
                 </div>
                 <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeStatusFromStore(${sIdx}, ${isCentral})">Excluir</button>
               </div>
-            `).join("") || '<p class="hint">Nenhum status publicado ainda.</p>'}
+            `).join("") || '<p class="hint">Nenhum status publicado.</p>'}
           </div>
         </div>
 
@@ -3168,7 +3495,7 @@
       const type = document.getElementById("newStatusType").value;
       const url = document.getElementById("newStatusUrl").value.trim();
 
-      if (!url) return toast("Selecione um arquivo ou cole o link da mídia.");
+      if (!url) return toast("Selecione um arquivo ou link.");
 
       p.statuses.push({ type, url });
       save();
@@ -3176,7 +3503,7 @@
       
       const body = document.getElementById("adminBody");
       renderStatusMediaManager(body, isCentral);
-      toast("Status Stories gravado com sucesso!");
+      toast("Status Stories gravado!");
     }
 
     function removeStatusFromStore(sIdx, isCentral) {
@@ -3196,7 +3523,7 @@
       p.banner = document.getElementById("editBannerUrl").value.trim();
       save();
       renderHome();
-      toast("Banner de Capa gravado com sucesso!");
+      toast("Banner gravado com sucesso!");
     }
 
     function renderReportsManager(container, isCentral) {
@@ -3276,7 +3603,7 @@
                 <div style="margin-top:4px;color:#555;"><b>Itens:</b> ${o.items.map(it => `${it.qty}x ${it.name}`).join(", ")}</div>
                 <small style="color:#888;display:block;margin-top:4px;">Data/Hora: ${new Date(o.date).toLocaleString('pt-BR')}</small>
               </div>
-            `).join("") || '<p class="hint">Nenhum registro de pedido encontrado para o período selecionado.</p>'}
+            `).join("") || '<p class="hint">Nenhum pedido encontrado para o filtro.</p>'}
           </div>
         </div>
       `;
@@ -3293,7 +3620,7 @@
         db.orders.splice(idx, 1);
         save();
         renderReportsManager(document.getElementById("adminBody"), isCentral);
-        toast("Registro removido do relatório!");
+        toast("Registro removido!");
       }
     }
 
@@ -3303,9 +3630,12 @@
 
     function renderStoreDataManager(container) {
       const p = getTargetPartner();
+      const soc = p.socials || {};
+      const accepted = p.acceptedPayments || ["Pix", "Dinheiro", "Cartão na entrega"];
+
       container.innerHTML = `
         <div class="panel">
-          <h3>Dados, Credenciais e Logomarca de ${p.name}</h3>
+          <h3>Dados, Redes e Pagamentos de ${p.name}</h3>
           <div class="form">
             <div class="field">
               <label>Nome do comércio</label>
@@ -3322,6 +3652,31 @@
                 <option value="dynamic" ${p.deliveryType === 'dynamic' ? 'selected' : ''}>Cálculo por Km / Perímetro (Mapbox/GPS)</option>
               </select>
             </div>
+
+            <h4 style="margin:10px 0 4px;">Redes Sociais da Loja</h4>
+            <div class="field">
+              <label>Instagram (@usuario ou link)</label>
+              <input value="${soc.instagram || ''}" id="editStoreInsta" placeholder="Ex: seunome.oficial">
+            </div>
+            <div class="field">
+              <label>Facebook (Link da página)</label>
+              <input value="${soc.facebook || ''}" id="editStoreFace" placeholder="https://facebook.com/...">
+            </div>
+            <div class="field">
+              <label>Canal do YouTube (Link)</label>
+              <input value="${soc.youtube || ''}" id="editStoreYt" placeholder="https://youtube.com/@...">
+            </div>
+
+            <h4 style="margin:10px 0 4px;">Formas de Pagamento & Bandeiras Aceitas</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#fafafa;padding:10px;border-radius:10px;border:1px solid #ddd;">
+              ${["Pix", "Dinheiro", "Cartão na entrega", "Visa", "Mastercard", "Elo", "Hipercard", "Alelo", "Sodexo", "Ticket Refeição", "VR"].map(flag => `
+                <label style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                  <input type="checkbox" class="pay-flag-check" value="${flag}" ${accepted.includes(flag) ? 'checked' : ''}>
+                  ${flag}
+                </label>
+              `).join("")}
+            </div>
+
             <h4 style="margin:10px 0 4px;">Credenciais de Acesso da Loja</h4>
             <div class="field">
               <label>Usuário / Login da Loja</label>
@@ -3332,7 +3687,7 @@
               <div class="password-wrapper">
                 <input type="password" id="editStorePass" value="${p.pass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editStorePass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
@@ -3403,6 +3758,18 @@
       p.time = document.getElementById("editTime").value.trim();
       p.logo = document.getElementById("editStoreLogo").value.trim() || p.logo || "";
       p.open = document.getElementById("editOpen").value === "true";
+
+      p.socials = {
+        instagram: document.getElementById("editStoreInsta").value.trim(),
+        facebook: document.getElementById("editStoreFace").value.trim(),
+        youtube: document.getElementById("editStoreYt").value.trim()
+      };
+
+      const checkedFlags = [];
+      document.querySelectorAll(".pay-flag-check:checked").forEach(cb => {
+        checkedFlags.push(cb.value);
+      });
+      p.acceptedPayments = checkedFlags;
 
       save();
       renderHome();
