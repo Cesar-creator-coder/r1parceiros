@@ -36,7 +36,7 @@
       font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 95px;
+      padding-bottom: 125px;
     }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
@@ -104,7 +104,7 @@
 
     .bottom-install-btn {
       position: fixed;
-      bottom: 75px;
+      bottom: 110px;
       right: 16px;
       z-index: 34;
       background: #1e2229;
@@ -125,6 +125,69 @@
       transform: translateY(-2px);
     }
     .bottom-install-btn svg { width: 16px; height: 16px; fill: var(--primary); }
+
+    /* TARJA HORIZONTAL DE PARCEIROS CONTÍNUA (MARQUEE) */
+    .partner-ticker-bar {
+      position: fixed;
+      bottom: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(780px, 100%);
+      height: 42px;
+      background: #121417;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      border-bottom: 1px solid rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      z-index: 37;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.25);
+    }
+    .partner-ticker-track {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      width: max-content;
+      animation: tickerContinuous 24s linear infinite;
+    }
+    .partner-ticker-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes tickerContinuous {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      user-select: none;
+      transition: opacity 0.2s;
+    }
+    .ticker-item:hover { opacity: 0.85; }
+    .ticker-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #222;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .ticker-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .ticker-sep {
+      color: rgba(255,255,255,0.25);
+      font-size: 11px;
+      margin-left: 10px;
+    }
 
     .bottom-nav {
       position: fixed;
@@ -448,7 +511,7 @@
 
     .fab {
       position: fixed;
-      bottom: 75px;
+      bottom: 110px;
       left: 16px;
       z-index: 35;
       border: 0;
@@ -493,7 +556,7 @@
     /* BOLHA FLUTUANTE ARRASTÁVEL COM O DEDO */
     .floating-story-bubble {
       position: fixed;
-      bottom: 80px;
+      bottom: 115px;
       right: 18px;
       z-index: 70;
       display: flex;
@@ -536,7 +599,6 @@
       cursor: pointer;
     }
 
-    /* BOTÃO DE AÇÃO DIRETO DENTRO DO STORY / VÍDEO */
     .story-cta-box {
       position: absolute;
       bottom: 24px;
@@ -1119,6 +1181,11 @@
       <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
       Ver Pedido <span id="fabCount">0 itens</span> · <strong id="fabTotal">R$ 0,00</strong>
     </button>
+  </div>
+
+  <!-- TARJA HORIZONTAL DE PARCEIROS EM MOVIMENTO CONTÍNUO (MARQUEE) -->
+  <div class="partner-ticker-bar" id="partnerTickerBar">
+    <div class="partner-ticker-track" id="partnerTickerTrack"></div>
   </div>
 
   <nav class="bottom-nav">
@@ -1709,7 +1776,7 @@
             { 
               type: "video", 
               url: "https://www.w3schools.com/html/mov_bbb.mp4",
-              title: "Pudim Tradicional em Dobro",
+              title: "Pudim Tradicional Especial",
               actionType: "whatsapp",
               actionTarget: "Pudim Tradicional Especial"
             }
@@ -2063,11 +2130,10 @@
         videoEl.onended = () => nextStory();
         videoEl.onerror = () => { storyTimer = setTimeout(() => nextStory(), 4000); };
       } else {
-        container.innerHTML = `<img src="${current.url}" alt="Status Story 9:16" style="width:100%;height:100%;object-fit:cover;">`;
+        container.innerHTML = `<img src="${current.url}" alt="Status Story" style="width:100%;height:100%;object-fit:cover;">`;
         storyTimer = setTimeout(() => nextStory(), 5000);
       }
 
-      // Atualiza o botão de compra / WhatsApp dentro do vídeo
       const btn = document.getElementById("storyCtaBtn");
       if (current.title) {
         btn.innerHTML = `🛍️ Pedir: ${current.title}`;
@@ -2119,7 +2185,7 @@
       }
     }
 
-    /* INICIALIZAÇÃO DO SISTEMA DE ARRASTAR A BOLHA COM O DEDO */
+    /* INICIALIZAÇÃO DA BOLHA ARRASTÁVEL */
     function initDraggableBubble() {
       const bubble = document.getElementById("storeFloatingBubble");
       if (!bubble) return;
@@ -2148,7 +2214,6 @@
         let newLeft = initialLeft + dx;
         let newTop = initialTop + dy;
 
-        // Limites da tela
         newLeft = Math.max(10, Math.min(window.innerWidth - bubble.offsetWidth - 10, newLeft));
         newTop = Math.max(60, Math.min(window.innerHeight - bubble.offsetHeight - 70, newTop));
 
@@ -2186,10 +2251,37 @@
       `).join("");
     }
 
+    /* RENDERIZAÇÃO DO CARROSSEL DE PARCEIROS EM TARJA CONTÍNUA (MARQUEE) */
+    function renderPartnerTicker() {
+      const track = document.getElementById("partnerTickerTrack");
+      if (!track) return;
+
+      const activePartners = db.partners.filter(p => p.status === "approved" && !p.blocked);
+      if (!activePartners.length) {
+        track.parentElement.classList.add("hidden");
+        return;
+      }
+
+      track.parentElement.classList.remove("hidden");
+
+      // Monta a sequência de itens
+      const itemsHtml = activePartners.map(p => `
+        <div class="ticker-item" onclick="openCatalog(${p.id})">
+          <div class="ticker-logo">${renderMedia(p.logo, "")}</div>
+          <span>${p.name}</span>
+          <span class="ticker-sep">|</span>
+        </div>
+      `).join("");
+
+      // Duplica para garantir o loop infinito sem cortes visuais
+      track.innerHTML = itemsHtml + itemsHtml + itemsHtml;
+    }
+
     function renderHome() {
       updateAppHeaderVisuals();
       renderStatusList();
       renderAppBanners();
+      renderPartnerTicker();
       checkInstallButtonsVisibility();
       const q = (document.getElementById("search").value || "").toLowerCase().trim();
       
@@ -2267,7 +2359,6 @@
       const soc = currentPartner.socials || {};
       const accepted = currentPartner.acceptedPayments || ["Pix", "Dinheiro", "Cartão na entrega"];
 
-      // Controle da bolha flutuante de stories com arrasto
       const bubble = document.getElementById("storeFloatingBubble");
       if (currentPartner.statuses && currentPartner.statuses.length > 0) {
         const first = currentPartner.statuses[0];
