@@ -490,37 +490,36 @@
       font-size: 14px;
     }
 
-    /* BOLHA FLUTUANTE DE VÍDEO/STORIES NO CATÁLOGO */
+    /* BOLHA FLUTUANTE ARRASTÁVEL COM O DEDO */
     .floating-story-bubble {
       position: fixed;
       bottom: 80px;
       right: 18px;
-      z-index: 60;
+      z-index: 70;
       display: flex;
       align-items: center;
       gap: 6px;
-      background: #111;
+      background: rgba(18, 20, 23, 0.95);
       color: #fff;
-      padding: 6px 12px 6px 6px;
+      padding: 5px 10px 5px 5px;
       border-radius: 30px;
       border: 2px solid var(--primary);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-      cursor: pointer;
-      animation: pulseBubble 2.5s infinite;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      transition: transform 0.1s ease;
     }
-    @keyframes pulseBubble {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
+    .floating-story-bubble:active { cursor: grabbing; transform: scale(1.05); }
     .floating-story-avatar {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       overflow: hidden;
       background: var(--primary);
       display: grid;
       place-items: center;
+      flex-shrink: 0;
     }
     .floating-story-avatar img, .floating-story-avatar video { width: 100%; height: 100%; object-fit: cover; }
     .close-bubble-btn {
@@ -531,9 +530,36 @@
       width: 18px;
       height: 18px;
       font-size: 10px;
-      margin-left: 4px;
+      margin-left: 2px;
       display: grid;
       place-items: center;
+      cursor: pointer;
+    }
+
+    /* BOTÃO DE AÇÃO DIRETO DENTRO DO STORY / VÍDEO */
+    .story-cta-box {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 16px;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .story-cta-btn {
+      background: var(--green);
+      color: #fff;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 900;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
 
     .modal {
@@ -924,7 +950,7 @@
     .story-nav-btn {
       position: absolute;
       top: 50px;
-      bottom: 0;
+      bottom: 70px;
       width: 40%;
       z-index: 15;
       background: transparent;
@@ -1115,7 +1141,7 @@
     </button>
   </nav>
 
-  <!-- MODAL STORIES / STATUS 9:16 VERTICAL -->
+  <!-- MODAL STORIES / STATUS COM BOTÃO DE COMPRA INTERATIVO -->
   <div id="statusStoryModal" class="status-story-modal">
     <div class="story-container">
       <div class="story-progress-bar-container" id="storyProgressContainer"></div>
@@ -1125,7 +1151,7 @@
           <div class="story-header-avatar" id="storyHeaderAvatar"></div>
           <div>
             <b id="storyHeaderTitle" style="font-size:13px;display:block;">Loja</b>
-            <small id="storyHeaderSubtitle" style="font-size:11px;color:#ccc;">Status</small>
+            <small id="storyHeaderSubtitle" style="font-size:11px;color:#ccc;">Destaque</small>
           </div>
         </div>
         <button style="background:transparent;border:0;color:#fff;font-size:20px;font-weight:900;" onclick="closeStatusStories()">✕</button>
@@ -1135,6 +1161,13 @@
       <button class="story-nav-btn story-nav-next" onclick="nextStory()"></button>
 
       <div class="story-content-view" id="storyMediaContainer"></div>
+
+      <!-- BOTÃO DE PEDIDO DIRETO DENTRO DO VÍDEO -->
+      <div class="story-cta-box" id="storyCtaBox">
+        <button class="story-cta-btn" id="storyCtaBtn" onclick="handleStoryAction()">
+          🛍️ Pedir Oferta do Vídeo
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1164,10 +1197,10 @@
         <button onclick="goToCheckoutFromCatalog()">Avançar para Pedido ➔</button>
       </div>
 
-      <!-- BOLHA FLUTUANTE DE VÍDEO / STORY NO CATÁLOGO -->
+      <!-- BOLHA FLUTUANTE ARRASTÁVEL COM O DEDO NO CATÁLOGO -->
       <div id="storeFloatingBubble" class="floating-story-bubble hidden" onclick="openCurrentStoreStory()">
         <div class="floating-story-avatar" id="bubbleMediaPreview">🎬</div>
-        <span style="font-size:11px;font-weight:800;">Ver Destaque 9:16</span>
+        <span style="font-size:11px;font-weight:800;pointer-events:none;">Ver Destaque</span>
         <button class="close-bubble-btn" onclick="event.stopPropagation(); document.getElementById('storeFloatingBubble').classList.add('hidden')">✕</button>
       </div>
     </div>
@@ -1673,7 +1706,13 @@
           logo: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=200",
           banner: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800",
           statuses: [
-            { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4" }
+            { 
+              type: "video", 
+              url: "https://www.w3schools.com/html/mov_bbb.mp4",
+              title: "Pudim Tradicional em Dobro",
+              actionType: "whatsapp",
+              actionTarget: "Pudim Tradicional Especial"
+            }
           ],
           categories: [
             {
@@ -2027,6 +2066,27 @@
         container.innerHTML = `<img src="${current.url}" alt="Status Story 9:16" style="width:100%;height:100%;object-fit:cover;">`;
         storyTimer = setTimeout(() => nextStory(), 5000);
       }
+
+      // Atualiza o botão de compra / WhatsApp dentro do vídeo
+      const btn = document.getElementById("storyCtaBtn");
+      if (current.title) {
+        btn.innerHTML = `🛍️ Pedir: ${current.title}`;
+      } else {
+        btn.innerHTML = `🛍️ Pedir no WhatsApp da Loja`;
+      }
+    }
+
+    function handleStoryAction() {
+      if (!activeStoryPartner) return;
+      const current = activeStoryPartner.statuses[activeStoryIndex] || {};
+      const targetName = current.actionTarget || current.title || "Oferta do Vídeo / Destaque";
+      
+      let cleanPhone = (activeStoryPartner.whatsapp || "").replace(/\D/g, "");
+      if (cleanPhone.length === 10 || cleanPhone.length === 11) cleanPhone = "55" + cleanPhone;
+
+      const msg = `Olá! Vi o destaque/vídeo de *"${targetName}"* no App ${db.config.appName || 'R1 SHOP'} e gostaria de pedir!`;
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+      closeStatusStories();
     }
 
     function nextStory() {
@@ -2057,6 +2117,58 @@
       if (currentPartner && currentPartner.statuses && currentPartner.statuses.length > 0) {
         openStatusStories(currentPartner.id);
       }
+    }
+
+    /* INICIALIZAÇÃO DO SISTEMA DE ARRASTAR A BOLHA COM O DEDO */
+    function initDraggableBubble() {
+      const bubble = document.getElementById("storeFloatingBubble");
+      if (!bubble) return;
+
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+
+      function onStart(e) {
+        if (e.target.classList.contains("close-bubble-btn")) return;
+        isDragging = true;
+        const touch = e.touches ? e.touches[0] : e;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = bubble.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches ? e.touches[0] : e;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        // Limites da tela
+        newLeft = Math.max(10, Math.min(window.innerWidth - bubble.offsetWidth - 10, newLeft));
+        newTop = Math.max(60, Math.min(window.innerHeight - bubble.offsetHeight - 70, newTop));
+
+        bubble.style.left = `${newLeft}px`;
+        bubble.style.top = `${newTop}px`;
+        bubble.style.right = 'auto';
+        bubble.style.bottom = 'auto';
+      }
+
+      function onEnd() {
+        isDragging = false;
+      }
+
+      bubble.addEventListener("touchstart", onStart, { passive: true });
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("touchend", onEnd);
+
+      bubble.addEventListener("mousedown", onStart);
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onEnd);
     }
 
     function renderAppBanners() {
@@ -2155,7 +2267,7 @@
       const soc = currentPartner.socials || {};
       const accepted = currentPartner.acceptedPayments || ["Pix", "Dinheiro", "Cartão na entrega"];
 
-      // Controle da bolha flutuante de stories
+      // Controle da bolha flutuante de stories com arrasto
       const bubble = document.getElementById("storeFloatingBubble");
       if (currentPartner.statuses && currentPartner.statuses.length > 0) {
         const first = currentPartner.statuses[0];
@@ -2163,6 +2275,7 @@
           ? `<video src="${first.url}" style="width:100%;height:100%;object-fit:cover;"></video>` 
           : `<img src="${first.url}" style="width:100%;height:100%;object-fit:cover;">`;
         bubble.classList.remove("hidden");
+        initDraggableBubble();
       } else {
         bubble.classList.add("hidden");
       }
@@ -2461,7 +2574,7 @@
       const id = "R1-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`;
 
-      // Cálculo exato da comissão da R1 por pedido
+      // Cálculo da comissão da R1 por pedido
       let commissionVal = 0;
       let commissionText = "";
       const plan = currentPartner.plan || "flex";
@@ -2551,8 +2664,8 @@
         commissionVal: commissionVal,
         commissionText: commissionText,
         planType: plan,
-        status: "Novo", // Novo -> Em Preparo -> Despachado -> Concluído
-        hiddenForStore: false, // Blindagem antifraude: exclusão só visual para a loja
+        status: "Novo",
+        hiddenForStore: false,
         date: new Date().toISOString()
       });
       save();
@@ -3486,7 +3599,7 @@
       container.innerHTML = `
         ${isCentral ? `
           <div class="panel">
-            <label style="font-weight:900;font-size:13px;display:block;margin-bottom:6px;">Selecione a Loja para Gerenciar Stories 9:16:</label>
+            <label style="font-weight:900;font-size:13px;display:block;margin-bottom:6px;">Selecione a Loja para Gerenciar Stories / Vídeos:</label>
             <select onchange="changeCentralPartner(this.value, 'Status & Vídeos 9:16')">
               ${db.partners.map(store => `<option value="${store.id}" ${store.id === p.id ? 'selected' : ''}>${store.name}</option>`).join("")}
             </select>
@@ -3494,13 +3607,17 @@
         ` : ''}
 
         <div class="panel">
-          <h3>📱 1. Status / Stories (Proporção Vertical 9:16) de ${p.name}</h3>
+          <h3>📱 1. Status / Stories de ${p.name}</h3>
           <div class="form">
+            <div class="field">
+              <label>Título / Nome da Oferta do Vídeo</label>
+              <input id="newStatusTitle" placeholder="Ex: Pudim em Dobro / Lanche da Noite">
+            </div>
             <div class="field">
               <label>Tipo de Mídia do Status</label>
               <select id="newStatusType">
-                <option value="video">Vídeo Vertical MP4 (9:16)</option>
-                <option value="image">Foto / Arte Vertical (9:16)</option>
+                <option value="video">Vídeo Vertical MP4</option>
+                <option value="image">Foto / Arte Vertical</option>
               </select>
             </div>
             <div class="field">
@@ -3508,9 +3625,9 @@
               <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou https://exemplo.com/foto.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
             </div>
             <div class="field">
-              <label>Ou faça Upload do Arquivo (9:16)</label>
+              <label>Ou faça Upload do Arquivo</label>
               <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 400)">
-              <div id="statusPreviewBox" class="file-preview">Prévia do Status 9:16</div>
+              <div id="statusPreviewBox" class="file-preview">Prévia do Status</div>
             </div>
             <button class="btn red" onclick="addStatusToStore(${isCentral})">+ Publicar Status Stories</button>
           </div>
@@ -3526,7 +3643,7 @@
                     ${st.type === 'video' ? '<span style="color:#fff;font-size:10px;">VÍDEO</span>' : `<img src="${st.url}" style="width:100%;height:100%;object-fit:cover;">`}
                   </div>
                   <span>
-                    <b>${st.type === 'video' ? 'Vídeo 9:16' : 'Foto 9:16'}</b><br>
+                    <b>${st.title || (st.type === 'video' ? 'Vídeo' : 'Foto')}</b><br>
                     <small style="color:var(--muted);max-width:220px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${st.url}</small>
                   </span>
                 </div>
@@ -3537,7 +3654,7 @@
         </div>
 
         <div class="panel">
-          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal 21:9)</h3>
+          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal)</h3>
           <div class="form">
             <div class="field">
               <label>Link da Imagem da Capa</label>
@@ -3558,18 +3675,19 @@
       const p = getTargetPartner();
       if (!p.statuses) p.statuses = [];
 
+      const title = document.getElementById("newStatusTitle").value.trim();
       const type = document.getElementById("newStatusType").value;
       const url = document.getElementById("newStatusUrl").value.trim();
 
       if (!url) return toast("Selecione um arquivo ou link.");
 
-      p.statuses.push({ type, url });
+      p.statuses.push({ title, type, url });
       save();
       renderHome();
       
       const body = document.getElementById("adminBody");
       renderStatusMediaManager(body, isCentral);
-      toast("Status Stories gravado!");
+      toast("Status gravado com sucesso!");
     }
 
     function removeStatusFromStore(sIdx, isCentral) {
@@ -3592,7 +3710,7 @@
       toast("Banner gravado com sucesso!");
     }
 
-    /* GESTÃO DE RELATÓRIOS COM FILTRO CORRIGIDO, COMISSÃO E STATUS DE SAÍDA */
+    /* GESTÃO DE RELATÓRIOS */
     function renderReportsManager(container, isCentral) {
       let p = getTargetPartner();
       let orders = db.orders;
@@ -3602,7 +3720,6 @@
           orders = orders.filter(o => o.storeId === Number(centralSelectedPartnerId));
         }
       } else {
-        // No painel do lojista, não mostra os que ele ocultou
         orders = orders.filter(o => o.storeId === p.id && !o.hiddenForStore);
       }
 
@@ -3722,7 +3839,6 @@
       }
     }
 
-    /* BLINDAGEM ANTIFRAUDE NA EXCLUSÃO DE PEDIDOS */
     function handleRemoveOrder(orderId, isCentral) {
       if (isCentral) {
         if (confirm("Central: Deseja apagar definitivamente este pedido da base auditada?")) {
@@ -3735,7 +3851,7 @@
       } else {
         if (confirm("Lojista: Deseja ocultar este registro do seu relatório de visualização?")) {
           const o = db.orders.find(x => x.id === orderId);
-          if (o) o.hiddenForStore = true; // Oculta só para o lojista, a Central continua com o registro
+          if (o) o.hiddenForStore = true;
           save();
           renderReportsManager(document.getElementById("adminBody"), false);
           toast("Registro ocultado da sua tela.");
