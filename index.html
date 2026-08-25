@@ -1122,12 +1122,33 @@
 
         <div id="deliveryAddressGroup">
           <div class="field">
-            <label>Endereço de entrega (Rua, Número, Bairro, Cidade)</label>
-            <input type="text" id="cAddress" placeholder="Ex: Rua João de Castro, 243, Assis - SP">
+            <label>CEP (Busca automática de Rua e Bairro)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="text" id="cCep" placeholder="19800-000" maxlength="9" onblur="buscarCep(this.value)">
+              <button type="button" class="btn dark" style="width:auto;padding:8px 12px;font-size:12px;" onclick="buscarCep(document.getElementById('cCep').value)">Buscar</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Rua / Avenida</label>
+            <input type="text" id="cStreet" placeholder="Ex: Rua João de Castro">
+          </div>
+          <div style="display:grid;grid-template-columns: 100px 1fr;gap:8px;">
+            <div class="field">
+              <label>Número</label>
+              <input type="text" id="cNumber" placeholder="243">
+            </div>
+            <div class="field">
+              <label>Bairro</label>
+              <input type="text" id="cNeighborhood" placeholder="Bairro">
+            </div>
+          </div>
+          <div class="field">
+            <label>Cidade / UF</label>
+            <input type="text" id="cCity" placeholder="Assis - SP" value="Assis - SP">
           </div>
           <button type="button" class="btn dark" onclick="openMap()" style="margin-bottom:8px;">
             <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Testar endereço no Google Maps
+            Testar rota no Google Maps
           </button>
         </div>
         
@@ -1141,8 +1162,13 @@
           <select id="cPayment" onchange="handlePaymentChange()">
             <option value="Pix">Pix</option>
             <option value="Dinheiro">Dinheiro</option>
-            <option value="Cartão na entrega">Cartão</option>
+            <option value="Cartão na entrega">Cartão / Maquininha na entrega</option>
           </select>
+        </div>
+
+        <div id="cardReturnAlert" class="spec-card hidden" style="border-color:var(--primary);background:#fff5f6;">
+          <b>💳 Taxa de Retorno de Maquininha (50% do Frete):</b><br>
+          <small>Ao solicitar máquina de cartão, será acrescentado 50% da taxa de entrega para o retorno do motoboy ao estabelecimento.</small>
         </div>
 
         <div id="pixContainer" class="pix-box">
@@ -1215,7 +1241,7 @@
           <div class="password-wrapper">
             <input type="password" id="loginPass" placeholder="Sua senha">
             <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('loginPass')">
-              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
             </button>
           </div>
         </div>
@@ -1290,6 +1316,14 @@
           </select>
         </div>
         <div class="field">
+          <label>Escolha seu Plano de Parceria</label>
+          <select id="pPlan">
+            <option value="flex">Plano Flex (R$ 1,99 por pedido)</option>
+            <option value="porcentagem">Plano Porcentagem (6% por venda)</option>
+            <option value="pro">Plano Pro Mensal (R$ 59,90/mês fixo)</option>
+          </select>
+        </div>
+        <div class="field">
           <label>Logo / Foto da Loja (Proporção Quadrada 1:1 - 400x400 px)</label>
           <input id="pLogoUrl" placeholder="Cole o link da imagem (https://...)" oninput="previewDirect('pLogoUrl', 'partnerPreview')">
           <input type="file" accept="image/*" onchange="previewUpload(this, 'partnerPreview', 'pLogoUrl', 400)">
@@ -1327,9 +1361,9 @@
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js", { scope: "./" }).then((reg) => {
-        console.log("Service Worker registrado com sucesso:", reg.scope);
+        console.log("Service Worker registrado:", reg.scope);
       }).catch((err) => {
-        console.warn("Falha no registro do Service Worker:", err);
+        console.warn("Service Worker:", err);
       });
     }
 
@@ -1359,7 +1393,7 @@
           window.deferredPrompt = null;
         });
       } else {
-        toast("Toque nos 3 pontinhos do Chrome > 'Adicionar à tela inicial' / 'Instalar'");
+        toast("Toque nos 3 pontinhos do Chrome > 'Adicionar à tela inicial'");
       }
     }
 
@@ -1369,15 +1403,6 @@
       const floatingBtn = document.getElementById("floatingInstallBtn");
       if (floatingBtn) floatingBtn.style.display = "none";
     }
-
-    function installAppPwa() {
-      triggerInstallFlow();
-    }
-
-    window.addEventListener("appinstalled", () => {
-      toast("🎉 App R1 SHOP instalado na tela inicial!");
-      hideAllInstallPrompts();
-    });
 
     /* 2. CONTROLE DE NAVEGAÇÃO DA BARRA DE RODAPÉ */
     function navToHome() {
@@ -1400,7 +1425,7 @@
       }
     }
 
-    /* 3. ARMAZENAMENTO PERSISTENTE BLINDADO (INDEXEDDB COM CAPACIDADE TOTAL) */
+    /* 3. ARMAZENAMENTO PERSISTENTE (INDEXEDDB E FIREBASE) */
     const DB_NAME = "r1_marketplace_db_stable";
     const STORE_NAME = "platform_data";
 
@@ -1429,7 +1454,6 @@
           req.onerror = () => reject(req.error);
         });
       } catch (e) {
-        console.warn("Erro ao salvar no IndexedDB:", e);
         return false;
       }
     }
@@ -1478,7 +1502,14 @@
         appSubtitle: "Marketplace Oficial",
         appLogo: "",
         adminUser: "admin",
-        adminPass: "1234"
+        adminPass: "1234",
+        mapProvider: "none", // none, mapbox, google, osrm
+        mapApiKey: "",
+        aiProvider: "none",  // none, gemini, openai, claude
+        aiApiKey: "",
+        baseDeliveryKm: 4,
+        baseDeliveryFee: 7.00,
+        extraKmFee: 0.80
       },
       partners: [
         {
@@ -1492,7 +1523,10 @@
           pixKey: "18991111111",
           address: "Rua João de Castro, 243 - IV Centenário",
           category: "Alimentação",
+          plan: "flex",
+          deliveryType: "fixed",
           status: "approved",
+          paymentStatus: "paid",
           open: true,
           blocked: false,
           delivery: "R$ 7,00",
@@ -1510,74 +1544,6 @@
               products: [
                 { id: "p1", name: "Pudim Tradicional Especial", desc: "Pudim cremoso com calda de caramelo artesanal feito sob encomenda.", price: 15, isPromo: true, image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=300", paused: false },
                 { id: "p2", name: "Pudim de Chocolate Nobre", desc: "Chocolate cremoso 50% cacau sob encomenda.", price: 18, isPromo: false, image: "", paused: false }
-              ]
-            },
-            {
-              name: "DOCES GOURMET",
-              products: [
-                { id: "p3", name: "Brigadeiro Artesanal", desc: "Unidade feita com chocolate belga.", price: 3.5, isPromo: false, image: "", paused: false }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: "Açaí na Garrafa NH",
-          owner: "Açaí NH",
-          username: "acainh",
-          pass: "1234",
-          whatsapp: "5518992222222",
-          pixType: "CNPJ",
-          pixKey: "12.345.678/0001-90",
-          address: "Rua Prefeito Welson David Aschkar, 464",
-          category: "Alimentação",
-          status: "approved",
-          open: true,
-          blocked: false,
-          delivery: "R$ 7,50",
-          time: "45 - 60 min",
-          minOrder: 20.00,
-          logo: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=200",
-          banner: "",
-          statuses: [
-            { type: "image", url: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=800" }
-          ],
-          categories: [
-            {
-              name: "AÇAÍ",
-              products: [
-                { id: "p4", name: "Copo de Açaí 770ml", desc: "Monte seu pedido com adicionais.", price: 30, isPromo: true, image: "", paused: false },
-                { id: "p5", name: "Copo de Açaí 500ml", desc: "Açaí cremoso.", price: 22, isPromo: false, image: "", paused: false }
-              ]
-            }
-          ]
-        },
-        {
-          id: 3,
-          name: "Farmácia Central R1",
-          owner: "Farmácia",
-          username: "farmacia",
-          pass: "1234",
-          whatsapp: "5518993333333",
-          pixType: "Chave Aleatória",
-          pixKey: "e3b0c442-98fc-1c14-9afb-f4c799e69f8d",
-          address: "Av. Central, 100 - Centro",
-          category: "Farmácia",
-          status: "approved",
-          open: true,
-          blocked: false,
-          delivery: "R$ 6,00",
-          time: "20 - 35 min",
-          minOrder: 10.00,
-          logo: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200",
-          banner: "",
-          statuses: [],
-          categories: [
-            {
-              name: "ANTISSÉPTICOS",
-              products: [
-                { id: "p6", name: "Babymed 45g", desc: "Pomada dermatológica.", price: 12.9, isPromo: true, image: "", paused: false },
-                { id: "p7", name: "Bepantriz Assaduras 30g", desc: "Pomada dermatológica.", price: 15.9, isPromo: false, image: "", paused: false }
               ]
             }
           ]
@@ -1619,10 +1585,10 @@
       if (isFirebaseReady && fsDb) {
         fsDb.collection("marketplace").doc("main_data").set(db)
           .then(() => {
-            console.log("Sincronizado na nuvem com sucesso!");
+            console.log("✅ Nuvem sincronizada!");
           })
           .catch(err => {
-            console.warn("Erro ao sincronizar nuvem:", err);
+            console.error("Erro Firebase:", err);
           });
       }
     }
@@ -1642,20 +1608,18 @@
       checkInstallButtonsVisibility();
 
       if (isFirebaseReady && fsDb) {
-        try {
-          const doc = await fsDb.collection("marketplace").doc("main_data").get();
-          if (doc.exists && doc.data() && doc.data().partners) {
+        fsDb.collection("marketplace").doc("main_data").onSnapshot((doc) => {
+          if (doc.exists && doc.data() && doc.data().partners && doc.data().partners.length > 0) {
             db = doc.data();
-            await setIDB("main_data", db);
-            try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) {}
+            setIDB("main_data", db);
+            try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
             renderHome();
           } else {
-            // Se for o primeiro acesso e a nuvem estiver vazia, sobe a base inicial
             save();
           }
-        } catch (e) {
-          console.warn("Usando base local offline:", e);
-        }
+        }, (err) => {
+          console.warn("Aviso Firestore:", err);
+        });
       }
     }
 
@@ -1743,7 +1707,7 @@
       if (!file) return;
 
       const previewEl = document.getElementById(previewElementId);
-      previewEl.innerHTML = "<small style='color:#666;'>Processando arquivo...</small>";
+      previewEl.innerHTML = "<small style='color:#666;'>Processando...</small>";
 
       if (file.type.startsWith("video")) {
         const reader = new FileReader();
@@ -1781,7 +1745,6 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Qualidade otimizada para caber com folga no Firebase (45KB)
           const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.65);
 
           if (targetInputId) {
@@ -1794,6 +1757,29 @@
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    /* BUSCA AUTOMÁTICA DE CEP (VIACEP 100% GRATUITO) */
+    async function buscarCep(cepVal) {
+      const cleanCep = (cepVal || "").replace(/\D/g, "");
+      if (cleanCep.length !== 8) return;
+
+      try {
+        toast("Buscando endereço pelo CEP...");
+        const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const data = await res.json();
+        if (!data.erro) {
+          document.getElementById("cStreet").value = data.logradouro || "";
+          document.getElementById("cNeighborhood").value = data.bairro || "";
+          document.getElementById("cCity").value = `${data.localidade || 'Assis'} - ${data.uf || 'SP'}`;
+          document.getElementById("cNumber").focus();
+          toast("Endereço preenchido com sucesso!");
+        } else {
+          toast("CEP não encontrado.");
+        }
+      } catch (err) {
+        console.warn("Erro ao buscar CEP:", err);
+      }
     }
 
     function sharePlatform() {
@@ -2099,7 +2085,11 @@
       if (savedClient) {
         if (!document.getElementById("cName").value) document.getElementById("cName").value = savedClient.name || "";
         if (!document.getElementById("cPhone").value) document.getElementById("cPhone").value = savedClient.phone || "";
-        if (!document.getElementById("cAddress").value) document.getElementById("cAddress").value = savedClient.address || "";
+        if (!document.getElementById("cCep").value) document.getElementById("cCep").value = savedClient.cep || "";
+        if (!document.getElementById("cStreet").value) document.getElementById("cStreet").value = savedClient.street || "";
+        if (!document.getElementById("cNumber").value) document.getElementById("cNumber").value = savedClient.number || "";
+        if (!document.getElementById("cNeighborhood").value) document.getElementById("cNeighborhood").value = savedClient.neighborhood || "";
+        if (!document.getElementById("cCity").value) document.getElementById("cCity").value = savedClient.city || "Assis - SP";
       }
       if (currentPartner) {
         document.getElementById("storeDeliveryFeeDisplay").textContent = `Taxa: ${currentPartner.delivery || 'R$ 7,00'}`;
@@ -2180,9 +2170,11 @@
       const pay = document.getElementById("cPayment").value;
       const pixBox = document.getElementById("pixContainer");
       const cashBox = document.getElementById("cashContainer");
+      const cardReturn = document.getElementById("cardReturnAlert");
 
       pixBox.classList.toggle("hidden", pay !== "Pix");
       cashBox.classList.toggle("hidden", pay !== "Dinheiro");
+      cardReturn.classList.toggle("hidden", pay !== "Cartão na entrega");
       calculateChange();
     }
 
@@ -2219,10 +2211,12 @@
     }
 
     function openMap() {
-      const a = document.getElementById("cAddress").value.trim();
-      if (!a) return toast("Digite o endereço primeiro.");
-      const cleanAddress = encodeURIComponent(a);
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${cleanAddress}`, "_blank");
+      const street = document.getElementById("cStreet").value.trim();
+      const num = document.getElementById("cNumber").value.trim();
+      const city = document.getElementById("cCity").value.trim() || "Assis - SP";
+      const fullAddress = `${street}, ${num}, ${city}`;
+      if (!street) return toast("Informe seu endereço primeiro.");
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`, "_blank");
     }
 
     function sendOrder() {
@@ -2231,22 +2225,31 @@
       const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
 
       if (total < minVal) {
-        return toast(`⚠️ O valor total do pedido (${money(total)}) não atinge o mínimo de ${money(minVal)}.`);
+        return toast(`⚠️ O valor total (${money(total)}) não atinge o mínimo de ${money(minVal)}.`);
       }
 
       const name = document.getElementById("cName").value.trim();
       const phone = document.getElementById("cPhone").value.trim();
-      const address = document.getElementById("cAddress").value.trim();
+      const cep = document.getElementById("cCep").value.trim();
+      const street = document.getElementById("cStreet").value.trim();
+      const num = document.getElementById("cNumber").value.trim();
+      const neighborhood = document.getElementById("cNeighborhood").value.trim();
+      const city = document.getElementById("cCity").value.trim() || "Assis - SP";
       const note = document.getElementById("cNote").value.trim();
       const pay = document.getElementById("cPayment").value;
 
       if (!name || !phone) return toast("Preencha seu nome e telefone WhatsApp.");
-      if (orderType === "entrega" && !address) return toast("Informe o endereço completo para entrega.");
+      if (orderType === "entrega" && (!street || !num)) return toast("Informe Rua e Número para entrega.");
 
-      localStorage.setItem("r1_customer_profile", JSON.stringify({ name, phone, address }));
+      const fullAddress = `${street}, ${num} - ${neighborhood}, ${city} (CEP: ${cep})`;
+
+      // Salva perfil no celular do cliente para próximas compras
+      localStorage.setItem("r1_customer_profile", JSON.stringify({
+        name, phone, cep, street, number: num, neighborhood, city
+      }));
 
       const id = "R1-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-      const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+      const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`;
 
       let lines = [];
       lines.push(`🛵 *NOVO PEDIDO: ${id}*`);
@@ -2261,9 +2264,12 @@
       
       if (orderType === "entrega") {
         lines.push(`🏍️ *Taxa de Entrega:* ${currentPartner.delivery || 'A combinar'}`);
-        lines.push(`📦 *MODO:* Entrega no Endereço (${delivery === 'R1' ? 'Motoboy R1' : 'Entrega Própria da Loja'})`);
+        if (pay === "Cartão na entrega") {
+          lines.push(`💳 *Retorno Maquininha (50%):* Sim (Cobrança adicional para volta do motoboy)`);
+        }
+        lines.push(`📦 *MODO:* Entrega no Endereço (${delivery === 'R1' ? 'Motoboy R1' : 'Entrega da Loja'})`);
       } else {
-        lines.push(`📦 *MODO:* 🏪 Retirada no Balcão (Sem taxa de entrega)`);
+        lines.push(`📦 *MODO:* 🏪 Retirada no Balcão (Sem taxa)`);
       }
 
       lines.push(`💳 *Forma de Pagamento:* ${pay}`);
@@ -2274,7 +2280,7 @@
         if (need === "sim" && cashVal > total) {
           lines.push(`💵 *Troco para:* ${money(cashVal)} (Devolver: ${money(cashVal - total)})`);
         } else {
-          lines.push(`💵 *Troco:* Não precisa (valor exato)`);
+          lines.push(`💵 *Troco:* Não precisa`);
         }
       } else if (pay === "Pix") {
         lines.push(`⚡ *Pagamento Pix:* Comprovante anexado`);
@@ -2286,10 +2292,10 @@
       lines.push(`*Contato:* ${phone}`);
       
       if (orderType === "entrega") {
-        lines.push(`*Endereço:* ${address}`);
+        lines.push(`*Endereço:* ${fullAddress}`);
         lines.push(`📍 *Rota Google Maps:* ${mapLink}`);
       } else {
-        lines.push(`📍 *Retirada:* O cliente irá retirar no local da loja`);
+        lines.push(`📍 *Retirada:* O cliente irá retirar no local`);
       }
 
       if (note) lines.push(`*Observação:* ${note}`);
@@ -2309,7 +2315,7 @@
         storeName: currentPartner.name,
         customerName: name,
         customerPhone: phone,
-        customerAddress: orderType === "entrega" ? address : "Retirada no Balcão",
+        customerAddress: orderType === "entrega" ? fullAddress : "Retirada no Balcão",
         note: note,
         orderType: orderType,
         items: [...cart],
@@ -2391,11 +2397,11 @@
 
     function openAdminPanel() {
       document.getElementById("adminTitle").textContent = adminMode === "central" ? (db.config.appName || "Central R1") : "Painel do Lojista";
-      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, identidade visual, vídeos e relatórios" : "Produtos, promoções, status 9:16 e relatórios";
+      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, APIs, parceiros, relatórios e cobranças" : "Produtos, importação em lote, status 9:16 e vendas";
       
       const tabs = adminMode === "central" 
-        ? ["Visão geral", "Identidade & App", "Parceiros", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
-        : ["Dashboard", "Produtos & Promoções", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+        ? ["Visão geral", "Identidade & App", "Módulos & APIs", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
+        : ["Dashboard", "Produtos & Promoções", "Importar Cardápio (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
         
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
         <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
@@ -2451,39 +2457,15 @@
           </div>
           <div class="panel" style="margin-top:12px;">
             <h3>Central Administrativa R1</h3>
-            <p class="hint">Controle de parceiros, promoções, vídeos 9:16 (Stories), produtos e relatórios de todos os estabelecimentos.</p>
+            <p class="hint">Controle de parceiros, planos de cobrança, APIs de mapas/IA, vídeos Stories 9:16 e relatórios de quitação.</p>
           </div>
         `;
       } else if (tab === "Identidade & App") {
         renderAppIdentityManager(body);
-      } else if (tab === "Parceiros") {
-        body.innerHTML = `
-          <div class="panel">
-            <h3>Lojas e Parceiros Cadastrados (${db.partners.length})</h3>
-            <div class="list">
-              ${db.partners.map((p, idx) => `
-                <div class="row" style="flex-wrap:wrap;">
-                  <span>
-                    <b>${p.name} (ID: ${p.id})</b> - Usuário: <code>${p.username || p.id}</code>
-                    ${p.blocked ? '<span class="status closed" style="font-size:10px;padding:2px 6px;">BLOQUEADA</span>' : (p.open ? '<span class="status" style="font-size:10px;padding:2px 6px;">ABERTA</span>' : '<span class="status closed" style="font-size:10px;padding:2px 6px;">FECHADA</span>')}<br>
-                    <small style="color:var(--muted)">${p.category} · Min: ${money(p.minOrder || 0)} · Whats: ${p.whatsapp}</small>
-                  </span>
-                  <div style="display:flex;gap:5px;margin-top:4px;">
-                    <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreOpenStatus(${p.id})">
-                      ${p.open ? 'Pausar/Fechar' : 'Abrir Loja'}
-                    </button>
-                    <button class="btn ${p.blocked ? 'green' : 'warning'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreBlockStatus(${p.id})">
-                      ${p.blocked ? 'Desbloquear' : 'Bloquear'}
-                    </button>
-                    <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removePartner(${idx})">
-                      Excluir
-                    </button>
-                  </div>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        `;
+      } else if (tab === "Módulos & APIs") {
+        renderApiManager(body);
+      } else if (tab === "Parceiros & Planos") {
+        renderPartnersAndPlans(body);
       } else if (tab === "Produtos da Loja") {
         renderProductManager(body, true);
       } else if (tab === "Status & Vídeos 9:16") {
@@ -2497,7 +2479,7 @@
             ${db.pending.length ? db.pending.map((p, i) => `
               <div class="row">
                 <span>
-                  <b>${p.name}</b><br>
+                  <b>${p.name}</b> (${p.plan ? p.plan.toUpperCase() : 'FLEX'})<br>
                   <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp}</small>
                 </span>
                 <span>
@@ -2510,13 +2492,148 @@
       }
     }
 
+    function renderApiManager(container) {
+      const c = db.config;
+      container.innerHTML = `
+        <div class="panel">
+          <h3>🗺️ 1. Módulo de Mapas & Cálculo de Distância (Frete)</h3>
+          <div class="spec-card">
+            <b>Fallback Seguro:</b> Se desativado ou sem chave, o sistema aplica automaticamente a taxa fixa padrão cadastrada por cada loja parceira.
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>Provedor de Mapas Ativo</label>
+              <select id="apiMapProvider">
+                <option value="none" ${c.mapProvider === 'none' ? 'selected' : ''}>Desativado (Usar apenas Taxa Fixa das Lojas)</option>
+                <option value="mapbox" ${c.mapProvider === 'mapbox' ? 'selected' : ''}>Mapbox API (Recomendado / Gratuito 100k req)</option>
+                <option value="osrm" ${c.mapProvider === 'osrm' ? 'selected' : ''}>OpenRouteService / OSRM (100% Gratuito sem cartão)</option>
+                <option value="google" ${c.mapProvider === 'google' ? 'selected' : ''}>Google Maps Distance Matrix API</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Token / Chave de API do Mapa</label>
+              <input id="apiMapKey" value="${c.mapApiKey || ''}" placeholder="pk.eyJ... ou AIzaSy...">
+            </div>
+            <div style="display:grid;grid-template-columns: 1fr 1fr 1fr;gap:8px;">
+              <div class="field">
+                <label>Km Base</label>
+                <input id="apiBaseKm" type="number" value="${c.baseDeliveryKm || 4}">
+              </div>
+              <div class="field">
+                <label>Taxa Base (R$)</label>
+                <input id="apiBaseFee" type="number" step="0.5" value="${c.baseDeliveryFee || 7.00}">
+              </div>
+              <div class="field">
+                <label>Km Adicional (R$)</label>
+                <input id="apiExtraKm" type="number" step="0.1" value="${c.extraKmFee || 0.80}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🤖 2. Módulo de Inteligência Artificial (LLMs)</h3>
+          <div class="spec-card">
+            <b>Recursos com IA:</b> Separação automática de itens no importador em lote e relatórios financeiros inteligentes.
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>Provedor de Inteligência Artificial</label>
+              <select id="apiAiProvider">
+                <option value="none" ${c.aiProvider === 'none' ? 'selected' : ''}>Desativado (Processador padrão embutido)</option>
+                <option value="gemini" ${c.aiProvider === 'gemini' ? 'selected' : ''}>Google Gemini API (Camada Gratuita)</option>
+                <option value="openai" ${c.aiProvider === 'openai' ? 'selected' : ''}>OpenAI (ChatGPT)</option>
+                <option value="claude" ${c.aiProvider === 'claude' ? 'selected' : ''}>Anthropic (Claude)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Chave de API da Inteligência Artificial</label>
+              <input id="apiAiKey" value="${c.aiApiKey || ''}" placeholder="Cole sua chave de API aqui">
+            </div>
+            <button class="btn red" onclick="saveApiSettings()">Salvar Configurações de APIs</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveApiSettings() {
+      db.config.mapProvider = document.getElementById("apiMapProvider").value;
+      db.config.mapApiKey = document.getElementById("apiMapKey").value.trim();
+      db.config.baseDeliveryKm = Number(document.getElementById("apiBaseKm").value) || 4;
+      db.config.baseDeliveryFee = Number(document.getElementById("apiBaseFee").value) || 7.00;
+      db.config.extraKmFee = Number(document.getElementById("apiExtraKm").value) || 0.80;
+
+      db.config.aiProvider = document.getElementById("apiAiProvider").value;
+      db.config.aiApiKey = document.getElementById("apiAiKey").value.trim();
+
+      save();
+      toast("Configurações de APIs e Frete salvas!");
+    }
+
+    function renderPartnersAndPlans(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Lojas Parceiras e Planos de Cobrança (${db.partners.length})</h3>
+          <div class="list">
+            ${db.partners.map((p, idx) => `
+              <div class="row" style="flex-wrap:wrap;">
+                <span>
+                  <b>${p.name} (ID: ${p.id})</b><br>
+                  <small style="color:var(--muted)">
+                    Plano: <b>${(p.plan || 'flex').toUpperCase()}</b> · Status: <b>${p.paymentStatus === 'paid' ? '<span style="color:green">QUITADO</span>' : '<span style="color:red">PENDENTE</span>'}</b><br>
+                    Whats: ${p.whatsapp} · Usuário: <code>${p.username || p.id}</code>
+                  </small>
+                </span>
+                <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">
+                  <select onchange="changePartnerPlan(${p.id}, this.value)" style="padding:4px;font-size:11px;border-radius:6px;">
+                    <option value="flex" ${p.plan === 'flex' ? 'selected' : ''}>Flex (R$ 1,99/ped)</option>
+                    <option value="porcentagem" ${p.plan === 'porcentagem' ? 'selected' : ''}>Porcentagem (6%)</option>
+                    <option value="pro" ${p.plan === 'pro' ? 'selected' : ''}>Pro (R$ 59,90/mês)</option>
+                  </select>
+                  <button class="btn ${p.paymentStatus === 'paid' ? 'outline' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="togglePaymentStatus(${p.id})">
+                    ${p.paymentStatus === 'paid' ? 'Desmarcar Pago' : 'Marcar como Pago'}
+                  </button>
+                  <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreOpenStatus(${p.id})">
+                    ${p.open ? 'Pausar' : 'Abrir'}
+                  </button>
+                  <button class="btn ${p.blocked ? 'green' : 'warning'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreBlockStatus(${p.id})">
+                    ${p.blocked ? 'Desbloquear' : 'Bloquear'}
+                  </button>
+                  <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removePartner(${idx})">✕</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function changePartnerPlan(id, planVal) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.plan = planVal;
+        save();
+        toast(`Plano de ${p.name} alterado para ${planVal.toUpperCase()}.`);
+      }
+    }
+
+    function togglePaymentStatus(id) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.paymentStatus = (p.paymentStatus === 'paid') ? 'pending' : 'paid';
+        save();
+        centralTab("Parceiros & Planos");
+        toast(`Status financeiro de ${p.name} atualizado!`);
+      }
+    }
+
     function toggleStoreOpenStatus(id) {
       const p = db.partners.find(x => x.id === id);
       if (p) {
         p.open = !p.open;
         save();
         renderHome();
-        centralTab("Parceiros");
+        centralTab("Parceiros & Planos");
         toast(`Status de ${p.name} alterado.`);
       }
     }
@@ -2527,8 +2644,8 @@
         p.blocked = !p.blocked;
         save();
         renderHome();
-        centralTab("Parceiros");
-        toast(`Estabelecimento ${p.name} ${p.blocked ? 'BLOQUEADO' : 'DESBLOQUEADO'} na plataforma.`);
+        centralTab("Parceiros & Planos");
+        toast(`Estabelecimento ${p.name} ${p.blocked ? 'BLOQUEADO' : 'DESBLOQUEADO'}.`);
       }
     }
 
@@ -2537,11 +2654,9 @@
       container.innerHTML = `
         <div class="panel">
           <h3>Identidade & Logomarca da Plataforma</h3>
-          
           <div class="spec-card">
             <b>📐 Logo Principal da Central:</b> Proporção Quadrada 1:1 (400 x 400 px).
           </div>
-
           <div class="form">
             <div class="field">
               <label>Título da Plataforma</label>
@@ -2560,7 +2675,6 @@
               <input type="file" accept="image/*" onchange="previewUpload(this, 'appLogoPreview', 'editAppLogo', 400)">
               <div id="appLogoPreview" class="file-preview" style="height:120px;">${c.appLogo ? `<img src="${c.appLogo}">` : 'Sem logomarca customizada'}</div>
             </div>
-            
             <h4 style="margin:12px 0 4px;">Credenciais de Acesso da Central</h4>
             <div class="field">
               <label>Usuário de Administrador</label>
@@ -2571,11 +2685,10 @@
               <div class="password-wrapper">
                 <input type="password" id="editAdminPass" value="${c.adminPass || '1234'}">
                 <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editAdminPass')">
-                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
               </div>
             </div>
-
             <button class="btn red" onclick="saveAppIdentity()">Salvar Alterações da Central</button>
           </div>
         </div>
@@ -2599,7 +2712,7 @@
         db.partners.splice(idx, 1);
         save();
         renderHome();
-        centralTab("Parceiros");
+        centralTab("Parceiros & Planos");
         toast("Parceiro removido.");
       }
     }
@@ -2608,10 +2721,13 @@
       const p = db.pending.splice(i, 1)[0];
       p.id = Date.now();
       p.status = "approved";
+      p.paymentStatus = "paid";
       p.open = true;
       p.blocked = false;
       p.username = "loja" + p.id.toString().slice(-4);
       p.pass = "1234";
+      p.plan = p.plan || "flex";
+      p.deliveryType = "fixed";
       p.logo = p.logo || "";
       p.pixType = "Celular";
       p.pixKey = p.whatsapp;
@@ -2637,12 +2753,17 @@
         const myOrders = db.orders.filter(o => o.storeId === p.id);
         const myTotal = myOrders.reduce((acc, o) => acc + (o.total || 0), 0);
 
+        let feeDue = 0;
+        if (p.plan === "porcentagem") feeDue = myTotal * 0.06;
+        else if (p.plan === "pro") feeDue = 59.90;
+        else feeDue = myOrders.length * 1.99;
+
         body.innerHTML = `
           <div class="admin-grid">
             <div class="metric"><small>Loja Conectada</small><strong>${p.name}</strong></div>
-            <div class="metric"><small>Total de Produtos</small><strong>${prodCount}</strong></div>
-            <div class="metric"><small>Promoções Ativas</small><strong style="color:var(--promo-gold);">${promoCount}</strong></div>
-            <div class="metric"><small>Faturamento</small><strong class="success">${money(myTotal)}</strong></div>
+            <div class="metric"><small>Plano Contratado</small><strong style="color:var(--primary);">${(p.plan || 'flex').toUpperCase()}</strong></div>
+            <div class="metric"><small>Faturamento Bruto</small><strong class="success">${money(myTotal)}</strong></div>
+            <div class="metric"><small>Taxa da Plataforma</small><strong style="color:var(--warning);">${money(feeDue)}</strong></div>
           </div>
           <div class="panel" style="margin-top:12px;">
             <h3>Seu Link de Compartilhamento Direto</h3>
@@ -2655,6 +2776,8 @@
         `;
       } else if (tab === "Produtos & Promoções") {
         renderProductManager(body, false);
+      } else if (tab === "Importar Cardápio (Lote)") {
+        renderBatchImporter(body);
       } else if (tab === "Categorias") {
         renderCategoriesManager(body);
       } else if (tab === "Status 9:16 & Capa") {
@@ -2672,6 +2795,85 @@
       toast("Link da loja copiado!");
     }
 
+    /* IMPORTADOR EM LOTE INTELIGENTE */
+    function renderBatchImporter(container) {
+      const p = getTargetPartner();
+      container.innerHTML = `
+        <div class="panel">
+          <h3>📋 Importação Rápida de Cardápio por Lote</h3>
+          <div class="spec-card">
+            <b>Como usar:</b> Escolha a categoria e cole o cardápio no modelo:<br>
+            <code>Nome do Item - Descrição detalhada do produto - Preço</code><br>
+            <i>Exemplo: X-Bacon Especial - Pão, hambúrguer 150g, bacon crocante, cheddar - 28.50</i>
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>1. Categoria de Destino</label>
+              <select id="batchCat">
+                ${p.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
+              </select>
+            </div>
+            <div class="field">
+              <label>2. Cole a lista de itens (um por linha)</label>
+              <textarea id="batchText" style="min-height:160px;" placeholder="X-Burguer Tradicional - Pão, hambúrguer e queijo - 22.00&#10;X-Salada - Pão, hambúrguer, alface e tomate - 24.00"></textarea>
+            </div>
+            <button class="btn red" onclick="processBatchImport()">Processar e Cadastrar Todos</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function processBatchImport() {
+      const p = getTargetPartner();
+      const cat = document.getElementById("batchCat").value;
+      const text = document.getElementById("batchText").value.trim();
+
+      if (!text) return toast("Cole a lista de itens para importar.");
+
+      const lines = text.split("\n");
+      let count = 0;
+
+      let c = p.categories.find(x => x.name === cat);
+      if (!c) {
+        c = { name: cat || "GERAL", products: [] };
+        p.categories.push(c);
+      }
+
+      lines.forEach(line => {
+        const parts = line.split("-").map(s => s.trim());
+        if (parts.length >= 2) {
+          const name = parts[0];
+          let desc = "";
+          let price = 0;
+
+          if (parts.length >= 3) {
+            desc = parts[1];
+            price = parseFloat(parts[2].replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+          } else {
+            price = parseFloat(parts[1].replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+          }
+
+          if (name && price > 0) {
+            c.products.push({
+              id: "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+              name: name,
+              desc: desc,
+              price: price,
+              image: "",
+              isPromo: false,
+              paused: false
+            });
+            count++;
+          }
+        }
+      });
+
+      save();
+      renderHome();
+      storeTab("Produtos & Promoções");
+      toast(`🎉 ${count} produtos importados com sucesso!`);
+    }
+
     function renderProductManager(container, isCentral) {
       const p = getTargetPartner();
 
@@ -2687,7 +2889,6 @@
 
         <div class="panel">
           <h3>➕ Cadastrar Novo Produto em ${p.name}</h3>
-
           <div class="form">
             <div class="field">
               <label>1. Categoria do Produto</label>
@@ -2695,41 +2896,33 @@
                 ${p.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
               </select>
             </div>
-            
             <div class="field">
               <label>2. Nome do Produto / Item</label>
               <input id="newName" placeholder="Ex: Pudim Cake Tradicional">
             </div>
-
             <div class="field">
               <label>3. Preço de Venda (R$)</label>
               <input id="newPrice" type="number" step="0.01" placeholder="Ex: 25.00">
             </div>
-
             <div class="field-checkbox">
               <input type="checkbox" id="newIsPromo">
               <label for="newIsPromo" style="cursor:pointer;margin:0;">
-                <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b><br>
-                <small style="color:#666;">Marque esta opção para o produto aparecer nas ofertas do topo.</small>
+                <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b>
               </label>
             </div>
-
             <div class="field">
-              <label>4. Descrição do Produto (Ingredientes, Porção, Detalhes)</label>
+              <label>4. Descrição do Produto (Ingredientes, Detalhes)</label>
               <textarea id="newDesc" placeholder="Descreva o produto para o cliente..."></textarea>
             </div>
-
             <div class="field">
-              <label>5. Foto do Produto (Proporção Quadrada 1:1 - 400x400 px)</label>
-              <input id="newImgUrl" placeholder="Cole o link direto da foto (https://...)" oninput="previewDirect('newImgUrl', 'productImgPreview')">
+              <label>5. Foto do Produto (Link direto URL)</label>
+              <input id="newImgUrl" placeholder="Cole o link da foto (https://...)" oninput="previewDirect('newImgUrl', 'productImgPreview')">
             </div>
-
             <div class="field">
-              <label>Ou faça Upload da Foto (1:1 - Otimização Automática)</label>
+              <label>Ou faça Upload da Foto (1:1)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 400)">
               <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
             </div>
-
             <button class="btn red" onclick="addProductToStore()">+ Adicionar Produto ao Cardápio</button>
           </div>
         </div>
@@ -2745,7 +2938,7 @@
                     ${renderMedia(x.image, "")}
                   </div>
                   <span>
-                    ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO ATIVA</span> ` : ''}
+                    ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO</span> ` : ''}
                     <b>${x.name}</b> — <span style="color:var(--green);font-weight:900;">${money(Number(x.price))}</span><br>
                     <small style="color:var(--muted)">${x.paused ? '<b style="color:red">Pausado</b>' : 'Ativo'}</small>
                   </span>
@@ -2814,7 +3007,7 @@
         renderHome();
         if (adminMode === "central") centralTab("Produtos da Loja");
         else storeTab("Produtos & Promoções");
-        toast(c.products[prodIdx].isPromo ? "Produto destacado na Promoção do Dia!" : "Produto removido das promoções.");
+        toast(c.products[prodIdx].isPromo ? "Produto na Promoção do Dia!" : "Produto removido das promoções.");
       }
     }
 
@@ -2909,11 +3102,6 @@
 
         <div class="panel">
           <h3>📱 1. Status / Stories (Proporção Vertical 9:16 - 1080x1920 px) de ${p.name}</h3>
-
-          <div class="spec-card">
-            <b>Exibição:</b> Carrossel de Stories no topo da tela inicial. Formato Vertical 9:16.
-          </div>
-
           <div class="form">
             <div class="field">
               <label>Tipo de Mídia do Status</label>
@@ -2923,11 +3111,11 @@
               </select>
             </div>
             <div class="field">
-              <label>Link Direto URL da Mídia (Recomendado para vídeos e imagens)</label>
+              <label>Link Direto URL da Mídia</label>
               <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou https://exemplo.com/foto.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
             </div>
             <div class="field">
-              <label>Ou faça Upload do Arquivo (Vídeo MP4 ou Foto 9:16)</label>
+              <label>Ou faça Upload do Arquivo (9:16)</label>
               <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 400)">
               <div id="statusPreviewBox" class="file-preview">Prévia do Status 9:16</div>
             </div>
@@ -2956,17 +3144,14 @@
         </div>
 
         <div class="panel">
-          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal 21:9 - 1080x450 px)</h3>
-          <div class="spec-card">
-            <b>Exibição:</b> Fundo de topo na tela do cardápio da loja. Formato Horizontal 21:9.
-          </div>
+          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal 21:9)</h3>
           <div class="form">
             <div class="field">
               <label>Link da Imagem da Capa</label>
               <input id="editBannerUrl" value="${p.banner || ''}" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('editBannerUrl', 'bannerPreview')">
             </div>
             <div class="field">
-              <label>Ou Upload da Imagem da Capa (21:9)</label>
+              <label>Ou Upload da Imagem da Capa</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 500)">
               <div id="bannerPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem banner de capa'}</div>
             </div>
@@ -3040,7 +3225,7 @@
             <h3>Histórico & Dashboard de Vendas</h3>
             <button class="btn dark" style="width:auto;padding:7px 12px;font-size:12px;" onclick="printReport()">
               <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
-              Imprimir / Baixar PDF
+              Imprimir / PDF
             </button>
           </div>
 
@@ -3121,11 +3306,6 @@
       container.innerHTML = `
         <div class="panel">
           <h3>Dados, Credenciais e Logomarca de ${p.name}</h3>
-
-          <div class="spec-card">
-            <b>📐 Logo da Loja:</b> Proporção Quadrada 1:1 (400 x 400 px).
-          </div>
-
           <div class="form">
             <div class="field">
               <label>Nome do comércio</label>
@@ -3135,7 +3315,13 @@
               <label>WhatsApp de pedidos (com DDD)</label>
               <input value="${p.whatsapp}" id="editWhats">
             </div>
-
+            <div class="field">
+              <label>Modelo de Frete da Loja</label>
+              <select id="editDeliveryType">
+                <option value="fixed" ${p.deliveryType === 'fixed' ? 'selected' : ''}>Taxa Fixa Padrão</option>
+                <option value="dynamic" ${p.deliveryType === 'dynamic' ? 'selected' : ''}>Cálculo por Km / Perímetro (Mapbox/GPS)</option>
+              </select>
+            </div>
             <h4 style="margin:10px 0 4px;">Credenciais de Acesso da Loja</h4>
             <div class="field">
               <label>Usuário / Login da Loja</label>
@@ -3150,13 +3336,12 @@
                 </button>
               </div>
             </div>
-
             <div class="field">
               <label>Logomarca da Loja (Link direto URL)</label>
               <input value="${p.logo || ''}" id="editStoreLogo" placeholder="https://exemplo.com/minha-logo.jpg" oninput="previewDirect('editStoreLogo', 'storeLogoPreview')">
             </div>
             <div class="field">
-              <label>Ou faça Upload da Foto/Logo (1:1 - 400x400 px)</label>
+              <label>Ou faça Upload da Foto/Logo (1:1)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'storeLogoPreview', 'editStoreLogo', 400)">
               <div id="storeLogoPreview" class="file-preview" style="height:120px;">${renderMedia(p.logo, "")}</div>
             </div>
@@ -3179,7 +3364,7 @@
               <input value="${p.pixKey || ''}" id="editPixKey" placeholder="Ex: 18991111111 ou seu CPF/CNPJ">
             </div>
             <div class="field">
-              <label>Endereço completo (Rua, Número, Bairro, Cidade)</label>
+              <label>Endereço completo da Loja</label>
               <input value="${p.address}" id="editAddress">
             </div>
             <div class="field">
@@ -3207,6 +3392,7 @@
       const p = getTargetPartner();
       p.name = document.getElementById("editStoreName").value.trim();
       p.whatsapp = document.getElementById("editWhats").value.trim().replace(/\D/g, "");
+      p.deliveryType = document.getElementById("editDeliveryType").value;
       p.username = document.getElementById("editStoreUsername").value.trim() || p.username;
       p.pass = document.getElementById("editStorePass").value.trim() || p.pass;
       p.minOrder = Number(document.getElementById("editMinOrder").value) || 0;
@@ -3230,6 +3416,7 @@
       const whats = document.getElementById("pWhats").value.trim();
       const address = document.getElementById("pAddress").value.trim();
       const category = document.getElementById("pCategory").value;
+      const plan = document.getElementById("pPlan").value || "flex";
       const logo = document.getElementById("pLogoUrl").value.trim() || "";
 
       if (!name || !owner || !whats || !address) return toast("Preencha os campos obrigatórios.");
@@ -3242,6 +3429,7 @@
         pixKey: whats.replace(/\D/g, ""),
         address,
         category,
+        plan: plan,
         logo: logo,
         statuses: [],
         blocked: false,
