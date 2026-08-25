@@ -13,6 +13,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
+  <!-- Leaflet Maps (100% Gratuito & Leve para Rastreamento em Tempo Real) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     :root {
       --primary: #d9233e;
@@ -622,6 +626,18 @@
       justify-content: center;
       gap: 8px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+
+    /* MAPAS INTERATIVOS COM LEAFLET */
+    .map-container-box {
+      width: 100%;
+      height: 240px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin: 10px 0;
+      background: #e5e3df;
+      z-index: 5;
     }
 
     .modal {
@@ -1407,10 +1423,48 @@
     </div>
   </div>
 
+  <!-- MODAL DE RASTREAMENTO DO PEDIDO EM TEMPO REAL COM MAPA -->
+  <div id="trackingModal" class="modal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 id="trackOrderTitle">🛵 Rastreio do Pedido</h2>
+          <small id="trackOrderSubtitle" style="color:var(--muted)"></small>
+        </div>
+        <button class="close" onclick="closeModal('trackingModal')">✕</button>
+      </div>
+
+      <div style="background:#f8f9fa;padding:12px;border-radius:14px;margin-bottom:10px;border:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <b>Status Atual:</b>
+          <span id="trackStatusBadge" class="status" style="font-size:12px;">Em Preparo</span>
+        </div>
+        <small id="trackStatusDesc" style="color:#666;">Seu pedido está sendo preparado pela loja.</small>
+      </div>
+
+      <div id="clientTrackingMap" class="map-container-box"></div>
+
+      <div id="motoboyInfoCard" class="panel hidden" style="margin-top:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--dark);color:#fff;display:grid;place-items:center;font-weight:900;">R1</div>
+            <div>
+              <b id="trackMotoName">Motoboy Equipe R1</b><br>
+              <small id="trackMotoVehicle" style="color:var(--muted)">Honda CG 160</small>
+            </div>
+          </div>
+          <button id="trackMotoWhatsBtn" class="btn green" style="width:auto;padding:8px 12px;font-size:12px;">
+            💬 WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="loginModal" class="modal">
     <div class="sheet center">
       <div class="sheet-head">
-        <h2>Acesso Administrativo</h2>
+        <h2>Acesso ao Sistema</h2>
         <button class="close" onclick="closeModal('loginModal')">
           <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -1421,11 +1475,12 @@
           <select id="loginType" onchange="updateLoginHint()">
             <option value="central">Central R1 (Administrador)</option>
             <option value="store">Painel do Lojista</option>
+            <option value="motoboy">Entregador / Motoboy R1</option>
           </select>
         </div>
         <div class="field">
           <label>Usuário / Login Cadastrado</label>
-          <input id="loginUser" placeholder="admin ou usuário da loja">
+          <input id="loginUser" placeholder="admin, usuário da loja ou motoboy">
         </div>
         <div class="field">
           <label>Senha de Acesso</label>
@@ -1438,6 +1493,12 @@
         </div>
         <button class="btn red" onclick="doLogin()">Entrar no Painel</button>
         <p class="hint" id="loginHint">Informe suas credenciais autorizadas para gerenciar a plataforma ou o seu estabelecimento.</p>
+        
+        <div style="text-align:center;margin-top:12px;">
+          <button style="background:transparent;border:0;color:#666;font-size:12px;text-decoration:underline;" onclick="closeModal('loginModal'); openModal('motoboyRegisterModal');">
+            Cadastrar como Motoboy Parceiro R1
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1465,6 +1526,40 @@
       </div>
       <div class="tabs" id="adminTabs"></div>
       <div id="adminBody"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CADASTRO DE MOTOBOY -->
+  <div id="motoboyRegisterModal" class="modal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2>🏍️ Seja um Motoboy Parceiro R1</h2>
+        <button class="close" onclick="closeModal('motoboyRegisterModal')">✕</button>
+      </div>
+      <div class="form">
+        <div class="field">
+          <label>Nome Completo</label>
+          <input id="motoRegName" placeholder="Seu nome">
+        </div>
+        <div class="field">
+          <label>Apelido / Como quer ser chamado</label>
+          <input id="motoRegNick" placeholder="Ex: Césinha">
+        </div>
+        <div class="field">
+          <label>WhatsApp (com DDD)</label>
+          <input id="motoRegPhone" placeholder="(18) 99999-9999">
+        </div>
+        <div class="field">
+          <label>Modelo e Placa da Moto</label>
+          <input id="motoRegVehicle" placeholder="Ex: Honda CG 160 Fan - ABC-1234">
+        </div>
+        <div class="field">
+          <label>Chave Pix para Recebimento das Corridas</label>
+          <input id="motoRegPix" placeholder="Seu Pix (Celular, CPF ou CNPJ)">
+        </div>
+        <button class="btn green" onclick="submitMotoboyRegister()">Enviar Cadastro para Análise</button>
+        <p class="hint">A Central R1 fará a liberação do seu acesso para receber chamados de entregas.</p>
+      </div>
     </div>
   </div>
 
@@ -1758,6 +1853,8 @@
           pixType: "Celular",
           pixKey: "18991111111",
           address: "Rua João de Castro, 243 - IV Centenário",
+          lat: -22.6580,
+          lng: -50.4180,
           category: "Alimentação",
           plan: "flex",
           deliveryType: "fixed",
@@ -1792,7 +1889,25 @@
           ]
         }
       ],
+      motoboys: [
+        {
+          id: 101,
+          name: "César Silvério",
+          nick: "Césinha Fz",
+          username: "motoboy1",
+          pass: "1234",
+          phone: "18997734471",
+          vehicle: "Honda CG 160 / Yamaha FZ25",
+          pix: "18997734471",
+          status: "approved",
+          online: true,
+          lat: -22.6590,
+          lng: -50.4190,
+          currentOrderId: null
+        }
+      ],
       pending: [],
+      pendingMotoboys: [],
       orders: [],
       clients: []
     };
@@ -1802,6 +1917,8 @@
     if (!db.config.banners) db.config.banners = [];
     if (!db.orders) db.orders = [];
     if (!db.clients) db.clients = [];
+    if (!db.motoboys) db.motoboys = seed.motoboys;
+    if (!db.pendingMotoboys) db.pendingMotoboys = [];
 
     let currentPartner = null;
     let cart = [];
@@ -1809,6 +1926,7 @@
     let delivery = "R1";
     let adminMode = null;
     let loggedPartnerId = null;
+    let loggedMotoboyId = null;
     let centralSelectedPartnerId = "all";
     let reportFilterPeriod = "todos";
 
@@ -1820,6 +1938,11 @@
     let activeStoryPartner = null;
     let activeStoryIndex = 0;
     let storyTimer = null;
+
+    // Instâncias do Leaflet Maps
+    let activeClientMap = null;
+    let activeCentralMap = null;
+    let motoboyWatchId = null;
 
     /* GRAVAÇÃO DEFINITIVA NO INDEXEDDB E FIREBASE */
     async function save() {
@@ -2264,7 +2387,6 @@
 
       track.parentElement.classList.remove("hidden");
 
-      // Monta a sequência de itens
       const itemsHtml = activePartners.map(p => `
         <div class="ticker-item" onclick="openCatalog(${p.id})">
           <div class="ticker-logo">${renderMedia(p.logo, "")}</div>
@@ -2273,7 +2395,6 @@
         </div>
       `).join("");
 
-      // Duplica para garantir o loop infinito sem cortes visuais
       track.innerHTML = itemsHtml + itemsHtml + itemsHtml;
     }
 
@@ -2618,6 +2739,7 @@
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`, "_blank");
     }
 
+    /* ENVIO DO PEDIDO COM DISPARO PARA RASTREIO E MOTOBOYS */
     function sendOrder() {
       if (!currentPartner || !cart.length) return toast("Adicione produtos ao pedido.");
       const minVal = currentPartner?.minOrder || 0;
@@ -2657,13 +2779,13 @@
         });
       }
 
-      // Salva perfil no celular do cliente
       localStorage.setItem("r1_customer_profile", JSON.stringify({
         name, phone, cep, street, number: num, neighborhood, city
       }));
 
       const id = "R1-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`;
+      const trackingUrl = `${window.location.origin}${window.location.pathname}?rastreio=${id}`;
 
       // Cálculo da comissão da R1 por pedido
       let commissionVal = 0;
@@ -2730,6 +2852,8 @@
 
       if (note) lines.push(`*Observação:* ${note}`);
       lines.push(`-----------------------------------`);
+      lines.push(`📲 *Acompanhe seu pedido pelo Mapa:* ${trackingUrl}`);
+      lines.push(`-----------------------------------`);
       lines.push(`_Pedido gerado via App ${db.config.appName || 'R1 SHOP'}._`);
 
       const fullMessageText = lines.join("\n");
@@ -2739,13 +2863,18 @@
         storePhoneClean = "55" + storePhoneClean;
       }
 
-      db.orders.unshift({
+      const newOrder = {
         id,
         storeId: currentPartner.id,
         storeName: currentPartner.name,
+        storeAddress: currentPartner.address,
+        storeLat: currentPartner.lat || -22.6580,
+        storeLng: currentPartner.lng || -50.4180,
         customerName: name,
         customerPhone: phone,
         customerAddress: orderType === "entrega" ? fullAddress : "Retirada no Balcão",
+        customerLat: -22.6620, // Assis Centro base
+        customerLng: -50.4150,
         note: note,
         orderType: orderType,
         items: [...cart],
@@ -2755,10 +2884,17 @@
         commissionVal: commissionVal,
         commissionText: commissionText,
         planType: plan,
-        status: "Novo",
+        status: "Novo", // Novo -> Em Preparo -> Despachado -> Entregue
+        motoboyId: null,
+        motoboyName: null,
+        motoboyPhone: null,
+        motoboyLat: null,
+        motoboyLng: null,
         hiddenForStore: false,
         date: new Date().toISOString()
-      });
+      };
+
+      db.orders.unshift(newOrder);
       save();
 
       const whatsappUrl = `https://api.whatsapp.com/send?phone=${storePhoneClean}&text=${encodeURIComponent(fullMessageText)}`;
@@ -2773,7 +2909,99 @@
       document.getElementById("cashAmount").value = "";
       document.getElementById("changeResult").textContent = "";
 
-      toast("✅ Pedido enviado ao WhatsApp da loja com sucesso!");
+      toast("✅ Pedido gerado com sucesso!");
+      openClientTracking(id);
+    }
+
+    /* ABERTURA DA TELA DE RASTREIO DO CLIENTE EM TEMPO REAL */
+    function openClientTracking(orderId) {
+      const order = db.orders.find(o => o.id === orderId);
+      if (!order) return toast("Pedido não localizado.");
+
+      document.getElementById("trackOrderTitle").textContent = `🛵 Pedido ${order.id}`;
+      document.getElementById("trackOrderSubtitle").textContent = `${order.storeName} ➔ ${order.customerName}`;
+
+      const badge = document.getElementById("trackStatusBadge");
+      const desc = document.getElementById("trackStatusDesc");
+      badge.textContent = order.status || "Novo";
+
+      if (order.status === "Em Preparo") {
+        desc.textContent = "👨‍🍳 O restaurante está preparando o seu pedido com carinho.";
+        badge.className = "status";
+      } else if (order.status === "Despachado") {
+        desc.textContent = "🛵 O Motoboy R1 já retirou seu pedido e está a caminho!";
+        badge.className = "status warning";
+      } else if (order.status === "Entregue") {
+        desc.textContent = "🟢 Pedido entregue com sucesso! Bom apetite!";
+        badge.className = "status";
+      } else {
+        desc.textContent = "🟡 Pedido recebido, aguardando confirmação da loja.";
+        badge.className = "status closed";
+      }
+
+      const motoCard = document.getElementById("motoboyInfoCard");
+      if (order.motoboyName) {
+        motoCard.classList.remove("hidden");
+        document.getElementById("trackMotoName").textContent = order.motoboyName;
+        document.getElementById("trackMotoVehicle").textContent = "Entregador Oficial Equipe R1";
+        const whatsBtn = document.getElementById("trackMotoWhatsBtn");
+        whatsBtn.onclick = () => {
+          const p = (order.motoboyPhone || "").replace(/\D/g, "");
+          window.open(`https://wa.me/55${p}?text=${encodeURIComponent(`Olá! Sou o cliente do pedido ${order.id}`)}`, "_blank");
+        };
+      } else {
+        motoCard.classList.add("hidden");
+      }
+
+      openModal("trackingModal");
+      renderClientTrackingMap(order);
+    }
+
+    function renderClientTrackingMap(order) {
+      setTimeout(() => {
+        const container = document.getElementById("clientTrackingMap");
+        if (!container) return;
+
+        if (activeClientMap) {
+          activeClientMap.remove();
+          activeClientMap = null;
+        }
+
+        const storeCoords = [order.storeLat || -22.6580, order.storeLng || -50.4180];
+        const clientCoords = [order.customerLat || -22.6620, order.customerLng || -50.4150];
+
+        activeClientMap = L.map('clientTrackingMap').setView(storeCoords, 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap R1'
+        }).addTo(activeClientMap);
+
+        // Marcador da Loja
+        L.marker(storeCoords).addTo(activeClientMap)
+          .bindPopup(`<b>🏪 ${order.storeName}</b><br>Origem do Pedido`).openPopup();
+
+        // Marcador do Cliente
+        L.marker(clientCoords).addTo(activeClientMap)
+          .bindPopup(`<b>🏠 Endereço de Entrega</b><br>${order.customerAddress}`);
+
+        // Linha da Rota Traçada
+        const latlngs = [storeCoords, clientCoords];
+        L.polyline(latlngs, { color: '#d9233e', weight: 4, dashArray: '6, 8' }).addTo(activeClientMap);
+
+        // Marcador do Motoboy em Movimento (Se estiver despachado)
+        if (order.motoboyLat && order.motoboyLng) {
+          const motoCoords = [order.motoboyLat, order.motoboyLng];
+          const motoIcon = L.divIcon({
+            html: '<div style="font-size:24px;background:#121417;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;border:2px solid #d9233e;box-shadow:0 4px 10px rgba(0,0,0,0.5);">🛵</div>',
+            iconSize: [34, 34],
+            className: ''
+          });
+          L.marker(motoCoords, { icon: motoIcon }).addTo(activeClientMap)
+            .bindPopup(`<b>🛵 Motoboy a caminho!</b>`);
+        }
+
+        activeClientMap.fitBounds(L.latLngBounds(latlngs), { padding: [30, 30] });
+      }, 300);
     }
 
     function updateLoginHint() {
@@ -2781,8 +3009,10 @@
       const hint = document.getElementById("loginHint");
       if (type === "central") {
         hint.innerHTML = "Acesso Central R1: informe seu login e senha de administrador.";
-      } else {
+      } else if (type === "store") {
         hint.innerHTML = "Acesso Lojista: informe o usuário e senha da sua loja.";
+      } else {
+        hint.innerHTML = "Acesso Motoboy R1: informe seu login de entregador autorizado.";
       }
     }
 
@@ -2796,6 +3026,7 @@
         if (u === (c.adminUser || "admin") && p === (c.adminPass || "1234")) {
           adminMode = "central";
           loggedPartnerId = null;
+          loggedMotoboyId = null;
           centralSelectedPartnerId = "all";
           adminSessionActive = true;
           adminTabHistory = [];
@@ -2803,7 +3034,7 @@
           openAdminPanel();
           return;
         }
-      } else {
+      } else if (type === "store") {
         const partner = db.partners.find(x => 
           (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
           x.id.toString() === u
@@ -2811,32 +3042,90 @@
         if (partner && (partner.pass || "1234") === p) {
           adminMode = "store";
           loggedPartnerId = partner.id;
+          loggedMotoboyId = null;
           adminSessionActive = true;
           adminTabHistory = [];
           closeModal("loginModal");
           openAdminPanel();
           return;
         }
+      } else if (type === "motoboy") {
+        const moto = db.motoboys.find(x => 
+          (x.username && x.username.toLowerCase() === u.toLowerCase()) ||
+          (x.phone && x.phone.includes(u)) ||
+          x.id.toString() === u
+        );
+        if (moto && (moto.pass || "1234") === p) {
+          if (moto.status !== "approved") return toast("Cadastro de motoboy em análise pela Central.");
+          adminMode = "motoboy";
+          loggedMotoboyId = moto.id;
+          loggedPartnerId = null;
+          adminSessionActive = true;
+          adminTabHistory = [];
+          closeModal("loginModal");
+          openAdminPanel();
+          startMotoboyLocationTracking(moto.id);
+          return;
+        }
       }
       toast("Usuário ou senha inválidos.");
     }
 
+    /* RASTREAMENTO DO GPS DO MOTOBOY */
+    function startMotoboyLocationTracking(motoId) {
+      if ("geolocation" in navigator) {
+        if (motoboyWatchId) navigator.geolocation.clearWatch(motoboyWatchId);
+        motoboyWatchId = navigator.geolocation.watchPosition((pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const moto = db.motoboys.find(m => m.id === motoId);
+          if (moto) {
+            moto.lat = lat;
+            moto.lng = lng;
+            // Atualiza localização nos pedidos ativos desse motoboy
+            db.orders.forEach(o => {
+              if (o.motoboyId === motoId && o.status === "Despachado") {
+                o.motoboyLat = lat;
+                o.motoboyLng = lng;
+              }
+            });
+            save();
+          }
+        }, (err) => {
+          console.warn("GPS Motoboy:", err);
+        }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 });
+      }
+    }
+
     function logoutAdmin() {
+      if (motoboyWatchId) {
+        navigator.geolocation.clearWatch(motoboyWatchId);
+        motoboyWatchId = null;
+      }
       adminSessionActive = false;
       adminMode = null;
       loggedPartnerId = null;
+      loggedMotoboyId = null;
       adminTabHistory = [];
       closeModal("adminModal");
-      toast("Sessão administrativa encerrada.");
+      toast("Sessão encerrada.");
     }
 
     function openAdminPanel() {
-      document.getElementById("adminTitle").textContent = adminMode === "central" ? (db.config.appName || "Central R1") : "Painel do Lojista";
-      document.getElementById("adminSubtitle").textContent = adminMode === "central" ? "Gestão total, clientes, APIs, relatórios e banners" : "Produtos, importação em lote, redes sociais e vendas";
-      
-      const tabs = adminMode === "central" 
-        ? ["Visão geral", "Identidade & App", "Banners Central", "Módulos & APIs", "Clientes", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"] 
-        : ["Dashboard", "Produtos & Promoções", "Importar Catálogo (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+      let tabs = [];
+      if (adminMode === "central") {
+        document.getElementById("adminTitle").textContent = db.config.appName || "Central R1";
+        document.getElementById("adminSubtitle").textContent = "Gestão total, mapa de frota, parceiros e finanças";
+        tabs = ["Visão geral", "Mapa ao Vivo & Frota", "Identidade & App", "Banners Central", "Módulos & APIs", "Clientes", "Motoboys R1", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"];
+      } else if (adminMode === "store") {
+        document.getElementById("adminTitle").textContent = "Painel do Lojista";
+        document.getElementById("adminSubtitle").textContent = "Produtos, pedidos, mapa e dados da loja";
+        tabs = ["Dashboard", "Produtos & Promoções", "Importar Catálogo (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+      } else {
+        document.getElementById("adminTitle").textContent = "Painel do Entregador R1";
+        document.getElementById("adminSubtitle").textContent = "Corridas disponíveis, entregas e repasses";
+        tabs = ["Corridas Abertas", "Minhas Entregas", "Extrato Pix", "Meu Perfil"];
+      }
         
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
         <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
@@ -2856,7 +3145,8 @@
         x.classList.toggle("active", x.textContent.trim() === tab);
       });
       if (adminMode === "central") centralTab(tab);
-      else storeTab(tab);
+      else if (adminMode === "store") storeTab(tab);
+      else motoboyTab(tab);
     }
 
     function adminGoBackInternal() {
@@ -2877,24 +3167,28 @@
       return db.partners.find(p => p.id === loggedPartnerId) || db.partners[0];
     }
 
+    /* PAINEL CENTRAL ADMINISTRATIVO */
     function centralTab(tab) {
       const body = document.getElementById("adminBody");
       if (tab === "Visão geral") {
         const approved = db.partners.filter(p => p.status === "approved" && !p.blocked).length;
         const blocked = db.partners.filter(p => p.blocked).length;
         const totalSales = db.orders.reduce((acc, o) => acc + (o.total || 0), 0);
+        const motosOnline = db.motoboys.filter(m => m.online && m.status === 'approved').length;
         body.innerHTML = `
           <div class="admin-grid">
             <div class="metric"><small>Lojas Ativas</small><strong>${approved}</strong></div>
-            <div class="metric"><small>Lojas Bloqueadas</small><strong class="danger">${blocked}</strong></div>
+            <div class="metric"><small>Motoboys Online</small><strong class="success">${motosOnline}</strong></div>
             <div class="metric"><small>Total Pedidos</small><strong>${db.orders.length}</strong></div>
             <div class="metric"><small>Faturamento Total</small><strong class="success">${money(totalSales)}</strong></div>
           </div>
           <div class="panel" style="margin-top:12px;">
             <h3>Central Administrativa R1</h3>
-            <p class="hint">Gestão completa e modular de lojas, clientes cadastrados, APIs, banners e relatórios financeiros.</p>
+            <p class="hint">Gestão completa e modular de lojas, mapa de frota ao vivo, clientes, entregadores e relatórios financeiros auditados.</p>
           </div>
         `;
+      } else if (tab === "Mapa ao Vivo & Frota") {
+        renderCentralFleetMap(body);
       } else if (tab === "Identidade & App") {
         renderAppIdentityManager(body);
       } else if (tab === "Banners Central") {
@@ -2903,6 +3197,8 @@
         renderApiManager(body);
       } else if (tab === "Clientes") {
         renderClientsManager(body);
+      } else if (tab === "Motoboys R1") {
+        renderMotoboysManager(body);
       } else if (tab === "Parceiros & Planos") {
         renderPartnersAndPlans(body);
       } else if (tab === "Produtos da Loja") {
@@ -2912,22 +3208,333 @@
       } else if (tab === "Relatórios Financeiros") {
         renderReportsManager(body, true);
       } else if (tab === "Cadastros") {
+        renderCentralApprovals(body);
+      }
+    }
+
+    /* MAPA DE FROTA AO VIVO NA CENTRAL R1 */
+    function renderCentralFleetMap(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <h3>📍 Mapa de Frota e Corridas ao Vivo (Assis e Região)</h3>
+          <p class="hint">Acompanhe todas as lojas, motoboys e entregas em andamento em tempo real.</p>
+          <div id="centralFleetMapContainer" class="map-container-box" style="height:320px;"></div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        if (activeCentralMap) {
+          activeCentralMap.remove();
+          activeCentralMap = null;
+        }
+
+        const centerAssis = [-22.6600, -50.4160];
+        activeCentralMap = L.map('centralFleetMapContainer').setView(centerAssis, 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap Equipe R1'
+        }).addTo(activeCentralMap);
+
+        // Plota todas as lojas parceiras
+        db.partners.filter(p => p.status === 'approved' && !p.blocked).forEach(p => {
+          const lat = p.lat || -22.6580;
+          const lng = p.lng || -50.4180;
+          L.marker([lat, lng]).addTo(activeCentralMap)
+            .bindPopup(`<b>🏪 ${p.name}</b><br>${p.address}`);
+        });
+
+        // Plota todos os motoboys online
+        db.motoboys.filter(m => m.status === 'approved').forEach(m => {
+          const mLat = m.lat || -22.6610;
+          const mLng = m.lng || -50.4170;
+          const motoIcon = L.divIcon({
+            html: `<div style="font-size:22px;background:#121417;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;border:2px solid ${m.online ? '#168a55' : '#777'};box-shadow:0 3px 8px rgba(0,0,0,0.5);">🛵</div>`,
+            iconSize: [32, 32],
+            className: ''
+          });
+          L.marker([mLat, mLng], { icon: motoIcon }).addTo(activeCentralMap)
+            .bindPopup(`<b>🛵 ${m.nick || m.name}</b><br>${m.vehicle}<br>Status: ${m.online ? '<span style="color:green">Online</span>' : 'Offline'}`);
+        });
+      }, 300);
+    }
+
+    function renderCentralApprovals(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Novas Lojas Pendentes (${db.pending.length})</h3>
+          ${db.pending.length ? db.pending.map((p, i) => `
+            <div class="row">
+              <span>
+                <b>${p.name}</b> (${(p.plan || 'flex').toUpperCase()})<br>
+                <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp}</small>
+              </span>
+              <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approve(${i})">Aprovar Loja</button>
+            </div>
+          `).join("") : '<p class="hint">Nenhuma loja pendente.</p>'}
+        </div>
+
+        <div class="panel">
+          <h3>Novos Motoboys Pendentes (${db.pendingMotoboys.length})</h3>
+          ${db.pendingMotoboys.length ? db.pendingMotoboys.map((m, idx) => `
+            <div class="row">
+              <span>
+                <b>${m.name} (${m.nick})</b><br>
+                <small style="color:var(--muted)">Moto: ${m.vehicle} · Whats: ${m.phone}<br>Pix: ${m.pix}</small>
+              </span>
+              <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approveMotoboy(${idx})">Aprovar Motoboy</button>
+            </div>
+          `).join("") : '<p class="hint">Nenhum motoboy pendente.</p>'}
+        </div>
+      `;
+    }
+
+    function renderMotoboysManager(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3>🏍️ Frota de Motoboys Cadastrados (${db.motoboys.length})</h3>
+            <button class="btn green" style="width:auto;padding:6px 12px;font-size:12px;" onclick="openModal('motoboyRegisterModal')">+ Novo Motoboy</button>
+          </div>
+          <div class="list">
+            ${db.motoboys.map((m, idx) => `
+              <div class="row" style="flex-wrap:wrap;">
+                <span>
+                  <b>${m.name} (${m.nick})</b> - Usuário: <code>${m.username || 'motoboy' + m.id}</code><br>
+                  <small style="color:var(--muted)">
+                    Veículo: ${m.vehicle} · Whats: ${m.phone} · Pix: ${m.pix}<br>
+                    Status: <b>${m.online ? '<span style="color:green">● ONLINE</span>' : '<span style="color:gray">● OFFLINE</span>'}</b>
+                  </small>
+                </span>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn ${m.online ? 'dark' : 'green'}" style="width:auto;padding:5px 8px;font-size:11px;" onclick="toggleMotoOnlineStatus(${m.id})">
+                    ${m.online ? 'Colocar Offline' : 'Colocar Online'}
+                  </button>
+                  <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeMotoboy(${idx})">✕</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleMotoOnlineStatus(motoId) {
+      const m = db.motoboys.find(x => x.id === motoId);
+      if (m) {
+        m.online = !m.online;
+        save();
+        centralTab("Motoboys R1");
+        toast(`Status do motoboy ${m.nick} alterado.`);
+      }
+    }
+
+    function removeMotoboy(idx) {
+      if (confirm("Deseja remover este motoboy?")) {
+        db.motoboys.splice(idx, 1);
+        save();
+        centralTab("Motoboys R1");
+        toast("Motoboy removido.");
+      }
+    }
+
+    function submitMotoboyRegister() {
+      const name = document.getElementById("motoRegName").value.trim();
+      const nick = document.getElementById("motoRegNick").value.trim() || name.split(" ")[0];
+      const phone = document.getElementById("motoRegPhone").value.trim().replace(/\D/g, "");
+      const vehicle = document.getElementById("motoRegVehicle").value.trim();
+      const pix = document.getElementById("motoRegPix").value.trim();
+
+      if (!name || !phone || !vehicle) return toast("Preencha nome, WhatsApp e dados da moto.");
+
+      const newMoto = {
+        id: Date.now(),
+        name, nick, phone, vehicle, pix,
+        username: "moto" + Date.now().toString().slice(-4),
+        pass: "1234",
+        status: "pending",
+        online: true,
+        lat: -22.6590,
+        lng: -50.4190,
+        currentOrderId: null
+      };
+
+      if (!db.pendingMotoboys) db.pendingMotoboys = [];
+      db.pendingMotoboys.push(newMoto);
+      save();
+      closeModal("motoboyRegisterModal");
+      toast("Cadastro enviado para a Central R1!");
+    }
+
+    function approveMotoboy(idx) {
+      const m = db.pendingMotoboys.splice(idx, 1)[0];
+      m.status = "approved";
+      db.motoboys.push(m);
+      save();
+      centralTab("Cadastros");
+      toast(`Motoboy aprovado! Login: ${m.username} / Senha: ${m.pass}`);
+    }
+
+    /* PAINEL DO ENTREGADOR / MOTOBOY R1 */
+    function motoboyTab(tab) {
+      const body = document.getElementById("adminBody");
+      const moto = db.motoboys.find(m => m.id === loggedMotoboyId);
+      if (!moto) return;
+
+      if (tab === "Corridas Abertas") {
+        // Pedidos com entrega R1 que estão em preparo ou novos aguardando entregador
+        const openOrders = db.orders.filter(o => o.delivery === 'R1' && (o.status === 'Novo' || o.status === 'Em Preparo') && !o.motoboyId);
         body.innerHTML = `
           <div class="panel">
-            <h3>Novos Interessados Pendentes</h3>
-            ${db.pending.length ? db.pending.map((p, i) => `
-              <div class="row">
-                <span>
-                  <b>${p.name}</b> (${p.plan ? p.plan.toUpperCase() : 'FLEX'})<br>
-                  <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp}</small>
-                </span>
-                <span>
-                  <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approve(${i})">Aprovar</button>
-                </span>
-              </div>
-            `).join("") : '<p class="hint">Nenhum cadastro pendente no momento.</p>'}
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <h3>🛵 Corridas Disponíveis (${openOrders.length})</h3>
+              <span class="status ${moto.online ? '' : 'closed'}">${moto.online ? 'Online' : 'Offline'}</span>
+            </div>
+            <p class="hint">Toque em Aceitar Corrida para iniciar o trajeto até a loja e cliente.</p>
+            
+            <div class="list" style="margin-top:10px;">
+              ${openOrders.map(o => `
+                <div class="order-card-history" style="background:#fff;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px;">
+                    <b>Pedido ${o.id}</b>
+                    <span style="color:var(--green);font-weight:900;">${money(o.total)}</span>
+                  </div>
+                  <div><b>🏪 Retirada na Loja:</b> ${o.storeName} (${o.storeAddress || 'Consulte endereço'})</div>
+                  <div><b>🏠 Entrega no Cliente:</b> ${o.customerName} - ${o.customerAddress}</div>
+                  <div style="margin-top:4px;color:var(--primary);font-weight:800;">
+                    🏍️ Taxa da Corrida: ${currentPartner?.delivery || 'R$ 7,00'}
+                  </div>
+                  <div style="display:flex;gap:6px;margin-top:10px;">
+                    <button class="btn green" onclick="motoboyAcceptOrder('${o.id}', ${moto.id})">
+                      ✓ Aceitar Corrida
+                    </button>
+                  </div>
+                </div>
+              `).join("") || '<p class="hint">Nenhuma corrida disponível no momento. Aguarde novas notificações.</p>'}
+            </div>
           </div>
         `;
+      } else if (tab === "Minhas Entregas") {
+        const myActiveOrders = db.orders.filter(o => o.motoboyId === moto.id);
+        body.innerHTML = `
+          <div class="panel">
+            <h3>📦 Entregas em Andamento e Histórico</h3>
+            <div class="list" style="margin-top:10px;">
+              ${myActiveOrders.map(o => `
+                <div class="order-card-history" style="background:#fff;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px;">
+                    <b>${o.id} - ${o.storeName}</b>
+                    <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}">${o.status}</span>
+                  </div>
+                  <div><b>Cliente:</b> ${o.customerName} (${o.customerPhone})</div>
+                  <div><b>Endereço:</b> ${o.customerAddress}</div>
+                  <div><b>Pagamento:</b> ${o.payment}</div>
+                  
+                  <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                    <button class="btn dark" style="font-size:12px;padding:8px;" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customerAddress)}', '_blank')">
+                      📍 Abrir no GPS / Waze
+                    </button>
+                    ${o.status !== 'Despachado' && o.status !== 'Entregue' ? `
+                      <button class="btn warning" style="font-size:12px;padding:8px;" onclick="motoboySetDispatched('${o.id}')">
+                        🛵 Iniciar Rota (A Caminho)
+                      </button>
+                    ` : ''}
+                    ${o.status === 'Despachado' ? `
+                      <button class="btn green" style="font-size:12px;padding:8px;" onclick="motoboySetDelivered('${o.id}')">
+                        ✓ Confirmar Entrega Realizada
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join("") || '<p class="hint">Você não tem corridas em andamento.</p>'}
+            </div>
+          </div>
+        `;
+      } else if (tab === "Extrato Pix") {
+        const completed = db.orders.filter(o => o.motoboyId === moto.id && o.status === 'Entregue');
+        const totalEarnings = completed.length * 7.00; // Taxa padrão base
+        body.innerHTML = `
+          <div class="admin-grid">
+            <div class="metric"><small>Corridas Concluídas</small><strong>${completed.length}</strong></div>
+            <div class="metric"><small>Total a Receber</small><strong class="success">${money(totalEarnings)}</strong></div>
+          </div>
+          <div class="panel" style="margin-top:12px;">
+            <h3>Chave Pix Cadastrada para Repasse</h3>
+            <p style="font-size:14px;font-weight:800;color:var(--green);">${moto.pix || 'Chave Pix não informada'}</p>
+            <small class="hint">Os repasses são efetuados diretamente pela Central R1.</small>
+          </div>
+        `;
+      } else {
+        body.innerHTML = `
+          <div class="panel">
+            <h3>Meu Perfil de Entregador</h3>
+            <div class="form">
+              <div class="field">
+                <label>Nome Completo</label>
+                <input value="${moto.name}" readonly>
+              </div>
+              <div class="field">
+                <label>Veículo / Placa</label>
+                <input value="${moto.vehicle}" id="motoEditVeh">
+              </div>
+              <div class="field">
+                <label>Chave Pix</label>
+                <input value="${moto.pix || ''}" id="motoEditPix">
+              </div>
+              <button class="btn red" onclick="saveMotoboyProfile(${moto.id})">Salvar Dados</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function motoboyAcceptOrder(orderId, motoId) {
+      const o = db.orders.find(x => x.id === orderId);
+      const m = db.motoboys.find(x => x.id === motoId);
+      if (o && m) {
+        o.motoboyId = m.id;
+        o.motoboyName = m.nick || m.name;
+        o.motoboyPhone = m.phone;
+        o.status = "Em Preparo";
+        save();
+        motoboyTab("Minhas Entregas");
+        toast(`Corrida ${orderId} aceita com sucesso!`);
+      }
+    }
+
+    function motoboySetDispatched(orderId) {
+      const o = db.orders.find(x => x.id === orderId);
+      if (o) {
+        o.status = "Despachado";
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            o.motoboyLat = pos.coords.latitude;
+            o.motoboyLng = pos.coords.longitude;
+            save();
+          });
+        }
+        save();
+        motoboyTab("Minhas Entregas");
+        toast("Status atualizado para: Saiu para Entrega!");
+      }
+    }
+
+    function motoboySetDelivered(orderId) {
+      const o = db.orders.find(x => x.id === orderId);
+      if (o) {
+        o.status = "Entregue";
+        save();
+        motoboyTab("Minhas Entregas");
+        toast("🎉 Entrega concluída com sucesso!");
+      }
+    }
+
+    function saveMotoboyProfile(motoId) {
+      const m = db.motoboys.find(x => x.id === motoId);
+      if (m) {
+        m.vehicle = document.getElementById("motoEditVeh").value.trim();
+        m.pix = document.getElementById("motoEditPix").value.trim();
+        save();
+        toast("Perfil atualizado!");
       }
     }
 
@@ -3283,6 +3890,8 @@
       p.delivery = "R$ 7,00";
       p.time = "30 - 50 min";
       p.minOrder = 15.00;
+      p.lat = -22.6580;
+      p.lng = -50.4180;
       p.statuses = [];
       p.categories = [ { name: "GERAL", products: [] } ];
       db.partners.push(p);
@@ -3292,6 +3901,7 @@
       toast(`Parceiro aprovado! Login: ${p.username}`);
     }
 
+    /* PAINEL DO LOJISTA */
     function storeTab(tab) {
       const body = document.getElementById("adminBody");
       const p = getTargetPartner();
@@ -3801,7 +4411,7 @@
       toast("Banner gravado com sucesso!");
     }
 
-    /* GESTÃO DE RELATÓRIOS */
+    /* GESTÃO DE RELATÓRIOS AUDITADOS */
     function renderReportsManager(container, isCentral) {
       let p = getTargetPartner();
       let orders = db.orders;
@@ -3890,14 +4500,14 @@
                 </div>
                 <div style="margin-top:4px;color:#555;"><b>Itens:</b> ${o.items.map(it => `${it.qty}x ${it.name}`).join(", ")}</div>
                 
-                <!-- FLUXO DE STATUS E CONFIRMAÇÃO DE SAÍDA -->
+                <!-- FLUXO DE STATUS E RASTREAMENTO -->
                 <div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:6px;border-top:1px dashed #eee;flex-wrap:wrap;">
-                  <span style="font-size:11px;font-weight:800;">Status do Pedido:</span>
+                  <span style="font-size:11px;font-weight:800;">Status:</span>
                   <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}" style="font-size:10px;padding:2px 6px;">
                     ${o.status || 'Novo'}
                   </span>
-                  <button class="btn dark" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Em Preparo', ${isCentral})">Em Preparo</button>
-                  <button class="btn warning" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Despachado', ${isCentral})">🛵 Saiu p/ Entrega</button>
+                  <button class="btn dark" style="width:auto;padding:3px 8px;font-size:10px;" onclick="openClientTracking('${o.id}')">📍 Ver no Mapa</button>
+                  <button class="btn warning" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Despachado', ${isCentral})">🛵 Despachar</button>
                   <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Entregue', ${isCentral})">✓ Concluído</button>
                 </div>
 
@@ -3926,7 +4536,7 @@
         o.status = newStatus;
         save();
         renderReportsManager(document.getElementById("adminBody"), isCentral);
-        toast(`Status do pedido ${orderId} atualizado para: ${newStatus}`);
+        toast(`Status atualizado para: ${newStatus}`);
       }
     }
 
@@ -4126,6 +4736,8 @@
         logo: logo,
         statuses: [],
         blocked: false,
+        lat: -22.6580,
+        lng: -50.4180,
         status: "pending"
       });
 
@@ -4138,9 +4750,13 @@
       initDatabase();
       const params = new URLSearchParams(window.location.search);
       const storeParam = params.get("loja");
+      const trackParam = params.get("rastreio");
+
       if (storeParam) {
         const found = db.partners.find(p => p.id.toString() === storeParam);
         if (found && !found.blocked) openCatalog(found.id);
+      } else if (trackParam) {
+        openClientTracking(trackParam);
       }
     });
   </script>
