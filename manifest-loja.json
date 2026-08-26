@@ -1,9 +1,10 @@
 {
+  "id": "/r1parceiros/loja.html",
   "name": "R1 Gestor - Painel do Lojista",
   "short_name": "R1 Lojas",
   "description": "Painel de Gestão e Pedidos de Estabelecimentos Parceiros R1",
   "start_url": "./loja.html",
-  "scope": "./",
+  "scope": "./loja.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#121417",
