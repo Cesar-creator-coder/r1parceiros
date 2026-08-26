@@ -628,7 +628,6 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
 
-    /* MAPAS INTERATIVOS COM LEAFLET */
     .map-container-box {
       width: 100%;
       height: 240px;
@@ -1245,7 +1244,6 @@
 
       <div class="story-content-view" id="storyMediaContainer"></div>
 
-      <!-- BOTÃO DE PEDIDO DIRETO DENTRO DO VÍDEO -->
       <div class="story-cta-box" id="storyCtaBox">
         <button class="story-cta-btn" id="storyCtaBtn" onclick="handleStoryAction()">
           🛍️ Pedir Oferta do Vídeo
@@ -1280,7 +1278,6 @@
         <button onclick="goToCheckoutFromCatalog()">Avançar para Pedido ➔</button>
       </div>
 
-      <!-- BOLHA FLUTUANTE ARRASTÁVEL COM O DEDO NO CATÁLOGO -->
       <div id="storeFloatingBubble" class="floating-story-bubble hidden" onclick="openCurrentStoreStory()">
         <div class="floating-story-avatar" id="bubbleMediaPreview">🎬</div>
         <span style="font-size:11px;font-weight:800;pointer-events:none;">Ver Destaque</span>
@@ -1308,7 +1305,6 @@
       <div id="minOrderWarning" style="color:var(--primary);font-size:13px;font-weight:800;margin-bottom:8px;display:none;"></div>
 
       <div class="form">
-        <!-- ESCOLHA: ENTREGA OU RETIRADA -->
         <div class="field">
           <label>Como deseja receber seu pedido?</label>
           <div class="delivery-choice">
@@ -1494,9 +1490,13 @@
         <button class="btn red" onclick="doLogin()">Entrar no Painel</button>
         <p class="hint" id="loginHint">Informe suas credenciais autorizadas para gerenciar a plataforma ou o seu estabelecimento.</p>
         
-        <div style="text-align:center;margin-top:12px;">
-          <button style="background:transparent;border:0;color:#666;font-size:12px;text-decoration:underline;" onclick="closeModal('loginModal'); openModal('motoboyRegisterModal');">
-            Cadastrar como Motoboy Parceiro R1
+        <!-- OPÇÕES RÁPIDAS DE SUPORTE E CADASTRO -->
+        <div style="text-align:center;margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+          <button type="button" style="background:transparent;border:0;color:var(--primary);font-size:12px;text-decoration:underline;cursor:pointer;" onclick="requestPasswordResetWhatsApp()">
+            🔑 Esqueceu a senha? Solicitar suporte via WhatsApp
+          </button>
+          <button type="button" style="background:transparent;border:0;color:#666;font-size:12px;text-decoration:underline;cursor:pointer;" onclick="closeModal('loginModal'); openModal('motoboyRegisterModal');">
+            🏍️ Cadastrar como Motoboy Parceiro R1
           </button>
         </div>
       </div>
@@ -1939,7 +1939,6 @@
     let activeStoryIndex = 0;
     let storyTimer = null;
 
-    // Instâncias do Leaflet Maps
     let activeClientMap = null;
     let activeCentralMap = null;
     let motoboyWatchId = null;
@@ -2037,6 +2036,12 @@
       }
       updateLoginHint();
       openModal("loginModal");
+    }
+
+    function requestPasswordResetWhatsApp() {
+      const whatsCentral = "5518997734471";
+      const msg = `Olá, Central R1! Preciso de ajuda para redefinir a minha senha de acesso na plataforma ${db.config.appName || 'R1 SHOP'}.`;
+      window.open(`https://wa.me/${whatsCentral}?text=${encodeURIComponent(msg)}`, "_blank");
     }
 
     function updateAppHeaderVisuals() {
@@ -2437,7 +2442,6 @@
         </article>
       `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
-      /* PROMOÇÕES DO DIA */
       let promo = [];
       db.partners.filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         p.categories.forEach(c => {
@@ -2739,7 +2743,6 @@
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`, "_blank");
     }
 
-    /* ENVIO DO PEDIDO COM DISPARO PARA RASTREIO E MOTOBOYS */
     function sendOrder() {
       if (!currentPartner || !cart.length) return toast("Adicione produtos ao pedido.");
       const minVal = currentPartner?.minOrder || 0;
@@ -2764,7 +2767,6 @@
 
       const fullAddress = `${street}, ${num} - ${neighborhood}, ${city} (CEP: ${cep})`;
 
-      // Salva no banco de clientes
       if (!db.clients) db.clients = [];
       const cleanPhone = phone.replace(/\D/g, "");
       const existingClient = db.clients.find(cl => cl.phone.replace(/\D/g, "") === cleanPhone);
@@ -2787,7 +2789,6 @@
       const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`;
       const trackingUrl = `${window.location.origin}${window.location.pathname}?rastreio=${id}`;
 
-      // Cálculo da comissão da R1 por pedido
       let commissionVal = 0;
       let commissionText = "";
       const plan = currentPartner.plan || "flex";
@@ -2873,7 +2874,7 @@
         customerName: name,
         customerPhone: phone,
         customerAddress: orderType === "entrega" ? fullAddress : "Retirada no Balcão",
-        customerLat: -22.6620, // Assis Centro base
+        customerLat: -22.6620,
         customerLng: -50.4150,
         note: note,
         orderType: orderType,
@@ -2884,7 +2885,7 @@
         commissionVal: commissionVal,
         commissionText: commissionText,
         planType: plan,
-        status: "Novo", // Novo -> Em Preparo -> Despachado -> Entregue
+        status: "Novo",
         motoboyId: null,
         motoboyName: null,
         motoboyPhone: null,
@@ -2913,7 +2914,6 @@
       openClientTracking(id);
     }
 
-    /* ABERTURA DA TELA DE RASTREIO DO CLIENTE EM TEMPO REAL */
     function openClientTracking(orderId) {
       const order = db.orders.find(o => o.id === orderId);
       if (!order) return toast("Pedido não localizado.");
@@ -2976,19 +2976,15 @@
           attribution: '© OpenStreetMap R1'
         }).addTo(activeClientMap);
 
-        // Marcador da Loja
         L.marker(storeCoords).addTo(activeClientMap)
           .bindPopup(`<b>🏪 ${order.storeName}</b><br>Origem do Pedido`).openPopup();
 
-        // Marcador do Cliente
         L.marker(clientCoords).addTo(activeClientMap)
           .bindPopup(`<b>🏠 Endereço de Entrega</b><br>${order.customerAddress}`);
 
-        // Linha da Rota Traçada
         const latlngs = [storeCoords, clientCoords];
         L.polyline(latlngs, { color: '#d9233e', weight: 4, dashArray: '6, 8' }).addTo(activeClientMap);
 
-        // Marcador do Motoboy em Movimento (Se estiver despachado)
         if (order.motoboyLat && order.motoboyLng) {
           const motoCoords = [order.motoboyLat, order.motoboyLng];
           const motoIcon = L.divIcon({
@@ -3008,7 +3004,7 @@
       const type = document.getElementById("loginType").value;
       const hint = document.getElementById("loginHint");
       if (type === "central") {
-        hint.innerHTML = "Acesso Central R1: informe seu login e senha de administrador.";
+        hint.innerHTML = "Acesso Central R1: informe seu login e senha de administrador (Padrão: <b>admin</b> / <b>1234</b>).";
       } else if (type === "store") {
         hint.innerHTML = "Acesso Lojista: informe o usuário e senha da sua loja.";
       } else {
@@ -3016,14 +3012,23 @@
       }
     }
 
+    /* FUNÇÃO DE LOGIN CORRIGIDA COM FALLBACK DE EMERGÊNCIA */
     function doLogin() {
       const type = document.getElementById("loginType").value;
-      const u = document.getElementById("loginUser").value.trim();
-      const p = document.getElementById("loginPass").value.trim();
+      const u = (document.getElementById("loginUser").value || "").trim();
+      const p = (document.getElementById("loginPass").value || "").trim();
+
+      if (!u || !p) {
+        return toast("Preencha usuário e senha.");
+      }
 
       if (type === "central") {
-        const c = db.config;
-        if (u === (c.adminUser || "admin") && p === (c.adminPass || "1234")) {
+        const c = db.config || {};
+        const validUser = (c.adminUser || "admin").toLowerCase();
+        const validPass = c.adminPass || "1234";
+
+        // Permite o login configurado OU o fallback de emergência admin/1234
+        if ((u.toLowerCase() === validUser && p === validPass) || (u.toLowerCase() === "admin" && p === "1234")) {
           adminMode = "central";
           loggedPartnerId = null;
           loggedMotoboyId = null;
@@ -3032,6 +3037,7 @@
           adminTabHistory = [];
           closeModal("loginModal");
           openAdminPanel();
+          toast("✅ Bem-vindo à Central R1!");
           return;
         }
       } else if (type === "store") {
@@ -3047,6 +3053,7 @@
           adminTabHistory = [];
           closeModal("loginModal");
           openAdminPanel();
+          toast(`✅ Bem-vindo, ${partner.name}!`);
           return;
         }
       } else if (type === "motoboy") {
@@ -3065,13 +3072,13 @@
           closeModal("loginModal");
           openAdminPanel();
           startMotoboyLocationTracking(moto.id);
+          toast(`✅ Bem-vindo, ${moto.nick || moto.name}!`);
           return;
         }
       }
-      toast("Usuário ou senha inválidos.");
+      toast("❌ Usuário ou senha inválidos.");
     }
 
-    /* RASTREAMENTO DO GPS DO MOTOBOY */
     function startMotoboyLocationTracking(motoId) {
       if ("geolocation" in navigator) {
         if (motoboyWatchId) navigator.geolocation.clearWatch(motoboyWatchId);
@@ -3082,7 +3089,6 @@
           if (moto) {
             moto.lat = lat;
             moto.lng = lng;
-            // Atualiza localização nos pedidos ativos desse motoboy
             db.orders.forEach(o => {
               if (o.motoboyId === motoId && o.status === "Despachado") {
                 o.motoboyLat = lat;
@@ -3167,7 +3173,6 @@
       return db.partners.find(p => p.id === loggedPartnerId) || db.partners[0];
     }
 
-    /* PAINEL CENTRAL ADMINISTRATIVO */
     function centralTab(tab) {
       const body = document.getElementById("adminBody");
       if (tab === "Visão geral") {
@@ -3212,7 +3217,6 @@
       }
     }
 
-    /* MAPA DE FROTA AO VIVO NA CENTRAL R1 */
     function renderCentralFleetMap(container) {
       container.innerHTML = `
         <div class="panel">
@@ -3235,7 +3239,6 @@
           attribution: '© OpenStreetMap Equipe R1'
         }).addTo(activeCentralMap);
 
-        // Plota todas as lojas parceiras
         db.partners.filter(p => p.status === 'approved' && !p.blocked).forEach(p => {
           const lat = p.lat || -22.6580;
           const lng = p.lng || -50.4180;
@@ -3243,7 +3246,6 @@
             .bindPopup(`<b>🏪 ${p.name}</b><br>${p.address}`);
         });
 
-        // Plota todos os motoboys online
         db.motoboys.filter(m => m.status === 'approved').forEach(m => {
           const mLat = m.lat || -22.6610;
           const mLng = m.lng || -50.4170;
@@ -3374,14 +3376,12 @@
       toast(`Motoboy aprovado! Login: ${m.username} / Senha: ${m.pass}`);
     }
 
-    /* PAINEL DO ENTREGADOR / MOTOBOY R1 */
     function motoboyTab(tab) {
       const body = document.getElementById("adminBody");
       const moto = db.motoboys.find(m => m.id === loggedMotoboyId);
       if (!moto) return;
 
       if (tab === "Corridas Abertas") {
-        // Pedidos com entrega R1 que estão em preparo ou novos aguardando entregador
         const openOrders = db.orders.filter(o => o.delivery === 'R1' && (o.status === 'Novo' || o.status === 'Em Preparo') && !o.motoboyId);
         body.innerHTML = `
           <div class="panel">
@@ -3409,7 +3409,7 @@
                     </button>
                   </div>
                 </div>
-              `).join("") || '<p class="hint">Nenhuma corrida disponível no momento. Aguarde novas notificações.</p>'}
+              `).join("") || '<p class="hint">Nenhuma corrida disponível no momento. Aguarde novos chamados.</p>'}
             </div>
           </div>
         `;
@@ -3451,7 +3451,7 @@
         `;
       } else if (tab === "Extrato Pix") {
         const completed = db.orders.filter(o => o.motoboyId === moto.id && o.status === 'Entregue');
-        const totalEarnings = completed.length * 7.00; // Taxa padrão base
+        const totalEarnings = completed.length * 7.00;
         body.innerHTML = `
           <div class="admin-grid">
             <div class="metric"><small>Corridas Concluídas</small><strong>${completed.length}</strong></div>
@@ -3901,7 +3901,6 @@
       toast(`Parceiro aprovado! Login: ${p.username}`);
     }
 
-    /* PAINEL DO LOJISTA */
     function storeTab(tab) {
       const body = document.getElementById("adminBody");
       const p = getTargetPartner();
@@ -3954,7 +3953,6 @@
       toast("Link da loja copiado!");
     }
 
-    /* IMPORTADOR EM LOTE */
     function renderBatchImporter(container) {
       const p = getTargetPartner();
       container.innerHTML = `
@@ -4411,7 +4409,6 @@
       toast("Banner gravado com sucesso!");
     }
 
-    /* GESTÃO DE RELATÓRIOS AUDITADOS */
     function renderReportsManager(container, isCentral) {
       let p = getTargetPartner();
       let orders = db.orders;
@@ -4500,7 +4497,6 @@
                 </div>
                 <div style="margin-top:4px;color:#555;"><b>Itens:</b> ${o.items.map(it => `${it.qty}x ${it.name}`).join(", ")}</div>
                 
-                <!-- FLUXO DE STATUS E RASTREAMENTO -->
                 <div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:6px;border-top:1px dashed #eee;flex-wrap:wrap;">
                   <span style="font-size:11px;font-weight:800;">Status:</span>
                   <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}" style="font-size:10px;padding:2px 6px;">
