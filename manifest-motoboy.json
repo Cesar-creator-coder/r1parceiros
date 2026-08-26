@@ -1,10 +1,10 @@
 {
-  "id": "/r1parceiros/motoboy.html",
+  "id": "r1-motoboy-driver-app",
   "name": "R1 Motoboy - Entregas Oficiais",
   "short_name": "R1 Motoboy",
   "description": "Painel de Corridas e Entregas em Tempo Real da Equipe R1",
-  "start_url": "./motoboy.html",
-  "scope": "./motoboy.html",
+  "start_url": "./motoboy.html?app=motoboy",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#121417",
