@@ -1,17 +1,6 @@
-const CACHE_NAME = 'r1-motoboy-v1';
-const ASSETS = [
-  './motoboy.html',
-  './manifest-motoboy.json',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-];
+const CACHE_NAME = 'r1-suite-v3';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
   self.skipWaiting();
 });
 
@@ -29,6 +18,7 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  // Estratégia Network First: sempre busca a página atualizada na internet
   e.respondWith(
     fetch(e.request).catch(() => caches.match(e.request))
   );
