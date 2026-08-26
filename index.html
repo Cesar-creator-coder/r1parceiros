@@ -1456,6 +1456,17 @@
     </div>
   </div>
 
+  <!-- MODAL DE DECISÃO RÁPIDA DE CORRIDA (ACEITAR / RECUSAR) -->
+  <div id="orderDecisionModal" class="modal">
+    <div class="sheet center">
+      <div class="sheet-head">
+        <h2>🛵 Nova Corrida Disponível</h2>
+        <button class="close" onclick="closeModal('orderDecisionModal')">✕</button>
+      </div>
+      <div id="orderDecisionBody"></div>
+    </div>
+  </div>
+
   <div id="loginModal" class="modal">
     <div class="sheet center">
       <div class="sheet-head">
@@ -1489,9 +1500,12 @@
         <button class="btn red" onclick="doLogin()">Entrar no Painel</button>
         <p class="hint" id="loginHint">Informe suas credenciais autorizadas para gerenciar a plataforma ou o seu estabelecimento.</p>
         
-        <div style="text-align:center;margin-top:12px;">
-          <button style="background:transparent;border:0;color:#666;font-size:12px;text-decoration:underline;" onclick="closeModal('loginModal'); openModal('motoboyRegisterModal');">
-            Cadastrar como Motoboy Parceiro R1
+        <div style="text-align:center;margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+          <button type="button" style="background:transparent;border:0;color:var(--primary);font-size:12px;text-decoration:underline;cursor:pointer;" onclick="requestPasswordResetWhatsApp()">
+            🔑 Esqueceu a senha? Falar com o suporte no WhatsApp
+          </button>
+          <button type="button" style="background:transparent;border:0;color:#666;font-size:12px;text-decoration:underline;cursor:pointer;" onclick="closeModal('loginModal'); openModal('motoboyRegisterModal');">
+            🏍️ Cadastrar como Motoboy Parceiro R1
           </button>
         </div>
       </div>
@@ -1828,6 +1842,7 @@
         appLogo: "",
         adminUser: "admin",
         adminPass: "1234",
+        whatsappGroupLink: "",
         mapProvider: "none",
         mapApiKey: "",
         aiProvider: "none",
@@ -1909,7 +1924,7 @@
 
     let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || seed;
 
-    /* GARANTE QUE O BANCO NUNCA QUEBRE POR FALTA DE PROPRIEDADES */
+    /* GARANTE A INTEGRIDADE TOTAL DO BANCO DE DADOS */
     function ensureDbIntegrity() {
       if (!db || typeof db !== "object") db = seed;
       if (!db.config) db.config = seed.config;
@@ -1934,6 +1949,7 @@
     let loggedMotoboyId = null;
     let centralSelectedPartnerId = "all";
     let reportFilterPeriod = "todos";
+    let motoboyReportFilterPeriod = "todos";
 
     let adminSessionActive = false;
     let adminTabHistory = [];
@@ -2051,6 +2067,12 @@
       }
       updateLoginHint();
       openModal("loginModal");
+    }
+
+    function requestPasswordResetWhatsApp() {
+      const whatsCentral = "5518997734471";
+      const msg = `Olá, Central R1! Preciso de suporte para redefinir a minha senha de acesso na plataforma ${db.config.appName || 'R1 SHOP'}.`;
+      window.open(`https://wa.me/${whatsCentral}?text=${encodeURIComponent(msg)}`, "_blank");
     }
 
     function updateAppHeaderVisuals() {
@@ -2192,6 +2214,37 @@
       } else {
         navigator.clipboard.writeText(shareUrl);
         toast(`Link copiado!`);
+      }
+    }
+
+    /* DISPARO DIRETO DA CORRIDA NO GRUPO DE WHATSAPP DA EQUIPE R1 */
+    function shareOrderToMotoboysGroup(orderId) {
+      const order = (db.orders || []).find(o => o.id === orderId);
+      if (!order) return toast("Pedido não encontrado.");
+
+      const storeFee = order.deliveryFeeText || "R$ 8,00";
+      const acceptUrl = `${window.location.origin}${window.location.pathname}?corrida=${order.id}`;
+
+      let msg = [];
+      msg.push(`🛵 *NOVA CORRIDA R1 DISPONÍVEL!*`);
+      msg.push(`📦 *Pedido:* ${order.id}`);
+      msg.push(`🏪 *Retirada:* ${order.storeName} (${order.storeAddress || 'Endereço da Loja'})`);
+      msg.push(`🏠 *Entrega:* ${order.customerName} - ${order.customerAddress}`);
+      msg.push(`💰 *Taxa do Frete:* ${storeFee}`);
+      if (order.payment === "Cartão na entrega") {
+        msg.push(`💳 *Retorno Maquininha:* Sim (+50% adicional)`);
+      }
+      msg.push(`-----------------------------------`);
+      msg.push(`👉 *Toque no link abaixo para aceitar ou recusar no seu App:*`);
+      msg.push(`${acceptUrl}`);
+
+      const fullText = msg.join("\n");
+      const groupLink = db.config.whatsappGroupLink;
+
+      if (groupLink && groupLink.startsWith("http")) {
+        window.open(`${groupLink}`, "_blank");
+      } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`, "_blank");
       }
     }
 
@@ -2893,6 +2946,7 @@
         total: total,
         payment: pay,
         delivery: orderType === "entrega" ? delivery : "Balcão",
+        deliveryFeeText: currentPartner.delivery || "R$ 8,00",
         commissionVal: commissionVal,
         commissionText: commissionText,
         planType: plan,
@@ -2903,6 +2957,7 @@
         motoboyLat: null,
         motoboyLng: null,
         hiddenForStore: false,
+        hiddenForMotoboy: false,
         date: new Date().toISOString()
       };
 
@@ -2926,7 +2981,7 @@
     }
 
     function openClientTracking(orderId) {
-      const order = db.orders.find(o => o.id === orderId);
+      const order = (db.orders || []).find(o => o.id === orderId);
       if (!order) return toast("Pedido não localizado.");
 
       document.getElementById("trackOrderTitle").textContent = `🛵 Pedido ${order.id}`;
@@ -3011,6 +3066,71 @@
       }, 300);
     }
 
+    /* TELA DE DECISÃO RÁPIDA DE CORRIDA VIA LINK DO WHATSAPP (ACEITAR / RECUSAR) */
+    function openOrderDecisionFlow(orderId) {
+      const order = (db.orders || []).find(o => o.id === orderId);
+      if (!order) return toast("Corrida não encontrada ou já finalizada.");
+
+      const body = document.getElementById("orderDecisionBody");
+      body.innerHTML = `
+        <div style="background:#fff;border-radius:14px;padding:12px;text-align:left;">
+          <div style="font-size:18px;font-weight:900;margin-bottom:6px;color:var(--dark);">
+            Pedido ${order.id}
+          </div>
+          <div style="margin-bottom:8px;">
+            <b>🏪 Retirada na Loja:</b> ${order.storeName}<br>
+            <small style="color:#666;">📍 ${order.storeAddress || 'Endereço da Loja'}</small>
+          </div>
+          <div style="margin-bottom:8px;">
+            <b>🏠 Entrega no Cliente:</b> ${order.customerName}<br>
+            <small style="color:#666;">📍 ${order.customerAddress}</small>
+          </div>
+          <div style="background:#f0fdf4;border:1px dashed var(--green);padding:10px;border-radius:10px;margin:10px 0;">
+            <b style="color:var(--green);font-size:15px;">💰 Valor do Frete: ${order.deliveryFeeText || 'R$ 8,00'}</b><br>
+            <small style="color:#444;">Forma de Pagamento do Cliente: <b>${order.payment}</b></small>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+            <button class="btn green" onclick="quickAcceptOrder('${order.id}')" style="padding:12px;font-size:13px;">
+              ✓ Aceitar Corrida
+            </button>
+            <button class="btn red" onclick="quickDeclineOrder('${order.id}')" style="padding:12px;font-size:13px;">
+              ✕ Recusar / Passar
+            </button>
+          </div>
+        </div>
+      `;
+      openModal("orderDecisionModal");
+    }
+
+    function quickAcceptOrder(orderId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (!o) return;
+
+      let moto = db.motoboys.find(m => m.id === loggedMotoboyId);
+      if (!moto) {
+        moto = db.motoboys[0]; // fallback
+      }
+
+      o.motoboyId = moto.id;
+      o.motoboyName = moto.nick || moto.name;
+      o.motoboyPhone = moto.phone;
+      o.status = "Em Preparo";
+      save();
+
+      closeModal("orderDecisionModal");
+      adminMode = "motoboy";
+      loggedMotoboyId = moto.id;
+      openAdminPanel();
+      motoboyTab("Minhas Entregas");
+      toast("🎉 Corrida assumida com sucesso!");
+    }
+
+    function quickDeclineOrder(orderId) {
+      closeModal("orderDecisionModal");
+      toast("Corrida recusada. Ela continuará visível para outros entregadores.");
+    }
+
     function updateLoginHint() {
       const type = document.getElementById("loginType").value;
       const hint = document.getElementById("loginHint");
@@ -3069,8 +3189,8 @@
         }
       } else if (type === "motoboy") {
         const moto = (db.motoboys || []).find(x => 
-          (x.username && x.username.toLowerCase() === u.toLowerCase()) ||
-          (x.phone && x.phone.includes(u)) ||
+          (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
+          (x.phone && x.phone.includes(u)) || 
           x.id.toString() === u
         );
         if (moto && (moto.pass || "1234").toString() === p) {
@@ -3142,7 +3262,7 @@
       } else {
         document.getElementById("adminTitle").textContent = "Painel do Entregador R1";
         document.getElementById("adminSubtitle").textContent = "Corridas disponíveis, entregas e repasses";
-        tabs = ["Corridas Abertas", "Minhas Entregas", "Extrato Pix", "Meu Perfil"];
+        tabs = ["Corridas Abertas", "Minhas Entregas", "Extrato Pix & PDF", "Meu Perfil"];
       }
         
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
@@ -3390,7 +3510,7 @@
       toast(`Motoboy aprovado! Login: ${m.username} / Senha: ${m.pass}`);
     }
 
-    /* PAINEL DO ENTREGADOR / MOTOBOY R1 */
+    /* PAINEL DO ENTREGADOR / MOTOBOY R1 COM EXTRATO, PDF E FILTRO DE DIAS */
     function motoboyTab(tab) {
       ensureDbIntegrity();
       const body = document.getElementById("adminBody");
@@ -3417,11 +3537,14 @@
                   <div><b>🏪 Retirada na Loja:</b> ${o.storeName} (${o.storeAddress || 'Consulte endereço'})</div>
                   <div><b>🏠 Entrega no Cliente:</b> ${o.customerName} - ${o.customerAddress}</div>
                   <div style="margin-top:4px;color:var(--primary);font-weight:800;">
-                    🏍️ Taxa da Corrida: ${currentPartner?.delivery || 'R$ 7,00'}
+                    🏍️ Taxa da Corrida: ${o.deliveryFeeText || 'R$ 8,00'}
                   </div>
-                  <div style="display:flex;gap:6px;margin-top:10px;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
                     <button class="btn green" onclick="motoboyAcceptOrder('${o.id}', ${moto.id})">
                       ✓ Aceitar Corrida
+                    </button>
+                    <button class="btn red" onclick="motoboyDeclineOrder('${o.id}')">
+                      ✕ Recusar
                     </button>
                   </div>
                 </div>
@@ -3430,7 +3553,7 @@
           </div>
         `;
       } else if (tab === "Minhas Entregas") {
-        const myActiveOrders = (db.orders || []).filter(o => o.motoboyId === moto.id);
+        const myActiveOrders = (db.orders || []).filter(o => o.motoboyId === moto.id && !o.hiddenForMotoboy);
         body.innerHTML = `
           <div class="panel">
             <h3>📦 Entregas em Andamento e Histórico</h3>
@@ -3444,6 +3567,7 @@
                   <div><b>Cliente:</b> ${o.customerName} (${o.customerPhone})</div>
                   <div><b>Endereço:</b> ${o.customerAddress}</div>
                   <div><b>Pagamento:</b> ${o.payment}</div>
+                  <div style="color:var(--green);font-weight:800;margin-top:2px;">💰 Valor do Frete: ${o.deliveryFeeText || 'R$ 8,00'}</div>
                   
                   <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
                     <button class="btn dark" style="font-size:12px;padding:8px;" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customerAddress)}', '_blank')">
@@ -3459,24 +3583,77 @@
                         ✓ Confirmar Entrega Realizada
                       </button>
                     ` : ''}
+                    <button class="btn red" style="font-size:11px;padding:6px;width:auto;" onclick="motoboyHideOrder('${o.id}')" title="Ocultar do meu histórico">
+                      ✕ Ocultar
+                    </button>
                   </div>
                 </div>
               `).join("") || '<p class="hint">Você não tem corridas em andamento.</p>'}
             </div>
           </div>
         `;
-      } else if (tab === "Extrato Pix") {
-        const completed = (db.orders || []).filter(o => o.motoboyId === moto.id && o.status === 'Entregue');
-        const totalEarnings = completed.length * 7.00;
+      } else if (tab === "Extrato Pix & PDF") {
+        let completed = (db.orders || []).filter(o => o.motoboyId === moto.id && o.status === 'Entregue' && !o.hiddenForMotoboy);
+        
+        const now = new Date();
+        if (motoboyReportFilterPeriod === "hoje") {
+          completed = completed.filter(o => new Date(o.date).toDateString() === now.toDateString());
+        } else if (motoboyReportFilterPeriod === "semana") {
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          completed = completed.filter(o => new Date(o.date) >= weekAgo);
+        } else if (motoboyReportFilterPeriod === "mes") {
+          completed = completed.filter(o => {
+            const d = new Date(o.date);
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          });
+        }
+
+        const totalEarnings = completed.length * 8.00;
+
         body.innerHTML = `
-          <div class="admin-grid">
-            <div class="metric"><small>Corridas Concluídas</small><strong>${completed.length}</strong></div>
-            <div class="metric"><small>Total a Receber</small><strong class="success">${money(totalEarnings)}</strong></div>
-          </div>
-          <div class="panel" style="margin-top:12px;">
-            <h3>Chave Pix Cadastrada para Repasse</h3>
-            <p style="font-size:14px;font-weight:800;color:var(--green);">${moto.pix || 'Chave Pix não informada'}</p>
-            <small class="hint">Os repasses são efetuados diretamente pela Central R1.</small>
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h3>Extrato de Corridas & Repasses</h3>
+              <div style="display:flex;gap:6px;">
+                <button class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="sendMotoboyExtractWhatsApp(${moto.id})">
+                  📲 WhatsApp
+                </button>
+                <button class="btn dark" style="width:auto;padding:6px 10px;font-size:11px;" onclick="printReport()">
+                  📄 Baixar PDF
+                </button>
+              </div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label style="font-weight:800;font-size:12px;">Filtrar por Período:</label>
+              <select onchange="changeMotoboyReportFilter(this.value)">
+                <option value="todos" ${motoboyReportFilterPeriod === 'todos' ? 'selected' : ''}>Todo o Histórico</option>
+                <option value="hoje" ${motoboyReportFilterPeriod === 'hoje' ? 'selected' : ''}>Hoje</option>
+                <option value="semana" ${motoboyReportFilterPeriod === 'semana' ? 'selected' : ''}>Últimos 7 dias</option>
+                <option value="mes" ${motoboyReportFilterPeriod === 'mes' ? 'selected' : ''}>Este Mês</option>
+              </select>
+            </div>
+
+            <div class="admin-grid" style="margin-bottom:14px;">
+              <div class="metric"><small>Corridas Finalizadas</small><strong>${completed.length}</strong></div>
+              <div class="metric"><small>Total Líquido Pix</small><strong class="success">${money(totalEarnings)}</strong></div>
+            </div>
+
+            <div id="printableArea">
+              <h4 style="margin:10px 0;">Relatório de Entregas - ${moto.nick || moto.name}</h4>
+              <small style="color:var(--muted);display:block;margin-bottom:8px;">Chave Pix: <b>${moto.pix || 'Não informada'}</b></small>
+
+              ${completed.map(o => `
+                <div class="order-card-history" style="font-size:12px;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:4px;margin-bottom:4px;">
+                    <b>Pedido ${o.id} - ${o.storeName}</b>
+                    <span style="color:var(--green);font-weight:800;">+ R$ 8,00</span>
+                  </div>
+                  <div><b>Cliente:</b> ${o.customerName} - ${o.customerAddress}</div>
+                  <small style="color:#888;">Data/Hora: ${new Date(o.date).toLocaleString('pt-BR')}</small>
+                </div>
+              `).join("") || '<p class="hint">Nenhuma corrida concluída neste período.</p>'}
+            </div>
           </div>
         `;
       } else {
@@ -3493,7 +3670,7 @@
                 <input value="${moto.vehicle}" id="motoEditVeh">
               </div>
               <div class="field">
-                <label>Chave Pix</label>
+                <label>Chave Pix para Recebimento</label>
                 <input value="${moto.pix || ''}" id="motoEditPix">
               </div>
               <button class="btn red" onclick="saveMotoboyProfile(${moto.id})">Salvar Dados</button>
@@ -3503,9 +3680,14 @@
       }
     }
 
+    function changeMotoboyReportFilter(val) {
+      motoboyReportFilterPeriod = val;
+      motoboyTab("Extrato Pix & PDF");
+    }
+
     function motoboyAcceptOrder(orderId, motoId) {
-      const o = db.orders.find(x => x.id === orderId);
-      const m = db.motoboys.find(x => x.id === motoId);
+      const o = (db.orders || []).find(x => x.id === orderId);
+      const m = (db.motoboys || []).find(x => x.id === motoId);
       if (o && m) {
         o.motoboyId = m.id;
         o.motoboyName = m.nick || m.name;
@@ -3517,8 +3699,48 @@
       }
     }
 
+    function motoboyDeclineOrder(orderId) {
+      toast("Corrida recusada.");
+      motoboyTab("Corridas Abertas");
+    }
+
+    function motoboyHideOrder(orderId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (o) {
+        o.hiddenForMotoboy = true;
+        save();
+        motoboyTab("Minhas Entregas");
+        toast("Registro ocultado da sua tela.");
+      }
+    }
+
+    function sendMotoboyExtractWhatsApp(motoId) {
+      const moto = db.motoboys.find(m => m.id === motoId);
+      if (!moto) return;
+
+      const completed = (db.orders || []).filter(o => o.motoboyId === moto.id && o.status === 'Entregue' && !o.hiddenForMotoboy);
+      const totalEarnings = completed.length * 8.00;
+
+      let lines = [];
+      lines.push(`🛵 *EXTRATO DE ENTREGAS R1 - ${moto.nick || moto.name}*`);
+      lines.push(`📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`🏍️ *Total de Corridas:* ${completed.length}`);
+      lines.push(`💰 *Total a Receber:* ${money(totalEarnings)}`);
+      lines.push(`🔑 *Chave Pix:* ${moto.pix || 'Não cadastrada'}`);
+      lines.push(`-----------------------------------`);
+      completed.slice(0, 10).forEach(o => {
+        lines.push(`▪️ ${o.id} - ${o.storeName} (+R$ 8,00)`);
+      });
+      lines.push(`-----------------------------------`);
+      lines.push(`_Gerado pelo App R1 SHOP_`);
+
+      const cleanPhone = (moto.phone || "").replace(/\D/g, "");
+      window.open(`https://api.whatsapp.com/send?phone=55${cleanPhone}&text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+    }
+
     function motoboySetDispatched(orderId) {
-      const o = db.orders.find(x => x.id === orderId);
+      const o = (db.orders || []).find(x => x.id === orderId);
       if (o) {
         o.status = "Despachado";
         if (navigator.geolocation) {
@@ -3535,7 +3757,7 @@
     }
 
     function motoboySetDelivered(orderId) {
-      const o = db.orders.find(x => x.id === orderId);
+      const o = (db.orders || []).find(x => x.id === orderId);
       if (o) {
         o.status = "Entregue";
         save();
@@ -3545,7 +3767,7 @@
     }
 
     function saveMotoboyProfile(motoId) {
-      const m = db.motoboys.find(x => x.id === motoId);
+      const m = (db.motoboys || []).find(x => x.id === motoId);
       if (m) {
         m.vehicle = document.getElementById("motoEditVeh").value.trim();
         m.pix = document.getElementById("motoEditPix").value.trim();
@@ -3674,10 +3896,20 @@
       const c = db.config || {};
       container.innerHTML = `
         <div class="panel">
-          <h3>🗺️ 1. Módulo de Mapas & Cálculo de Distância (Frete)</h3>
+          <h3>📲 1. Link do Grupo de Motoboys no WhatsApp</h3>
           <div class="spec-card">
-            <b>Fallback Seguro:</b> Se desativado ou sem chave, o sistema aplica automaticamente a taxa fixa padrão cadastrada por cada loja.
+            <b>Automação sem API:</b> Cole aqui o Link de Convite do Grupo da Equipe R1 no WhatsApp. Ao clicar em "Chamar Grupo", o app abre direto o seu grupo!
           </div>
+          <div class="form">
+            <div class="field">
+              <label>Link de Convite do Grupo (https://chat.whatsapp.com/...)</label>
+              <input id="apiGroupLink" value="${c.whatsappGroupLink || ''}" placeholder="https://chat.whatsapp.com/ExemploGrupoR1">
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🗺️ 2. Módulo de Mapas & Cálculo de Distância (Frete)</h3>
           <div class="form">
             <div class="field">
               <label>Provedor de Mapas Ativo</label>
@@ -3710,7 +3942,7 @@
         </div>
 
         <div class="panel">
-          <h3>🤖 2. Módulo de Inteligência Artificial (LLMs)</h3>
+          <h3>🤖 3. Módulo de Inteligência Artificial (LLMs)</h3>
           <div class="form">
             <div class="field">
               <label>Provedor de Inteligência Artificial</label>
@@ -3725,13 +3957,14 @@
               <label>Chave de API da Inteligência Artificial</label>
               <input id="apiAiKey" value="${c.aiApiKey || ''}" placeholder="Cole sua chave de API aqui">
             </div>
-            <button class="btn red" onclick="saveApiSettings()">Salvar Configurações de APIs</button>
+            <button class="btn red" onclick="saveApiSettings()">Salvar Configurações de APIs & Links</button>
           </div>
         </div>
       `;
     }
 
     function saveApiSettings() {
+      db.config.whatsappGroupLink = document.getElementById("apiGroupLink").value.trim();
       db.config.mapProvider = document.getElementById("apiMapProvider").value;
       db.config.mapApiKey = document.getElementById("apiMapKey").value.trim();
       db.config.baseDeliveryKm = Number(document.getElementById("apiBaseKm").value) || 4;
@@ -3742,7 +3975,7 @@
       db.config.aiApiKey = document.getElementById("apiAiKey").value.trim();
 
       save();
-      toast("Configurações de APIs salvas!");
+      toast("Configurações salvas!");
     }
 
     function renderPartnersAndPlans(container) {
@@ -4548,6 +4781,7 @@
                     ${o.status || 'Novo'}
                   </span>
                   <button class="btn dark" style="width:auto;padding:3px 8px;font-size:10px;" onclick="openClientTracking('${o.id}')">📍 Ver no Mapa</button>
+                  <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="shareOrderToMotoboysGroup('${o.id}')">📢 Chamar Grupo Motoboys</button>
                   <button class="btn warning" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Despachado', ${isCentral})">🛵 Despachar</button>
                   <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Entregue', ${isCentral})">✓ Concluído</button>
                 </div>
@@ -4572,7 +4806,7 @@
     }
 
     function updateOrderStatus(orderId, newStatus, isCentral) {
-      const o = db.orders.find(x => x.id === orderId);
+      const o = (db.orders || []).find(x => x.id === orderId);
       if (o) {
         o.status = newStatus;
         save();
@@ -4584,7 +4818,7 @@
     function handleRemoveOrder(orderId, isCentral) {
       if (isCentral) {
         if (confirm("Central: Deseja apagar definitivamente este pedido da base auditada?")) {
-          const idx = db.orders.findIndex(x => x.id === orderId);
+          const idx = (db.orders || []).findIndex(x => x.id === orderId);
           if (idx !== -1) db.orders.splice(idx, 1);
           save();
           renderReportsManager(document.getElementById("adminBody"), true);
@@ -4592,7 +4826,7 @@
         }
       } else {
         if (confirm("Lojista: Deseja ocultar este registro do seu relatório de visualização?")) {
-          const o = db.orders.find(x => x.id === orderId);
+          const o = (db.orders || []).find(x => x.id === orderId);
           if (o) o.hiddenForStore = true;
           save();
           renderReportsManager(document.getElementById("adminBody"), false);
@@ -4795,12 +5029,15 @@
       const params = new URLSearchParams(window.location.search);
       const storeParam = params.get("loja");
       const trackParam = params.get("rastreio");
+      const corridaParam = params.get("corrida");
 
       if (storeParam) {
         const found = (db.partners || []).find(p => p.id.toString() === storeParam);
         if (found && !found.blocked) openCatalog(found.id);
       } else if (trackParam) {
         openClientTracking(trackParam);
+      } else if (corridaParam) {
+        openOrderDecisionFlow(corridaParam);
       }
     });
   </script>
