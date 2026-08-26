@@ -1,1 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#121417">
+  <title>R1 Motoboy - Painel do Entregador</title>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <!-- Leaflet Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --primary: #d9233e;
+      --primary-dark: #b71931;
+      --dark: #121417;
+      --dark-card: #1c1f24;
+      --white: #ffffff;
+      --bg: #f4f5f7;
+      --text: #1d2129;
+      --muted: #656d76;
+      --border: #e2e5e9;
+      --green: #168a55;
+      --warning: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 30px;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .app {
+      max-width: 600px;
+      margin: auto;
+      background: var(--white);
+      min-height: 100vh;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      position: relative;
+    }
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: linear-gradient(135deg, var(--dark), #262a30);
+      color: var(--white);
+      padding: 14px 16px;
+      border-bottom: 2px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--primary);
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      font-weight: 900;
+      font-size: 18px;
+    }
+    .brand h1 { margin: 0; font-size: 17px; color: var(--white); }
+    .brand small { color: #cbd0d6; font-weight: 600; font-size: 12px; }
+    
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .tab {
+      border: 1px solid #ddd;
+      background: var(--white);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .tab.active { background: var(--dark); color: var(--white); border-color: var(--dark); }
+
+    .main-body { padding: 14px 16px; }
+
+    .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+    .metric {
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .metric small { color: var(--muted); font-size: 11px; }
+    .metric strong { display: block; font-size: 18px; margin-top: 4px; }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: var(--white);
+    }
+    .panel h3 { margin: 0 0 8px; font-size: 16px; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.4; margin: 0 0 10px; }
+
+    .order-card-history {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fcfcfc;
+      margin-bottom: 10px;
+      font-size: 13px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .status {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: #dff8e9;
+      color: #187a4d;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .status.closed { background: #fee2e2; color: #b91c1c; }
+    .status.warning { background: #fef3c7; color: #d97706; }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .btn.red { background: var(--primary); color: var(--white); }
+    .btn.dark { background: var(--dark); color: var(--white); }
+    .btn.green { background: var(--green); color: var(--white); }
+    .btn.warning { background: var(--warning); color: var(--white); }
+    .btn.outline { background: #f0f2f5; border: 1px solid #d0d4dc; color: var(--text); }
+
+    .form { display: grid; gap: 10px; }
+    .field label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 4px; }
+    .field input, .field select { width: 100%; padding: 11px; border: 1px solid #d9dde2; border-radius: 10px; }
+
+    .login-container {
+      padding: 30px 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .install-bar {
+      background: #2b303a;
+      color: #fff;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 200;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark);
+      color: var(--white);
+      padding: 11px 16px;
+      border-radius: 12px;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+      border: 1px solid var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="pwaInstallNotice" class="install-bar hidden">
+      <span>📲 Instale o App R1 Motoboy no seu celular</span>
+      <button class="btn green" style="width:auto;padding:6px 12px;font-size:11px;" onclick="triggerInstall()">Instalar</button>
+    </div>
+
+    <header class="top">
+      <div class="brand">
+        <div class="logo">R1</div>
+        <div>
+          <h1>R1 MOTOBOY</h1>
+          <small id="topMotoNick">Painel do Entregador</small>
+        </div>
+      </div>
+      <div id="topActions" class="hidden">
+        <button class="btn red" style="width:auto;padding:6px 12px;font-size:11px;" onclick="logoutMotoboy()">Sair</button>
+      </div>
+    </header>
+
+    <!-- TELA DE LOGIN DO MOTOBOY -->
+    <div id="authScreen" class="login-container">
+      <div class="panel">
+        <h3 style="text-align:center;margin-bottom:14px;">Acesso do Entregador</h3>
+        <div class="form">
+          <div class="field">
+            <label>Usuário ou WhatsApp</label>
+            <input id="loginUser" placeholder="Ex: motoboy1 ou seu WhatsApp">
+          </div>
+          <div class="field">
+            <label>Senha de Acesso</label>
+            <input type="password" id="loginPass" placeholder="Sua senha">
+          </div>
+          <button class="btn red" onclick="doMotoboyLogin()">Entrar no Painel</button>
+          <p class="hint" style="text-align:center;margin-top:8px;">Credencial padrão de teste: <b>motoboy1</b> / <b>1234</b></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAINEL OPERACIONAL -->
+    <div id="mainScreen" class="hidden">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('abertas', this)">Corridas Abertas</button>
+        <button class="tab" onclick="switchTab('minhas', this)">Minhas Entregas</button>
+        <button class="tab" onclick="switchTab('extrato', this)">Extrato Pix & PDF</button>
+        <button class="tab" onclick="switchTab('perfil', this)">Meu Perfil</button>
+      </div>
+
+      <div class="main-body" id="tabContent"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const DB_KEY = "r1_marketplace_red_black_v21_final";
+    let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || {};
+    let loggedMoto = null;
+    let currentTab = "abertas";
+    let reportPeriod = "todos";
+    let deferredPrompt = null;
+    let gpsWatcher = null;
+
+    /* Firebase Firestore Config */
+    const firebaseConfig = {
+      apiKey: "AIzaSyDr1B-SDuq4V1lxbrgCHm8TyLSIdfEohZY",
+      authDomain: "r1-parceiros.firebaseapp.com",
+      projectId: "r1-parceiros",
+      storageBucket: "r1-parceiros.firebasestorage.app",
+      messagingSenderId: "511261654273",
+      appId: "1:511261654273:web:0dfbfa8e92828db829ef00"
+    };
+
+    let fsDb = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      fsDb = firebase.firestore();
+    } catch(e) {}
+
+    function toast(t) {
+      const x = document.getElementById("toast");
+      if (!x) return;
+      x.textContent = t;
+      x.style.display = "block";
+      clearTimeout(window.tt);
+      window.tt = setTimeout(() => x.style.display = "none", 2500);
+    }
+
+    function money(v) {
+      return (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function saveDb() {
+      try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
+      if (fsDb) {
+        fsDb.collection("marketplace").doc("main_data").set(db).catch(() => {});
+      }
+    }
+
+    function init() {
+      if (fsDb) {
+        fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
+          if (doc.exists && doc.data()) {
+            db = doc.data();
+            try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
+            if (loggedMoto) renderCurrentTab();
+          }
+        });
+      }
+
+      // Verifica se já estava logado
+      const savedMotoId = localStorage.getItem("r1_active_motoboy_id");
+      if (savedMotoId && db.motoboys) {
+        const found = db.motoboys.find(m => m.id.toString() === savedMotoId);
+        if (found) {
+          loggedMoto = found;
+          enterDashboard();
+        }
+      }
+    }
+
+    function doMotoboyLogin() {
+      const u = (document.getElementById("loginUser").value || "").trim().toLowerCase();
+      const p = (document.getElementById("loginPass").value || "").trim();
+
+      if (!u || !p) return toast("Preencha usuário e senha.");
+
+      if (!db.motoboys || !db.motoboys.length) {
+        db.motoboys = [{
+          id: 101,
+          name: "César Silvério",
+          nick: "Césinha Fz",
+          username: "motoboy1",
+          pass: "1234",
+          phone: "18997734471",
+          vehicle: "Honda CG 160",
+          pix: "18997734471",
+          status: "approved",
+          online: true
+        }];
+        saveDb();
+      }
+
+      const found = db.motoboys.find(m => 
+        (m.username && m.username.toLowerCase() === u) || 
+        (m.phone && m.phone.includes(u)) || 
+        m.id.toString() === u
+      );
+
+      if (found && (found.pass || "1234").toString() === p) {
+        if (found.status !== "approved") return toast("Cadastro de motoboy pendente de aprovação.");
+        loggedMoto = found;
+        localStorage.setItem("r1_active_motoboy_id", found.id.toString());
+        enterDashboard();
+        toast(`✅ Bem-vindo, ${found.nick || found.name}!`);
+      } else {
+        toast("❌ Usuário ou senha incorretos.");
+      }
+    }
+
+    function enterDashboard() {
+      document.getElementById("authScreen").classList.add("hidden");
+      document.getElementById("mainScreen").classList.remove("hidden");
+      document.getElementById("topActions").classList.remove("hidden");
+      document.getElementById("topMotoNick").textContent = loggedMoto.nick || loggedMoto.name;
+      startGpsTracking();
+      renderCurrentTab();
+    }
+
+    function logoutMotoboy() {
+      if (gpsWatcher) navigator.geolocation.clearWatch(gpsWatcher);
+      localStorage.removeItem("r1_active_motoboy_id");
+      loggedMoto = null;
+      document.getElementById("authScreen").classList.remove("hidden");
+      document.getElementById("mainScreen").classList.add("hidden");
+      document.getElementById("topActions").classList.add("hidden");
+      document.getElementById("topMotoNick").textContent = "Painel do Entregador";
+      toast("Sessão finalizada.");
+    }
+
+    function startGpsTracking() {
+      if ("geolocation" in navigator && loggedMoto) {
+        gpsWatcher = navigator.geolocation.watchPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          loggedMoto.lat = lat;
+          loggedMoto.lng = lng;
+
+          if (db.orders) {
+            db.orders.forEach(o => {
+              if (o.motoboyId === loggedMoto.id && o.status === "Despachado") {
+                o.motoboyLat = lat;
+                o.motoboyLng = lng;
+              }
+            });
+          }
+          saveDb();
+        }, () => {}, { enableHighAccuracy: true });
+      }
+    }
+
+    function switchTab(tab, btn) {
+      currentTab = tab;
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      renderCurrentTab();
+    }
+
+    function renderCurrentTab() {
+      const container = document.getElementById("tabContent");
+      if (!loggedMoto) return;
+
+      if (currentTab === "abertas") {
+        const orders = (db.orders || []).filter(o => o.delivery === 'R1' && (o.status === 'Novo' || o.status === 'Em Preparo') && !o.motoboyId);
+        container.innerHTML = `
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <h3>🛵 Corridas Disponíveis (${orders.length})</h3>
+              <span class="status ${loggedMoto.online ? '' : 'closed'}">${loggedMoto.online ? 'Online' : 'Offline'}</span>
+            </div>
+            <p class="hint">Chamados aguardando aceite de entrega.</p>
+            
+            <div style="margin-top:10px;">
+              ${orders.map(o => `
+                <div class="order-card-history">
+                  <div style="display:flex;justify-content:space-between;font-weight:900;margin-bottom:6px;">
+                    <span>Pedido ${o.id}</span>
+                    <span style="color:var(--green);">${money(o.total)}</span>
+                  </div>
+                  <div><b>🏪 Retirada:</b> ${o.storeName} (${o.storeAddress || 'Endereço da Loja'})</div>
+                  <div><b>🏠 Entrega:</b> ${o.customerName} - ${o.customerAddress}</div>
+                  <div style="color:var(--primary);font-weight:900;margin:6px 0;">
+                    💰 Taxa de Entrega: ${o.deliveryFeeText || 'R$ 8,00'}
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+                    <button class="btn green" onclick="acceptOrder('${o.id}')">✓ Aceitar</button>
+                    <button class="btn red" onclick="declineOrder('${o.id}')">✕ Recusar</button>
+                  </div>
+                </div>
+              `).join("") || '<p class="hint" style="text-align:center;padding:20px 0;">Nenhuma corrida disponível no momento. Novas corridas aparecerão aqui automaticamente.</p>'}
+            </div>
+          </div>
+        `;
+      } else if (currentTab === "minhas") {
+        const myOrders = (db.orders || []).filter(o => o.motoboyId === loggedMoto.id && !o.hiddenForMotoboy);
+        container.innerHTML = `
+          <div class="panel">
+            <h3>📦 Minhas Entregas em Andamento</h3>
+            <p class="hint">Gerencie os pedidos que você aceitou.</p>
+
+            <div>
+              ${myOrders.map(o => `
+                <div class="order-card-history">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <b>${o.id} - ${o.storeName}</b>
+                    <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}">${o.status}</span>
+                  </div>
+                  <div><b>Cliente:</b> ${o.customerName} (${o.customerPhone})</div>
+                  <div><b>Endereço:</b> ${o.customerAddress}</div>
+                  <div><b>Pagamento:</b> ${o.payment}</div>
+                  <div style="color:var(--green);font-weight:900;margin-top:4px;">💰 Valor da Corrida: ${o.deliveryFeeText || 'R$ 8,00'}</div>
+                  
+                  <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                    <button class="btn dark" style="font-size:12px;padding:8px;" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customerAddress)}', '_blank')">
+                      📍 Abrir GPS / Waze
+                    </button>
+                    ${o.status !== 'Despachado' && o.status !== 'Entregue' ? `
+                      <button class="btn warning" style="font-size:12px;padding:8px;" onclick="setDispatched('${o.id}')">
+                        🛵 Iniciar Trajeto
+                      </button>
+                    ` : ''}
+                    ${o.status === 'Despachado' ? `
+                      <button class="btn green" style="font-size:12px;padding:8px;" onclick="setDelivered('${o.id}')">
+                        ✓ Confirmar Entrega
+                      </button>
+                    ` : ''}
+                    <button class="btn red" style="font-size:11px;padding:6px;width:auto;" onclick="hideOrder('${o.id}')">
+                      ✕ Ocultar
+                    </button>
+                  </div>
+                </div>
+              `).join("") || '<p class="hint" style="text-align:center;padding:20px 0;">Você não tem entregas ativas no momento.</p>'}
+            </div>
+          </div>
+        `;
+      } else if (currentTab === "extrato") {
+        let completed = (db.orders || []).filter(o => o.motoboyId === loggedMoto.id && o.status === 'Entregue' && !o.hiddenForMotoboy);
+        const now = new Date();
+
+        if (reportPeriod === "hoje") {
+          completed = completed.filter(o => new Date(o.date).toDateString() === now.toDateString());
+        } else if (reportPeriod === "semana") {
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          completed = completed.filter(o => new Date(o.date) >= weekAgo);
+        } else if (reportPeriod === "mes") {
+          completed = completed.filter(o => {
+            const d = new Date(o.date);
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          });
+        }
+
+        const totalValue = completed.length * 8.00;
+
+        container.innerHTML = `
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h3>Extrato & Repasses</h3>
+              <div style="display:flex;gap:6px;">
+                <button class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="sendExtractWhatsApp()">📲 WhatsApp</button>
+                <button class="btn dark" style="width:auto;padding:6px 10px;font-size:11px;" onclick="window.print()">📄 Imprimir PDF</button>
+              </div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label style="font-weight:800;font-size:12px;">Período:</label>
+              <select onchange="reportPeriod = this.value; renderCurrentTab();">
+                <option value="todos" ${reportPeriod === 'todos' ? 'selected' : ''}>Todo o Histórico</option>
+                <option value="hoje" ${reportPeriod === 'hoje' ? 'selected' : ''}>Hoje</option>
+                <option value="semana" ${reportPeriod === 'semana' ? 'selected' : ''}>Últimos 7 dias</option>
+                <option value="mes" ${reportPeriod === 'mes' ? 'selected' : ''}>Este Mês</option>
+              </select>
+            </div>
+
+            <div class="admin-grid">
+              <div class="metric"><small>Entregas Realizadas</small><strong>${completed.length}</strong></div>
+              <div class="metric"><small>Total Líquido Pix</small><strong style="color:var(--green);">${money(totalValue)}</strong></div>
+            </div>
+
+            <div id="printableArea" style="margin-top:10px;">
+              <h4 style="margin:10px 0 4px;">Relatório de Entregas - ${loggedMoto.nick || loggedMoto.name}</h4>
+              <small style="color:var(--muted);display:block;margin-bottom:10px;">Chave Pix: <b>${loggedMoto.pix || 'Não cadastrada'}</b></small>
+
+              ${completed.map(o => `
+                <div class="order-card-history" style="font-size:12px;padding:8px;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:4px;margin-bottom:4px;">
+                    <b>${o.id} - ${o.storeName}</b>
+                    <span style="color:var(--green);font-weight:900;">+ R$ 8,00</span>
+                  </div>
+                  <div><b>Cliente:</b> ${o.customerName} - ${o.customerAddress}</div>
+                  <small style="color:#888;">${new Date(o.date).toLocaleString('pt-BR')}</small>
+                </div>
+              `).join("") || '<p class="hint">Nenhuma entrega realizada neste período.</p>'}
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="panel">
+            <h3>Meu Perfil de Entregador</h3>
+            <div class="form">
+              <div class="field">
+                <label>Nome Completo</label>
+                <input value="${loggedMoto.name}" readonly>
+              </div>
+              <div class="field">
+                <label>Veículo / Placa</label>
+                <input value="${loggedMoto.vehicle || ''}" id="editVeh">
+              </div>
+              <div class="field">
+                <label>Chave Pix para Receber</label>
+                <input value="${loggedMoto.pix || ''}" id="editPix">
+              </div>
+              <button class="btn red" onclick="saveProfile()">Salvar Dados</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function acceptOrder(id) {
+      const o = (db.orders || []).find(x => x.id === id);
+      if (o && loggedMoto) {
+        o.motoboyId = loggedMoto.id;
+        o.motoboyName = loggedMoto.nick || loggedMoto.name;
+        o.motoboyPhone = loggedMoto.phone;
+        o.status = "Em Preparo";
+        saveDb();
+        switchTab("minhas", document.querySelectorAll(".tab")[1]);
+        toast("Corrida aceita!");
+      }
+    }
+
+    function declineOrder(id) {
+      toast("Corrida recusada.");
+      renderCurrentTab();
+    }
+
+    function setDispatched(id) {
+      const o = (db.orders || []).find(x => x.id === id);
+      if (o) {
+        o.status = "Despachado";
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            o.motoboyLat = pos.coords.latitude;
+            o.motoboyLng = pos.coords.longitude;
+            saveDb();
+          });
+        }
+        saveDb();
+        renderCurrentTab();
+        toast("Status: A caminho do cliente!");
+      }
+    }
+
+    function setDelivered(id) {
+      const o = (db.orders || []).find(x => x.id === id);
+      if (o) {
+        o.status = "Entregue";
+        saveDb();
+        renderCurrentTab();
+        toast("🎉 Corrida concluída com sucesso!");
+      }
+    }
+
+    function hideOrder(id) {
+      const o = (db.orders || []).find(x => x.id === id);
+      if (o) {
+        o.hiddenForMotoboy = true;
+        saveDb();
+        renderCurrentTab();
+        toast("Registro ocultado.");
+      }
+    }
+
+    function saveProfile() {
+      loggedMoto.vehicle = document.getElementById("editVeh").value.trim();
+      loggedMoto.pix = document.getElementById("editPix").value.trim();
+      saveDb();
+      toast("Perfil atualizado!");
+    }
+
+    function sendExtractWhatsApp() {
+      const completed = (db.orders || []).filter(o => o.motoboyId === loggedMoto.id && o.status === 'Entregue' && !o.hiddenForMotoboy);
+      const total = completed.length * 8.00;
+
+      let msg = [];
+      msg.push(`🛵 *EXTRATO DE ENTREGAS R1 - ${loggedMoto.nick || loggedMoto.name}*`);
+      msg.push(`📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}`);
+      msg.push(`🏍️ *Corridas Concluídas:* ${completed.length}`);
+      msg.push(`💰 *Total a Receber:* ${money(total)}`);
+      msg.push(`🔑 *Chave Pix:* ${loggedMoto.pix || 'Não cadastrada'}`);
+      msg.push(`-----------------------------------`);
+      completed.slice(0, 10).forEach(o => msg.push(`▪️ ${o.id} - ${o.storeName} (+R$ 8,00)`));
+
+      const cleanPhone = (loggedMoto.phone || "").replace(/\D/g, "");
+      window.open(`https://api.whatsapp.com/send?phone=55${cleanPhone}&text=${encodeURIComponent(msg.join("\n"))}`, "_blank");
+    }
+
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById("pwaInstallNotice").classList.remove("hidden");
+    });
+
+    function triggerInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt = null;
+        document.getElementById("pwaInstallNotice").classList.add("hidden");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
