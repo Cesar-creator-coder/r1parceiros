@@ -1,10 +1,10 @@
 {
-  "id": "/r1parceiros/index.html",
+  "id": "r1-shop-client-app",
   "name": "R1 SHOP CONNECT",
   "short_name": "R1 SHOP",
   "description": "Marketplace e Entregas Oficiais R1",
-  "start_url": "./index.html",
-  "scope": "./index.html",
+  "start_url": "./index.html?app=cliente",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#121417",
