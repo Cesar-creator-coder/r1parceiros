@@ -3,15 +3,22 @@
   "short_name": "R1 Lojas",
   "description": "Painel de Gestão e Pedidos de Estabelecimentos Parceiros R1",
   "start_url": "./loja.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#121417",
   "theme_color": "#d9233e",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23121417'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23d9233e' stroke-width='16'/><path d='M120 200l25-80h222l25 80v200H120V200zm60 40c16.5 0 30-13.5 30-30s-13.5-30-30-30-30 13.5-30 30 13.5 30 30 30zm152 0c16.5 0 30-13.5 30-30s-13.5-30-30-30-30 13.5-30 30 13.5 30 30 30z' fill='%23d9233e'/><text x='50%25' y='460' text-anchor='middle' fill='%23ffffff' font-family='Arial,sans-serif' font-weight='900' font-size='56'>R1 LOJAS</text></svg>",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-592.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
