@@ -286,15 +286,15 @@
         <h3 style="text-align:center;margin-bottom:14px;">Acesso do Estabelecimento</h3>
         <div class="form">
           <div class="field">
-            <label>Usuário, ID ou WhatsApp</label>
-            <input id="loginUser" placeholder="Ex: claudinha ou número">
+            <label>Usuário, ID ou WhatsApp da Loja</label>
+            <input id="loginUser" placeholder="Ex: pastelcia ou número">
           </div>
           <div class="field">
             <label>Senha de Acesso</label>
             <input type="password" id="loginPass" placeholder="Sua senha">
           </div>
           <button class="btn red" onclick="doStoreLogin()">Entrar no Painel</button>
-          <p class="hint" style="text-align:center;margin-top:8px;">Credencial padrão inicial: usuário / <b>1234</b></p>
+          <p class="hint" style="text-align:center;margin-top:8px;">Credencial padrão inicial: <b>1234</b></p>
         </div>
       </div>
     </div>
@@ -304,7 +304,7 @@
       <div class="tabs">
         <button class="tab active" onclick="switchTab('pedidos', this)">Pedidos ao Vivo</button>
         <button class="tab" onclick="switchTab('produtos', this)">Cardápio & Promoções</button>
-        <button class="tab" onclick="switchTab('lote', this)">Importar em Lote</button>
+        <button class="tab" onclick="switchTab('lote', this)">Importar em Lote / Foto</button>
         <button class="tab" onclick="switchTab('status', this)">Stories 9:16 & Capa</button>
         <button class="tab" onclick="switchTab('relatorios', this)">Relatório de Vendas</button>
         <button class="tab" onclick="switchTab('dados', this)">Dados da Loja</button>
@@ -427,7 +427,6 @@
     function openModal(id) { document.getElementById(id).classList.add("show"); }
     function closeModal(id) { document.getElementById(id).classList.remove("show"); }
 
-    /* TOCADOR DE CAMPAINHA / ALERTA SONORO DE NOVO PEDIDO */
     function playOrderBell() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -664,8 +663,19 @@
         `;
       } else if (currentTab === "lote") {
         container.innerHTML = `
+          <!-- MÓDULO INTELIGÊNCIA ARTIFICIAL: LEITURA DE FOTO -->
+          <div class="panel" style="background:#f0fdf4;border:1px dashed var(--green);">
+            <h3>📸 Leitor de Cardápio por Foto (Inteligência Artificial)</h3>
+            <p class="hint">Tire uma foto nítida do seu cardápio de papel ou panfleto para cadastrar tudo automaticamente em segundos.</p>
+            <label class="btn green" style="cursor:pointer;display:inline-flex;">
+              📷 Tirar Foto do Cardápio / Enviar Imagem
+              <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="enviarFotoParaGemini(this)">
+            </label>
+          </div>
+
+          <!-- MÓDULO IMPORTAÇÃO EM TEXTO -->
           <div class="panel">
-            <h3>📋 Importação Rápida de Produtos por Lote</h3>
+            <h3>📋 Importação Rápida por Lista de Texto</h3>
             <div class="hint">
               Cole sua lista no formato:<br>
               <code>Nome - Descrição - Preço</code><br>
@@ -1037,6 +1047,79 @@
       saveDb();
       switchTab("produtos", document.querySelectorAll(".tab")[1]);
       toast(`🎉 ${count} produtos importados!`);
+    }
+
+    /* 3. LEITURA DE FOTO DE CARDÁPIO COM A IA DO GEMINI */
+    async function enviarFotoParaGemini(inputElement) {
+      const file = inputElement.files[0];
+      if (!file) return;
+
+      const apiKey = (db.config && db.config.aiApiKey) ? db.config.aiApiKey.trim() : "";
+      if (!apiKey) {
+        return toast("⚠️ Chave da API Gemini não configurada na Central.");
+      }
+
+      toast("⏳ Lendo cardápio com Inteligência Artificial...");
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const base64Data = e.target.result.split(',')[1];
+        const mimeType = file.type || "image/jpeg";
+
+        const promptText = "Analise esta foto de cardápio. Extraia os produtos com nome, descrição, preço numérico e categoria. Retorne APENAS um array JSON puro sem crases e sem markdown, seguindo o padrão: [{\"nome\": \"Item\", \"descricao\": \"Detalhes\", \"preco\": 10.00, \"categoria\": \"GERAL\"}]";
+
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: promptText },
+                  { inline_data: { mime_type: mimeType, data: base64Data } }
+                ]
+              }]
+            })
+          });
+
+          const data = await response.json();
+          const rawText = data.candidates[0].content.parts[0].text;
+          const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+          const produtos = JSON.parse(cleanJson);
+
+          if (!loggedPartner.categories) loggedPartner.categories = [];
+
+          let adicionados = 0;
+          produtos.forEach(item => {
+            const catName = (item.categoria || "GERAL").toUpperCase();
+            let catObj = loggedPartner.categories.find(c => c.name === catName);
+            if (!catObj) {
+              catObj = { name: catName, products: [] };
+              loggedPartner.categories.push(catObj);
+            }
+
+            catObj.products.push({
+              id: "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+              name: item.nome,
+              desc: item.descricao || "",
+              price: Number(item.preco) || 0,
+              image: "",
+              isPromo: false,
+              paused: false
+            });
+            adicionados++;
+          });
+
+          saveDb();
+          switchTab("produtos", document.querySelectorAll(".tab")[1]);
+          toast(`🎉 ${adicionados} produtos cadastrados pela foto!`);
+
+        } catch (err) {
+          toast("❌ Falha ao processar imagem. Tente uma foto mais nítida.");
+        }
+      };
+
+      reader.readAsDataURL(file);
     }
 
     function addStatus() {
