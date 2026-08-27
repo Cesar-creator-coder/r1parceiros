@@ -286,15 +286,15 @@
         <h3 style="text-align:center;margin-bottom:14px;">Acesso do Estabelecimento</h3>
         <div class="form">
           <div class="field">
-            <label>Usuário ou ID da Loja</label>
-            <input id="loginUser" placeholder="Ex: claudinha ou usuário da loja">
+            <label>Usuário, ID ou WhatsApp</label>
+            <input id="loginUser" placeholder="Ex: claudinha ou número">
           </div>
           <div class="field">
             <label>Senha de Acesso</label>
             <input type="password" id="loginPass" placeholder="Sua senha">
           </div>
           <button class="btn red" onclick="doStoreLogin()">Entrar no Painel</button>
-          <p class="hint" style="text-align:center;margin-top:8px;">Credencial de teste: <b>claudinha</b> / <b>1234</b></p>
+          <p class="hint" style="text-align:center;margin-top:8px;">Credencial padrão inicial: usuário / <b>1234</b></p>
         </div>
       </div>
     </div>
@@ -434,7 +434,7 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Nota Lá (A5)
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.3);
         gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
@@ -459,14 +459,19 @@
             db = doc.data();
             try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
 
-            if (loggedPartner) {
-              const myOrders = (db.orders || []).filter(o => o.storeId === loggedPartner.id);
-              if (myOrders.length > lastOrderCount) {
-                playOrderBell();
-                toast("🔔 NOVO PEDIDO RECEBIDO NO BALCÃO!");
+            const savedPartnerId = localStorage.getItem("r1_active_partner_id");
+            if (savedPartnerId && db.partners) {
+              const found = db.partners.find(p => p.id.toString() === savedPartnerId.toString());
+              if (found) {
+                loggedPartner = found;
+                const myOrders = (db.orders || []).filter(o => o.storeId === loggedPartner.id);
+                if (myOrders.length > lastOrderCount) {
+                  playOrderBell();
+                  toast("🔔 NOVO PEDIDO RECEBIDO NO BALCÃO!");
+                }
+                lastOrderCount = myOrders.length;
+                renderCurrentTab();
               }
-              lastOrderCount = myOrders.length;
-              renderCurrentTab();
             }
           }
         });
@@ -474,7 +479,7 @@
 
       const savedPartnerId = localStorage.getItem("r1_active_partner_id");
       if (savedPartnerId && db.partners) {
-        const found = db.partners.find(p => p.id.toString() === savedPartnerId);
+        const found = db.partners.find(p => p.id.toString() === savedPartnerId.toString());
         if (found) {
           loggedPartner = found;
           enterDashboard();
@@ -490,7 +495,8 @@
 
       const found = (db.partners || []).find(x => 
         (x.username && x.username.toLowerCase() === u) || 
-        x.id.toString() === u
+        (x.id && x.id.toString().toLowerCase() === u) ||
+        (x.whatsapp && x.whatsapp.replace(/\D/g,"") === u.replace(/\D/g,""))
       );
 
       if (found && (found.pass || "1234").toString() === p) {
@@ -794,19 +800,31 @@
         const soc = p.socials || {};
         container.innerHTML = `
           <div class="panel">
-            <h3>Configurações de ${p.name}</h3>
+            <h3>Dados & Configurações de ${p.name}</h3>
             <div class="form">
               <div class="field">
                 <label>Nome do Estabelecimento</label>
-                <input id="stName" value="${p.name}">
+                <input id="stName" value="${p.name || ''}">
+              </div>
+              <div class="field">
+                <label>CNPJ / CPF do Responsável</label>
+                <input id="stDoc" value="${p.document || ''}" placeholder="00.000.000/0000-00">
+              </div>
+              <div class="field">
+                <label>Usuário de Login</label>
+                <input id="stUser" value="${p.username || ''}" placeholder="Ex: pastel_cia">
+              </div>
+              <div class="field">
+                <label>Senha de Acesso ao Painel</label>
+                <input type="text" id="stPass" value="${p.pass || '1234'}" placeholder="Defina sua senha">
               </div>
               <div class="field">
                 <label>WhatsApp de Pedidos (DDD + Número)</label>
-                <input id="stWhats" value="${p.whatsapp}">
+                <input id="stWhats" value="${p.whatsapp || ''}">
               </div>
               <div class="field">
                 <label>Endereço Completo</label>
-                <input id="stAddr" value="${p.address}">
+                <input id="stAddr" value="${p.address || ''}">
               </div>
               <div class="field">
                 <label>Taxa de Entrega Padrão</label>
@@ -821,8 +839,8 @@
                 <input id="stMin" type="number" step="0.01" value="${p.minOrder || 15}">
               </div>
               <div class="field">
-                <label>Chave Pix da Loja</label>
-                <input id="stPix" value="${p.pixKey || ''}" placeholder="Seu Pix para pagamento copia e cola">
+                <label>Chave Pix da Loja (Para recebimento)</label>
+                <input id="stPix" value="${p.pixKey || ''}" placeholder="Chave Pix oficial">
               </div>
               <div class="field">
                 <label>Instagram (@seucomercio)</label>
@@ -1056,6 +1074,9 @@
     function saveStoreSettings() {
       const p = loggedPartner;
       p.name = document.getElementById("stName").value.trim();
+      p.document = document.getElementById("stDoc").value.trim();
+      p.username = (document.getElementById("stUser").value.trim() || p.username || "").toLowerCase();
+      p.pass = document.getElementById("stPass").value.trim() || "1234";
       p.whatsapp = document.getElementById("stWhats").value.trim().replace(/\D/g, "");
       p.address = document.getElementById("stAddr").value.trim();
       p.delivery = document.getElementById("stFee").value.trim();
@@ -1068,7 +1089,7 @@
 
       saveDb();
       enterDashboard();
-      toast("Configurações salvas com sucesso!");
+      toast("Configurações e senha salvas com sucesso!");
     }
 
     function previewDirect(inputId, previewId) {
@@ -1136,4 +1157,4 @@
     window.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
-</html> 
+</html>
