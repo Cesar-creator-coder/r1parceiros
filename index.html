@@ -13,7 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-  <!-- Leaflet Maps -->
+  <!-- Leaflet Maps (100% Gratuito & Leve para Rastreamento em Tempo Real) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -130,6 +130,7 @@
     }
     .bottom-install-btn svg { width: 16px; height: 16px; fill: var(--primary); }
 
+    /* TARJA HORIZONTAL DE PARCEIROS CONTÍNUA (MARQUEE) */
     .partner-ticker-bar {
       position: fixed;
       bottom: 65px;
@@ -1134,10 +1135,12 @@
       </div>
     </div>
 
+    <!-- STORIES CONDICIONAL (SÓ MOSTRA SE A LOJA TIVER STATUS) -->
     <div class="status-container hidden" id="statusContainerBox">
       <div class="status-list" id="statusList"></div>
     </div>
 
+    <!-- BANNERS DA CENTRAL -->
     <div class="app-banners hidden" id="appBannersBox"></div>
 
     <section class="hero">
@@ -1194,6 +1197,7 @@
     </button>
   </div>
 
+  <!-- TARJA HORIZONTAL DE PARCEIROS EM MOVIMENTO CONTÍNUO (MARQUEE) -->
   <div class="partner-ticker-bar" id="partnerTickerBar">
     <div class="partner-ticker-track" id="partnerTickerTrack"></div>
   </div>
@@ -1218,10 +1222,11 @@
     </button>
   </nav>
 
-  <!-- MODAL STORIES -->
+  <!-- MODAL STORIES / STATUS COM BOTÃO DE COMPRA INTERATIVO -->
   <div id="statusStoryModal" class="status-story-modal">
     <div class="story-container">
       <div class="story-progress-bar-container" id="storyProgressContainer"></div>
+      
       <div class="story-header">
         <div class="story-header-left">
           <div class="story-header-avatar" id="storyHeaderAvatar"></div>
@@ -1232,16 +1237,20 @@
         </div>
         <button style="background:transparent;border:0;color:#fff;font-size:20px;font-weight:900;" onclick="closeStatusStories()">✕</button>
       </div>
+
       <button class="story-nav-btn story-nav-prev" onclick="prevStory()"></button>
       <button class="story-nav-btn story-nav-next" onclick="nextStory()"></button>
+
       <div class="story-content-view" id="storyMediaContainer"></div>
+
       <div class="story-cta-box" id="storyCtaBox">
-        <button class="story-cta-btn" id="storyCtaBtn" onclick="handleStoryAction()">🛍️ Pedir Oferta do Vídeo</button>
+        <button class="story-cta-btn" id="storyCtaBtn" onclick="handleStoryAction()">
+          🛍️ Pedir Oferta do Vídeo
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CATALOGO -->
   <div id="catalogModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
@@ -1253,10 +1262,13 @@
           <button class="close" onclick="shareStore()" title="Compartilhar Loja">
             <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
           </button>
-          <button class="close" onclick="closeModal('catalogModal')">✕</button>
+          <button class="close" onclick="closeModal('catalogModal')">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
         </div>
       </div>
       <div id="catalogContent"></div>
+      
       <div id="catalogFloatingBar" class="catalog-floating-bar hidden">
         <div>
           <b id="catalogBarItems">0 itens</b><br>
@@ -1264,6 +1276,7 @@
         </div>
         <button onclick="goToCheckoutFromCatalog()">Avançar para Pedido ➔</button>
       </div>
+
       <div id="storeFloatingBubble" class="floating-story-bubble hidden" onclick="openCurrentStoreStory()">
         <div class="floating-story-avatar" id="bubbleMediaPreview">🎬</div>
         <span style="font-size:11px;font-weight:800;pointer-events:none;">Ver Destaque</span>
@@ -1272,19 +1285,24 @@
     </div>
   </div>
 
-  <!-- MODAL CARRINHO -->
   <div id="cartModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
         <h2>Finalizar Pedido</h2>
-        <button class="close" onclick="closeModal('cartModal')">✕</button>
+        <button class="close" onclick="closeModal('cartModal')">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </div>
+
       <div id="cartItems"></div>
+
       <div class="total">
         <span>Total dos Itens</span>
         <span id="cartTotal">R$ 0,00</span>
       </div>
+
       <div id="minOrderWarning" style="color:var(--primary);font-size:13px;font-weight:800;margin-bottom:8px;display:none;"></div>
+
       <div class="form">
         <div class="field">
           <label>Como deseja receber seu pedido?</label>
@@ -1299,6 +1317,7 @@
             </button>
           </div>
         </div>
+
         <div class="field">
           <label>Nome completo</label>
           <input type="text" id="cName" placeholder="Seu nome">
@@ -1307,9 +1326,10 @@
           <label>WhatsApp</label>
           <input type="tel" id="cPhone" placeholder="(00) 00000-0000">
         </div>
+
         <div id="deliveryAddressGroup">
           <div class="field">
-            <label>CEP</label>
+            <label>CEP (Busca automática)</label>
             <div style="display:flex;gap:6px;">
               <input type="text" id="cCep" placeholder="19800-000" maxlength="9" onblur="buscarCep(this.value)">
               <button type="button" class="btn dark" style="width:auto;padding:8px 12px;font-size:12px;" onclick="buscarCep(document.getElementById('cCep').value)">Buscar CEP</button>
@@ -1331,13 +1351,19 @@
           </div>
           <div class="field">
             <label>Cidade / UF</label>
-            <input type="text" id="cCity" value="Assis - SP">
+            <input type="text" id="cCity" placeholder="Assis - SP" value="Assis - SP">
           </div>
+          <button type="button" class="btn dark" onclick="openMap()" style="margin-bottom:8px;">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Testar rota no Google Maps
+          </button>
         </div>
+        
         <div class="field">
-          <label>Observação</label>
-          <textarea id="cNote" placeholder="Ex: Casa com portão preto..."></textarea>
+          <label>Observação / Ponto de referência</label>
+          <textarea id="cNote" placeholder="Ex: Casa com portão preto, sem cebola..."></textarea>
         </div>
+
         <div class="field">
           <label>Forma de pagamento</label>
           <select id="cPayment" onchange="handlePaymentChange()">
@@ -1346,37 +1372,53 @@
             <option value="Cartão na entrega">Cartão / Maquininha na entrega</option>
           </select>
         </div>
+
         <div id="pixContainer" class="pix-box">
           <b style="color:var(--green);font-size:13px;">Chave Pix da Loja (<span id="pixTypeLabel">Chave</span>):</b>
           <div style="display:flex;gap:6px;margin-top:6px;">
             <input id="pixKeyDisplay" readonly style="font-size:13px;background:#fff;font-weight:700;">
             <button type="button" class="btn green" style="width:auto;padding:8px 12px;font-size:12px;" onclick="copyPixKey()">Copiar</button>
           </div>
+          <small style="color:#555;display:block;margin-top:4px;">Faça o Pix e envie o comprovante junto da mensagem no WhatsApp.</small>
         </div>
-        <div id="cashContainer" class="field hidden">
-          <label>Precisa de troco?</label>
-          <input type="number" step="1" id="cashAmount" placeholder="Troco para quanto?" oninput="calculateChange()">
-          <div id="changeResult" style="margin-top:4px;font-weight:900;"></div>
+
+        <div id="cashContainer" class="field hidden" style="background:#fff7f8;border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <label>Vai precisar de troco?</label>
+          <select id="needChange" onchange="handleNeedChange()">
+            <option value="nao">Não, vou pagar o valor exato</option>
+            <option value="sim">Sim, preciso de troco</option>
+          </select>
+          <div id="changeInputGroup" class="hidden" style="margin-top:8px;">
+            <label>Troco para quanto?</label>
+            <input type="number" step="1" id="cashAmount" placeholder="Ex: 50 ou 100" oninput="calculateChange()">
+            <div id="changeResult" style="margin-top:6px;font-weight:900;font-size:14px;color:var(--primary);"></div>
+          </div>
         </div>
+
         <div id="deliveryMotoboyChoiceGroup" class="field">
           <label>Quem fará a entrega?</label>
           <div class="delivery-choice">
             <button type="button" id="r1Delivery" class="choice active" onclick="chooseDelivery('R1')">
               <b>Motoboy R1</b>
-              <small>Solicitar parceiro</small>
+              <small>Solicitar parceiro R1</small>
             </button>
             <button type="button" id="otherDelivery" class="choice" onclick="chooseDelivery('OUTRO')">
               <b>Entrega da Loja</b>
-              <small>Própria</small>
+              <small>O comércio escolhe</small>
             </button>
           </div>
         </div>
-        <button class="btn green" onclick="sendOrder()">Finalizar e enviar no WhatsApp</button>
+
+        <button class="btn green" onclick="sendOrder()">
+          <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+          Finalizar e enviar para o WhatsApp da loja
+        </button>
+        <p class="hint">Ao clicar, o pedido detalhado será salvo no histórico e enviado formatado ao WhatsApp da loja.</p>
       </div>
     </div>
   </div>
 
-  <!-- MODAL RASTREIO -->
+  <!-- MODAL DE RASTREAMENTO DO PEDIDO EM TEMPO REAL COM MAPA -->
   <div id="trackingModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
@@ -1386,27 +1428,35 @@
         </div>
         <button class="close" onclick="closeModal('trackingModal')">✕</button>
       </div>
+
       <div style="background:#f8f9fa;padding:12px;border-radius:14px;margin-bottom:10px;border:1px solid var(--border);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <b>Status:</b>
-          <span id="trackStatusBadge" class="status">Em Preparo</span>
+          <b>Status Atual:</b>
+          <span id="trackStatusBadge" class="status" style="font-size:12px;">Em Preparo</span>
         </div>
-        <small id="trackStatusDesc" style="color:#666;">Acompanhe em tempo real.</small>
+        <small id="trackStatusDesc" style="color:#666;">Seu pedido está sendo preparado pela loja.</small>
       </div>
+
       <div id="clientTrackingMap" class="map-container-box"></div>
+
       <div id="motoboyInfoCard" class="panel hidden" style="margin-top:10px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <b id="trackMotoName">Motoboy R1</b><br>
-            <small id="trackMotoVehicle">Moto</small>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--dark);color:#fff;display:grid;place-items:center;font-weight:900;">R1</div>
+            <div>
+              <b id="trackMotoName">Motoboy Equipe R1</b><br>
+              <small id="trackMotoVehicle" style="color:var(--muted)">Honda CG 160</small>
+            </div>
           </div>
-          <button id="trackMotoWhatsBtn" class="btn green" style="width:auto;padding:8px 12px;font-size:12px;">💬 WhatsApp</button>
+          <button id="trackMotoWhatsBtn" class="btn green" style="width:auto;padding:8px 12px;font-size:12px;">
+            💬 WhatsApp
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL DECISAO CORRIDA -->
+  <!-- MODAL DE DECISÃO RÁPIDA DE CORRIDA (ACEITAR / RECUSAR) -->
   <div id="orderDecisionModal" class="modal">
     <div class="sheet center">
       <div class="sheet-head">
@@ -1417,12 +1467,13 @@
     </div>
   </div>
 
-  <!-- MODAL LOGIN -->
   <div id="loginModal" class="modal">
     <div class="sheet center">
       <div class="sheet-head">
         <h2>Acesso ao Sistema</h2>
-        <button class="close" onclick="closeModal('loginModal')">✕</button>
+        <button class="close" onclick="closeModal('loginModal')">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </div>
       <div class="login-box form">
         <div class="field">
@@ -1441,29 +1492,45 @@
           <label>Senha de Acesso</label>
           <div class="password-wrapper">
             <input type="password" id="loginPass" placeholder="Sua senha">
-            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('loginPass')">👁️</button>
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('loginPass')">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </button>
           </div>
         </div>
         <button class="btn red" onclick="doLogin()">Entrar no Painel</button>
-        <p class="hint" id="loginHint">Informe suas credenciais autorizadas.</p>
+        <p class="hint" id="loginHint">Informe suas credenciais autorizadas para gerenciar a plataforma ou o seu estabelecimento.</p>
+        
+        <div style="text-align:center;margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+          <button type="button" style="background:transparent;border:0;color:var(--primary);font-size:12px;text-decoration:underline;cursor:pointer;" onclick="requestPasswordResetWhatsApp()">
+            🔑 Esqueceu a senha? Falar com o suporte no WhatsApp
+          </button>
+          <button type="button" style="background:transparent;border:0;color:#666;font-size:12px;text-decoration:underline;cursor:pointer;" onclick="closeModal('loginModal'); openModal('motoboyRegisterModal');">
+            🏍️ Cadastrar como Motoboy Parceiro R1
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL ADMIN -->
   <div id="adminModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn outline" style="width:auto;padding:6px 10px;font-size:12px;" onclick="adminGoBackInternal()">← Voltar</button>
+          <button class="btn outline" style="width:auto;padding:6px 10px;font-size:12px;" onclick="adminGoBackInternal()" title="Voltar à tela anterior do painel">
+            ← Voltar
+          </button>
           <div>
             <h2 id="adminTitle" style="font-size:17px;">Painel</h2>
             <small id="adminSubtitle" style="color:var(--muted)"></small>
           </div>
         </div>
         <div style="display:flex;gap:6px;">
-          <button class="btn outline" style="width:auto;padding:6px 10px;font-size:11px;" onclick="closeModal('adminModal')">Ver App</button>
-          <button class="btn red" style="width:auto;padding:6px 10px;font-size:11px;" onclick="logoutAdmin()">Sair</button>
+          <button class="btn outline" style="width:auto;padding:6px 10px;font-size:11px;" onclick="closeModal('adminModal')" title="Minimizar painel e ver marketplace">
+            Ver App
+          </button>
+          <button class="btn red" style="width:auto;padding:6px 10px;font-size:11px;" onclick="logoutAdmin()">
+            Sair
+          </button>
         </div>
       </div>
       <div class="tabs" id="adminTabs"></div>
@@ -1471,18 +1538,7 @@
     </div>
   </div>
 
-  <!-- MODAL FICHA CADASTRAL COMPLETA (NOVO: VER/EDITAR TUDO) -->
-  <div id="partnerDetailsModal" class="modal">
-    <div class="sheet center">
-      <div class="sheet-head">
-        <h2>📄 Ficha Cadastral da Loja</h2>
-        <button class="close" onclick="closeModal('partnerDetailsModal')">✕</button>
-      </div>
-      <div class="form" id="partnerDetailsContent"></div>
-    </div>
-  </div>
-
-  <!-- MODAL CADASTRO MOTOBOY -->
+  <!-- MODAL DE CADASTRO DE MOTOBOY -->
   <div id="motoboyRegisterModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
@@ -1492,30 +1548,31 @@
       <div class="form">
         <div class="field">
           <label>Nome Completo</label>
-          <input id="motoRegName">
+          <input id="motoRegName" placeholder="Seu nome">
         </div>
         <div class="field">
-          <label>Apelido</label>
-          <input id="motoRegNick">
+          <label>Apelido / Como quer ser chamado</label>
+          <input id="motoRegNick" placeholder="Ex: Césinha">
         </div>
         <div class="field">
-          <label>WhatsApp</label>
-          <input id="motoRegPhone">
+          <label>WhatsApp (com DDD)</label>
+          <input id="motoRegPhone" placeholder="(18) 99999-9999">
         </div>
         <div class="field">
-          <label>Moto e Placa</label>
-          <input id="motoRegVehicle">
+          <label>Modelo e Placa da Moto</label>
+          <input id="motoRegVehicle" placeholder="Ex: Honda CG 160 Fan - ABC-1234">
         </div>
         <div class="field">
-          <label>Chave Pix</label>
-          <input id="motoRegPix">
+          <label>Chave Pix para Recebimento das Corridas</label>
+          <input id="motoRegPix" placeholder="Seu Pix (Celular, CPF ou CNPJ)">
         </div>
-        <button class="btn green" onclick="submitMotoboyRegister()">Enviar Cadastro</button>
+        <button class="btn green" onclick="submitMotoboyRegister()">Enviar Cadastro para Análise</button>
+        <p class="hint">A Central R1 fará a liberação do seu acesso para receber chamados de entregas.</p>
       </div>
     </div>
   </div>
 
-  <!-- MODAL EDITAR PRODUTO -->
+  <!-- MODAL DE EDIÇÃO DE PRODUTO INDIVIDUAL -->
   <div id="editProductModal" class="modal">
     <div class="sheet center">
       <div class="sheet-head">
@@ -1526,11 +1583,11 @@
         <input type="hidden" id="editProdCatName">
         <input type="hidden" id="editProdIndex">
         <div class="field">
-          <label>Nome</label>
+          <label>Nome do Produto</label>
           <input id="editProdName">
         </div>
         <div class="field">
-          <label>Preço</label>
+          <label>Preço de Venda (R$)</label>
           <input id="editProdPrice" type="number" step="0.01">
         </div>
         <div class="field">
@@ -1538,69 +1595,82 @@
           <textarea id="editProdDesc"></textarea>
         </div>
         <div class="field">
-          <label>Link Foto (URL)</label>
+          <label>Link da Foto (URL)</label>
           <input id="editProdImg" oninput="previewDirect('editProdImg', 'editProdPreview')">
         </div>
         <div class="field">
-          <label>Upload Foto</label>
+          <label>Ou Upload da Foto (1:1)</label>
           <input type="file" accept="image/*" onchange="previewUpload(this, 'editProdPreview', 'editProdImg', 400)">
-          <div id="editProdPreview" class="file-preview" style="height:100px;">Prévia</div>
+          <div id="editProdPreview" class="file-preview" style="height:110px;">Prévia</div>
         </div>
         <div class="field-checkbox">
           <input type="checkbox" id="editProdIsPromo">
-          <label for="editProdIsPromo" style="cursor:pointer;margin:0;"><b>🔥 Destacar na Promoção</b></label>
+          <label for="editProdIsPromo" style="cursor:pointer;margin:0;"><b>🔥 Destacar na Promoção do Dia</b></label>
         </div>
-        <div class="field-checkbox" style="background:#f4f5f7;">
+        <div class="field-checkbox" style="background:#f4f5f7;border-color:#ccc;">
           <input type="checkbox" id="editProdPaused">
-          <label for="editProdPaused" style="cursor:pointer;margin:0;"><b>Pausar Produto</b></label>
+          <label for="editProdPaused" style="cursor:pointer;margin:0;"><b>Pausar Produto (Indisponível temporariamente)</b></label>
         </div>
         <button class="btn red" onclick="saveProductEdits()">Salvar Alterações</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CADASTRO PARCEIRO (COMPLETO) -->
+  <!-- MODAL DE FICHA CADASTRAL COMPLETA DA LOJA (ADMIN) -->
+  <div id="partnerDetailsModal" class="modal">
+    <div class="sheet center">
+      <div class="sheet-head">
+        <h2>📄 Ficha Cadastral da Loja</h2>
+        <button class="close" onclick="closeModal('partnerDetailsModal')">✕</button>
+      </div>
+      <div class="form" id="partnerDetailsContent"></div>
+    </div>
+  </div>
+
   <div id="partnerModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
-        <h2>Seja Parceiro R1</h2>
-        <button class="close" onclick="closeModal('partnerModal')">✕</button>
+        <h2>Seja parceiro R1</h2>
+        <button class="close" onclick="closeModal('partnerModal')">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </div>
       <div class="form">
         <div class="field">
-          <label>Nome do Estabelecimento *</label>
+          <label>Nome do comércio</label>
           <input id="pName" placeholder="Ex: Pastel & Cia">
         </div>
         <div class="field">
-          <label>Nome do Responsável *</label>
+          <label>Responsável</label>
           <input id="pOwner" placeholder="Seu nome">
         </div>
         <div class="field">
-          <label>CNPJ ou CPF do Responsável *</label>
-          <input id="pDoc" placeholder="00.000.000/0000-00">
+          <label>CNPJ / CPF</label>
+          <input id="pDocument" placeholder="00.000.000/0000-00">
         </div>
         <div class="field">
-          <label>WhatsApp de Pedidos *</label>
+          <label>WhatsApp para receber pedidos</label>
           <input id="pWhats" placeholder="DDD + Número">
         </div>
         <div class="field">
-          <label>Endereço Completo com Bairro *</label>
+          <label>Endereço completo</label>
           <input id="pAddress" placeholder="Rua, número, bairro">
         </div>
         <div class="field">
           <label>Categoria</label>
           <select id="pCategory">
             <option value="Alimentação">Alimentação</option>
-            <option value="Pastelaria">Pastelaria</option>
-            <option value="Lanchonete">Lanchonete</option>
-            <option value="Açaí / Sorvete">Açaí / Sorvete</option>
             <option value="Farmácia">Farmácia</option>
             <option value="Mercado">Mercado</option>
+            <option value="Pet Shop">Pet Shop</option>
+            <option value="Perfumaria">Perfumaria</option>
+            <option value="Loja">Loja</option>
+            <option value="Serviços">Serviços</option>
             <option value="Outro">Outro</option>
           </select>
         </div>
         <div class="field">
-          <label>Plano de Parceria</label>
+          <label>Escolha seu Plano de Parceria</label>
           <select id="pPlan">
             <option value="flex">Plano Flex (R$ 1,99 por pedido)</option>
             <option value="porcentagem">Plano Porcentagem (6% por venda)</option>
@@ -1608,16 +1678,13 @@
           </select>
         </div>
         <div class="field">
-          <label>Chave Pix da Loja</label>
-          <input id="pPix" placeholder="Para receber pagamentos">
-        </div>
-        <div class="field">
-          <label>Logo da Loja (URL ou Upload)</label>
-          <input id="pLogoUrl" placeholder="https://..." oninput="previewDirect('pLogoUrl', 'partnerPreview')">
+          <label>Logo / Foto da Loja (Proporção Quadrada 1:1 - 400x400 px)</label>
+          <input id="pLogoUrl" placeholder="Cole o link da imagem (https://...)" oninput="previewDirect('pLogoUrl', 'partnerPreview')">
           <input type="file" accept="image/*" onchange="previewUpload(this, 'partnerPreview', 'pLogoUrl', 400)">
           <div id="partnerPreview" class="file-preview">Prévia da Logo</div>
         </div>
-        <button class="btn green" onclick="submitPartner()">Enviar Cadastro para Análise</button>
+        <button class="btn green" onclick="submitPartner()">Enviar cadastro para análise</button>
+        <p class="hint">A Central R1 fará a aprovação no painel administrativo.</p>
       </div>
     </div>
   </div>
@@ -1625,6 +1692,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
+    /* 1. REGISTRO DO SERVICE WORKER E PWA */
     let deferredPrompt = null;
     window.deferredPrompt = null;
 
@@ -1638,6 +1706,7 @@
       const isStandalone = isAppInstalled();
       const floatingBtn = document.getElementById("floatingInstallBtn");
       const banner = document.getElementById("pwaBanner");
+
       if (isStandalone) {
         if (floatingBtn) floatingBtn.style.display = "none";
         if (banner) banner.classList.add("hidden");
@@ -1645,13 +1714,18 @@
     }
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).then((reg) => {
+        console.log("Service Worker registrado:", reg.scope);
+      }).catch((err) => {
+        console.warn("Service Worker:", err);
+      });
     }
 
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
       window.deferredPrompt = e;
+
       if (!isAppInstalled()) {
         const banner = document.getElementById("pwaBanner");
         if (banner) banner.classList.remove("hidden");
@@ -1664,26 +1738,95 @@
       const promptEvent = window.deferredPrompt || deferredPrompt;
       if (promptEvent) {
         promptEvent.prompt();
-        promptEvent.userChoice.then((res) => {
-          if (res.outcome === "accepted") toast("✅ App instalado!");
+        promptEvent.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            toast("✅ Aplicativo R1 SHOP instalado com sucesso!");
+            hideAllInstallPrompts();
+          }
           deferredPrompt = null;
           window.deferredPrompt = null;
         });
       } else {
-        toast("Toque nos 3 pontinhos > 'Adicionar à tela inicial'");
+        toast("Toque nos 3 pontinhos do Chrome > 'Adicionar à tela inicial'");
       }
     }
 
-    function navToHome() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-    function navToSearch() {
-      const s = document.getElementById("search");
-      if (s) { s.focus(); s.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-    }
-    function navToCart() {
-      if (cart.length > 0) openCart();
-      else toast("Seu carrinho está vazio.");
+    function hideAllInstallPrompts() {
+      const banner = document.getElementById("pwaBanner");
+      if (banner) banner.classList.add("hidden");
+      const floatingBtn = document.getElementById("floatingInstallBtn");
+      if (floatingBtn) floatingBtn.style.display = "none";
     }
 
+    /* 2. CONTROLE DE NAVEGAÇÃO DA BARRA DE RODAPÉ */
+    function navToHome() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function navToSearch() {
+      const s = document.getElementById("search");
+      if (s) {
+        s.focus();
+        s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function navToCart() {
+      if (cart.length > 0) {
+        openCart();
+      } else {
+        toast("Seu carrinho está vazio.");
+      }
+    }
+
+    /* 3. ARMAZENAMENTO PERSISTENTE (INDEXEDDB E FIREBASE) */
+    const DB_NAME = "r1_marketplace_db_stable";
+    const STORE_NAME = "platform_data";
+
+    function openIDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 2);
+        req.onupgradeneeded = (e) => {
+          const dbObj = e.target.result;
+          if (!dbObj.objectStoreNames.contains(STORE_NAME)) {
+            dbObj.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function setIDB(key, val) {
+      try {
+        const dbObj = await openIDB();
+        return new Promise((resolve, reject) => {
+          const tx = dbObj.transaction(STORE_NAME, "readwrite");
+          const store = tx.objectStore(STORE_NAME);
+          const req = store.put(val, key);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function getIDB(key) {
+      try {
+        const dbObj = await openIDB();
+        return new Promise((resolve) => {
+          const tx = dbObj.transaction(STORE_NAME, "readonly");
+          const req = tx.objectStore(STORE_NAME).get(key);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    /* CREDENCIAIS REAIS DO FIREBASE CONFIGURADAS */
     const firebaseConfig = {
       apiKey: "AIzaSyDr1B-SDuq4V1lxbrgCHm8TyLSIdfEohZY",
       authDomain: "r1-parceiros.firebaseapp.com",
@@ -1693,28 +1836,118 @@
       appId: "1:511261654273:web:0dfbfa8e92828db829ef00"
     };
 
+    let isFirebaseReady = false;
     let fsDb = null;
+
     try {
-      firebase.initializeApp(firebaseConfig);
-      fsDb = firebase.firestore();
-    } catch(e) {}
+      if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
+        firebase.initializeApp(firebaseConfig);
+        fsDb = firebase.firestore();
+        isFirebaseReady = true;
+      }
+    } catch (e) {
+      console.warn("Firebase local.");
+    }
 
     const DB_KEY = "r1_marketplace_red_black_v21_final";
-    let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || {
-      config: { appName: "R1 SHOP", appSubtitle: "Marketplace Oficial", appLogo: "", adminUser: "admin", adminPass: "1234", banners: [] },
-      partners: [],
-      motoboys: [],
+    const seed = {
+      config: {
+        appName: "R1 SHOP",
+        appSubtitle: "Marketplace Oficial",
+        appLogo: "",
+        adminUser: "admin",
+        adminPass: "1234",
+        whatsappGroupLink: "",
+        mapProvider: "none",
+        mapApiKey: "",
+        aiProvider: "none",
+        aiApiKey: "",
+        baseDeliveryKm: 4,
+        baseDeliveryFee: 7.00,
+        extraKmFee: 0.80,
+        banners: []
+      },
+      partners: [
+        {
+          id: 1,
+          name: "Pudim da Claudinha",
+          owner: "Claudinha",
+          document: "00.000.000/0001-00",
+          username: "claudinha",
+          pass: "1234",
+          whatsapp: "5518991111111",
+          pixType: "Celular",
+          pixKey: "18991111111",
+          address: "Rua João de Castro, 243 - IV Centenário",
+          lat: -22.6580,
+          lng: -50.4180,
+          category: "Alimentação",
+          plan: "flex",
+          deliveryType: "fixed",
+          status: "approved",
+          paymentStatus: "paid",
+          open: true,
+          blocked: false,
+          delivery: "R$ 7,00",
+          time: "25 - 40 min",
+          minOrder: 15.00,
+          socials: { instagram: "pudimclaudinha", facebook: "", youtube: "" },
+          acceptedPayments: ["Pix", "Dinheiro", "Visa", "Mastercard", "Elo", "Alelo"],
+          logo: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=200",
+          banner: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=800",
+          statuses: [
+            { 
+              type: "video", 
+              url: "https://www.w3schools.com/html/mov_bbb.mp4", 
+              title: "Pudim Tradicional Especial",
+              actionType: "whatsapp",
+              actionTarget: "Pudim Tradicional Especial"
+            }
+          ],
+          categories: [
+            {
+              name: "PUDIM CAKE - SOB ENCOMENDA",
+              products: [
+                { id: "p1", name: "Pudim Tradicional Especial", desc: "Pudim cremoso com calda de caramelo artesanal feito sob encomenda.", price: 15, isPromo: true, image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=300", paused: false },
+                { id: "p2", name: "Pudim de Chocolate Nobre", desc: "Chocolate cremoso 50% cacau sob encomenda.", price: 18, isPromo: false, image: "", paused: false }
+              ]
+            }
+          ]
+        }
+      ],
+      motoboys: [
+        {
+          id: 101,
+          name: "César Silvério",
+          nick: "Césinha Fz",
+          username: "motoboy1",
+          pass: "1234",
+          phone: "18997734471",
+          vehicle: "Honda CG 160 / Yamaha FZ25",
+          pix: "18997734471",
+          status: "approved",
+          online: true,
+          lat: -22.6590,
+          lng: -50.4190,
+          currentOrderId: null
+        }
+      ],
       pending: [],
       pendingMotoboys: [],
       orders: [],
       clients: []
     };
 
+    let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || seed;
+
     function ensureDbIntegrity() {
-      if (!db || typeof db !== "object") db = {};
-      if (!db.config) db.config = { appName: "R1 SHOP", appSubtitle: "Marketplace Oficial", adminUser: "admin", adminPass: "1234", banners: [] };
-      if (!Array.isArray(db.partners)) db.partners = [];
-      if (!Array.isArray(db.motoboys)) db.motoboys = [];
+      if (!db || typeof db !== "object") db = seed;
+      if (!db.config) db.config = seed.config;
+      if (!db.config.adminUser) db.config.adminUser = "admin";
+      if (!db.config.adminPass) db.config.adminPass = "1234";
+      if (!db.config.banners) db.config.banners = [];
+      if (!Array.isArray(db.partners)) db.partners = seed.partners;
+      if (!Array.isArray(db.motoboys)) db.motoboys = seed.motoboys;
       if (!Array.isArray(db.orders)) db.orders = [];
       if (!Array.isArray(db.clients)) db.clients = [];
       if (!Array.isArray(db.pending)) db.pending = [];
@@ -1732,41 +1965,74 @@
     let centralSelectedPartnerId = "all";
     let reportFilterPeriod = "todos";
     let motoboyReportFilterPeriod = "todos";
+
     let adminSessionActive = false;
     let adminTabHistory = [];
     let logoSecretClicks = 0;
     let logoSecretTimer = null;
+
     let activeStoryPartner = null;
     let activeStoryIndex = 0;
     let storyTimer = null;
+
     let activeClientMap = null;
     let activeCentralMap = null;
     let motoboyWatchId = null;
 
-    function save() {
+    async function save() {
       ensureDbIntegrity();
-      try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
-      if (fsDb) {
-        fsDb.collection("marketplace").doc("main_data").set(db).catch(() => {});
+      await setIDB("main_data", db);
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (err) {}
+
+      if (isFirebaseReady && fsDb) {
+        fsDb.collection("marketplace").doc("main_data").set(db)
+          .then(() => {
+            console.log("✅ Nuvem sincronizada!");
+          })
+          .catch(err => {
+            console.error("Erro Firebase:", err);
+          });
       }
     }
 
-    function initDatabase() {
-      if (fsDb) {
-        fsDb.collection("marketplace").doc("main_data").onSnapshot(doc => {
-          if (doc.exists && doc.data()) {
-            db = doc.data();
-            ensureDbIntegrity();
-            try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
-            renderHome();
-          }
-        });
+    async function initDatabase() {
+      const idbData = await getIDB("main_data");
+      if (idbData && idbData.partners && idbData.partners.length > 0) {
+        db = idbData;
+      } else {
+        const local = localStorage.getItem(DB_KEY);
+        if (local) {
+          try { db = JSON.parse(local); } catch (e) {}
+        }
       }
+      ensureDbIntegrity();
+
       renderHome();
       checkInstallButtonsVisibility();
+
+      if (isFirebaseReady && fsDb) {
+        fsDb.collection("marketplace").doc("main_data").onSnapshot((doc) => {
+          if (doc.exists && doc.data() && doc.data().partners && doc.data().partners.length > 0) {
+            db = doc.data();
+            ensureDbIntegrity();
+            setIDB("main_data", db);
+            try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {}
+            renderHome();
+          } else {
+            save();
+          }
+        }, (err) => {
+          console.warn("Aviso Firestore:", err);
+        });
+      }
     }
 
-    function money(v) { return (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+    function money(v) {
+      return (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
     function toast(t) {
       const x = document.getElementById("toast");
       if (!x) return;
@@ -1776,8 +2042,14 @@
       window.tt = setTimeout(() => x.style.display = "none", 2500);
     }
 
-    function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add("show"); }
-    function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.remove("show"); }
+    function openModal(id) { 
+      const el = document.getElementById(id);
+      if (el) el.classList.add("show"); 
+    }
+    function closeModal(id) { 
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("show"); 
+    }
 
     function togglePasswordVisibility(inputId) {
       const input = document.getElementById(inputId);
@@ -1788,21 +2060,33 @@
       logoSecretClicks++;
       clearTimeout(logoSecretTimer);
       logoSecretTimer = setTimeout(() => { logoSecretClicks = 0; }, 1500);
+
       if (logoSecretClicks >= 5) {
         logoSecretClicks = 0;
         document.getElementById("loginType").value = "central";
         updateLoginHint();
-        if (adminSessionActive && adminMode === "central") openAdminPanel();
-        else openModal("loginModal");
+        if (adminSessionActive && adminMode === "central") {
+          openAdminPanel();
+        } else {
+          openModal("loginModal");
+        }
       }
     }
 
     function openStoreLoginDirect(storeId) {
       document.getElementById("loginType").value = "store";
       const partner = db.partners.find(p => p.id === storeId);
-      if (partner) document.getElementById("loginUser").value = partner.username || partner.id;
+      if (partner) {
+        document.getElementById("loginUser").value = partner.username || partner.id;
+      }
       updateLoginHint();
       openModal("loginModal");
+    }
+
+    function requestPasswordResetWhatsApp() {
+      const whatsCentral = "5518997734471";
+      const msg = `Olá, Central R1! Preciso de suporte para redefinir a minha senha de acesso na plataforma ${db.config.appName || 'R1 SHOP'}.`;
+      window.open(`https://wa.me/${whatsCentral}?text=${encodeURIComponent(msg)}`, "_blank");
     }
 
     function updateAppHeaderVisuals() {
@@ -1810,46 +2094,84 @@
       document.getElementById("headerAppTitle").textContent = c.appName || "R1 SHOP";
       document.getElementById("headerAppSubtitle").textContent = c.appSubtitle || "Marketplace Oficial";
       const logoEl = document.getElementById("headerAppLogo");
-      if (c.appLogo) logoEl.innerHTML = `<img src="${c.appLogo}" alt="Logo">`;
-      else logoEl.innerHTML = "R1";
+      if (c.appLogo && (c.appLogo.startsWith("http") || c.appLogo.startsWith("data:image") || c.appLogo.startsWith("blob:"))) {
+        logoEl.innerHTML = `<img src="${c.appLogo}" alt="Logo">`;
+      } else {
+        logoEl.innerHTML = "R1";
+      }
     }
 
     function renderMedia(src, fallbackText) {
       if (src && (src.startsWith("http") || src.startsWith("data:image") || src.startsWith("blob:"))) {
         return `<img src="${src}" alt="media" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=200';">`;
       }
-      return `🏪`;
+      return `<svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:#888;"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>`;
     }
 
     function previewDirect(inputId, previewId) {
       const val = document.getElementById(inputId).value.trim();
       const el = document.getElementById(previewId);
-      if (val) el.innerHTML = `<img src="${val}" alt="preview">`;
-      else el.innerHTML = "Prévia";
+      if (val) {
+        const isVid = val.endsWith(".mp4") || val.includes("video");
+        el.innerHTML = isVid 
+          ? `<video src="${val}" controls style="width:100%;height:100%;object-fit:contain;"></video>`
+          : `<img src="${val}" alt="preview">`;
+      } else {
+        el.innerHTML = "Prévia";
+      }
     }
 
     function previewUpload(input, previewElementId, targetInputId, maxDim = 400) {
       const file = input.files[0];
       if (!file) return;
+
       const previewEl = document.getElementById(previewElementId);
-      previewEl.innerHTML = "<small>Processando...</small>";
+      previewEl.innerHTML = "<small style='color:#666;'>Processando...</small>";
+
+      if (file.type.startsWith("video")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          if (targetInputId) document.getElementById(targetInputId).value = base64;
+          previewEl.innerHTML = `<video src="${base64}" controls style="width:100%;height:100%;object-fit:contain;"></video>`;
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-          let width = img.width, height = img.height;
+          let width = img.width;
+          let height = img.height;
+
           if (width > height) {
-            if (width > maxDim) { height = Math.round((height * maxDim) / width); width = maxDim; }
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
           } else {
-            if (height > maxDim) { width = Math.round((width * maxDim) / height); height = maxDim; }
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
           }
+
           const canvas = document.createElement("canvas");
-          canvas.width = width; canvas.height = height;
+          canvas.width = width;
+          canvas.height = height;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
-          const base64 = canvas.toDataURL("image/jpeg", 0.65);
-          if (targetInputId) document.getElementById(targetInputId).value = base64;
-          previewEl.innerHTML = `<img src="${base64}">`;
+
+          const optimizedBase64 = canvas.toDataURL("image/jpeg", 0.65);
+
+          if (targetInputId) {
+            const inputTarget = document.getElementById(targetInputId);
+            if (inputTarget) inputTarget.value = optimizedBase64;
+          }
+
+          previewEl.innerHTML = `<img src="${optimizedBase64}" alt="preview">`;
         };
         img.src = e.target.result;
       };
@@ -1857,57 +2179,319 @@
     }
 
     async function buscarCep(cepVal) {
-      const clean = (cepVal || "").replace(/\D/g, "");
-      if (clean.length !== 8) return;
+      const cleanCep = (cepVal || "").replace(/\D/g, "");
+      if (cleanCep.length !== 8) return;
+
       try {
-        const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+        toast("Buscando CEP...");
+        const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
         const data = await res.json();
         if (!data.erro) {
           document.getElementById("cStreet").value = data.logradouro || "";
           document.getElementById("cNeighborhood").value = data.bairro || "";
           document.getElementById("cCity").value = `${data.localidade || 'Assis'} - ${data.uf || 'SP'}`;
+          document.getElementById("cNumber").focus();
+          toast("Endereço preenchido!");
+        } else {
+          toast("CEP não encontrado.");
         }
-      } catch(e) {}
+      } catch (err) {
+        console.warn("Erro ao buscar CEP:", err);
+      }
     }
 
     function sharePlatform() {
-      if (navigator.share) navigator.share({ title: db.config.appName, url: window.location.href }).catch(() => {});
-      else { navigator.clipboard.writeText(window.location.href); toast("Link copiado!"); }
+      const shareData = {
+        title: `${db.config.appName || 'R1 SHOP'} - Marketplace & Entregas`,
+        text: "Peça nos melhores comércios locais com rapidez e entrega garantida!",
+        url: window.location.href
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        toast("Link copiado!");
+      }
     }
 
     function shareStore() {
       if (!currentPartner) return;
-      const url = `${window.location.origin}${window.location.pathname}?loja=${currentPartner.id}`;
-      navigator.clipboard.writeText(url);
-      toast("Link da loja copiado!");
+      const shareUrl = `${window.location.origin}${window.location.pathname}?loja=${currentPartner.id}`;
+      const shareData = {
+        title: `${currentPartner.name} - ${db.config.appName || 'R1 SHOP'}`,
+        text: `Confira o cardápio e faça seu pedido em ${currentPartner.name}!`,
+        url: shareUrl
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareUrl);
+        toast(`Link copiado!`);
+      }
+    }
+
+    function shareOrderToMotoboysGroup(orderId) {
+      const order = (db.orders || []).find(o => o.id === orderId);
+      if (!order) return toast("Pedido não encontrado.");
+
+      const storeFee = order.deliveryFeeText || "R$ 8,00";
+      const acceptUrl = `${window.location.origin}${window.location.pathname}?corrida=${order.id}`;
+
+      let msg = [];
+      msg.push(`🛵 *NOVA CORRIDA R1 DISPONÍVEL!*`);
+      msg.push(`📦 *Pedido:* ${order.id}`);
+      msg.push(`🏪 *Retirada:* ${order.storeName} (${order.storeAddress || 'Endereço da Loja'})`);
+      msg.push(`🏠 *Entrega:* ${order.customerName} - ${order.customerAddress}`);
+      msg.push(`💰 *Taxa do Frete:* ${storeFee}`);
+      if (order.payment === "Cartão na entrega") {
+        msg.push(`💳 *Retorno Maquininha:* Sim (+50% adicional)`);
+      }
+      msg.push(`-----------------------------------`);
+      msg.push(`👉 *Toque no link abaixo para aceitar ou recusar no seu App:*`);
+      msg.push(`${acceptUrl}`);
+
+      const fullText = msg.join("\n");
+      const groupLink = db.config.whatsappGroupLink;
+
+      if (groupLink && groupLink.startsWith("http")) {
+        window.open(`${groupLink}`, "_blank");
+      } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`, "_blank");
+      }
+    }
+
+    function renderStatusList() {
+      const partnersWithStatus = (db.partners || []).filter(p => p.status === "approved" && !p.blocked && p.statuses && p.statuses.length > 0);
+      const containerBox = document.getElementById("statusContainerBox");
+      
+      if (!partnersWithStatus.length) {
+        containerBox.classList.add("hidden");
+        return;
+      }
+
+      containerBox.classList.remove("hidden");
+      document.getElementById("statusList").innerHTML = partnersWithStatus.map(p => `
+        <div class="status-item" onclick="openStatusStories(${p.id})">
+          <div class="status-ring">
+            <div class="status-avatar">${renderMedia(p.logo, "")}</div>
+          </div>
+          <span class="status-name">${p.name}</span>
+        </div>
+      `).join("");
+    }
+
+    function openStatusStories(partnerId) {
+      const p = db.partners.find(x => x.id === partnerId);
+      if (!p || p.blocked || !p.statuses || !p.statuses.length) return;
+
+      activeStoryPartner = p;
+      activeStoryIndex = 0;
+
+      document.getElementById("storyHeaderTitle").textContent = p.name;
+      document.getElementById("storyHeaderAvatar").innerHTML = renderMedia(p.logo, "");
+      
+      const modal = document.getElementById("statusStoryModal");
+      modal.classList.add("show");
+
+      renderStorySegments();
+      showCurrentStory();
+    }
+
+    function renderStorySegments() {
+      const container = document.getElementById("storyProgressContainer");
+      container.innerHTML = activeStoryPartner.statuses.map((_, i) => `
+        <div class="story-progress-seg">
+          <div class="story-progress-fill" id="storyFill_${i}"></div>
+        </div>
+      `).join("");
+    }
+
+    function showCurrentStory() {
+      clearTimeout(storyTimer);
+      const statuses = activeStoryPartner.statuses;
+      if (!statuses || !statuses[activeStoryIndex]) {
+        closeStatusStories();
+        return;
+      }
+
+      statuses.forEach((_, i) => {
+        const fill = document.getElementById(`storyFill_${i}`);
+        if (fill) {
+          fill.style.width = (i <= activeStoryIndex) ? "100%" : "0%";
+        }
+      });
+
+      const current = statuses[activeStoryIndex];
+      const container = document.getElementById("storyMediaContainer");
+      const isVideo = current.type === "video" || (current.url && (current.url.endsWith(".mp4") || current.url.startsWith("data:video")));
+
+      if (isVideo) {
+        container.innerHTML = `<video id="storyVideoEl" src="${current.url}" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+        const videoEl = document.getElementById("storyVideoEl");
+        videoEl.onended = () => nextStory();
+        videoEl.onerror = () => { storyTimer = setTimeout(() => nextStory(), 4000); };
+      } else {
+        container.innerHTML = `<img src="${current.url}" alt="Status Story" style="width:100%;height:100%;object-fit:cover;">`;
+        storyTimer = setTimeout(() => nextStory(), 5000);
+      }
+
+      const btn = document.getElementById("storyCtaBtn");
+      if (current.title) {
+        btn.innerHTML = `🛍️ Pedir: ${current.title}`;
+      } else {
+        btn.innerHTML = `🛍️ Pedir no WhatsApp da Loja`;
+      }
+    }
+
+    function handleStoryAction() {
+      if (!activeStoryPartner) return;
+      const current = activeStoryPartner.statuses[activeStoryIndex] || {};
+      const targetName = current.actionTarget || current.title || "Oferta do Vídeo / Destaque";
+      
+      let cleanPhone = (activeStoryPartner.whatsapp || "").replace(/\D/g, "");
+      if (cleanPhone.length === 10 || cleanPhone.length === 11) cleanPhone = "55" + cleanPhone;
+
+      const msg = `Olá! Vi o destaque/vídeo de *"${targetName}"* no App ${db.config.appName || 'R1 SHOP'} e gostaria de pedir!`;
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+      closeStatusStories();
+    }
+
+    function nextStory() {
+      if (!activeStoryPartner || !activeStoryPartner.statuses) return;
+      if (activeStoryIndex < activeStoryPartner.statuses.length - 1) {
+        activeStoryIndex++;
+        showCurrentStory();
+      } else {
+        closeStatusStories();
+      }
+    }
+
+    function prevStory() {
+      if (activeStoryIndex > 0) {
+        activeStoryIndex--;
+        showCurrentStory();
+      }
+    }
+
+    function closeStatusStories() {
+      clearTimeout(storyTimer);
+      const v = document.getElementById("storyVideoEl");
+      if (v) v.pause();
+      document.getElementById("statusStoryModal").classList.remove("show");
+    }
+
+    function openCurrentStoreStory() {
+      if (currentPartner && currentPartner.statuses && currentPartner.statuses.length > 0) {
+        openStatusStories(currentPartner.id);
+      }
+    }
+
+    function initDraggableBubble() {
+      const bubble = document.getElementById("storeFloatingBubble");
+      if (!bubble) return;
+
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+
+      function onStart(e) {
+        if (e.target.classList.contains("close-bubble-btn")) return;
+        isDragging = true;
+        const touch = e.touches ? e.touches[0] : e;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = bubble.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches ? e.touches[0] : e;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        newLeft = Math.max(10, Math.min(window.innerWidth - bubble.offsetWidth - 10, newLeft));
+        newTop = Math.max(60, Math.min(window.innerHeight - bubble.offsetHeight - 70, newTop));
+
+        bubble.style.left = `${newLeft}px`;
+        bubble.style.top = `${newTop}px`;
+        bubble.style.right = 'auto';
+        bubble.style.bottom = 'auto';
+      }
+
+      function onEnd() {
+        isDragging = false;
+      }
+
+      bubble.addEventListener("touchstart", onStart, { passive: true });
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("touchend", onEnd);
+
+      bubble.addEventListener("mousedown", onStart);
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onEnd);
+    }
+
+    function renderAppBanners() {
+      const box = document.getElementById("appBannersBox");
+      const banners = (db.config && db.config.banners) ? db.config.banners : [];
+      if (!banners.length) {
+        box.classList.add("hidden");
+        return;
+      }
+      box.classList.remove("hidden");
+      box.innerHTML = banners.map(b => `
+        <div class="app-banner-card" onclick="${b.link ? `window.open('${b.link}', '_blank')` : ''}">
+          <img src="${b.image}" alt="${b.title || 'Banner'}">
+        </div>
+      `).join("");
     }
 
     function renderPartnerTicker() {
       const track = document.getElementById("partnerTickerTrack");
       if (!track) return;
-      const active = (db.partners || []).filter(p => p.status === "approved" && !p.blocked);
-      if (!active.length) { track.parentElement.classList.add("hidden"); return; }
+
+      const activePartners = (db.partners || []).filter(p => p.status === "approved" && !p.blocked);
+      if (!activePartners.length) {
+        track.parentElement.classList.add("hidden");
+        return;
+      }
+
       track.parentElement.classList.remove("hidden");
-      const html = active.map(p => `
+
+      const itemsHtml = activePartners.map(p => `
         <div class="ticker-item" onclick="openCatalog(${p.id})">
           <div class="ticker-logo">${renderMedia(p.logo, "")}</div>
           <span>${p.name}</span>
           <span class="ticker-sep">|</span>
         </div>
       `).join("");
-      track.innerHTML = html + html + html;
+
+      track.innerHTML = itemsHtml + itemsHtml + itemsHtml;
     }
 
     function renderHome() {
       updateAppHeaderVisuals();
+      renderStatusList();
+      renderAppBanners();
       renderPartnerTicker();
       checkInstallButtonsVisibility();
       const q = (document.getElementById("search").value || "").toLowerCase().trim();
       
-      const partners = (db.partners || []).filter(p => p.status === "approved" && !p.blocked).filter(p => {
-        if (!q) return true;
-        return (p.name + " " + p.category + " " + p.address).toLowerCase().includes(q);
-      });
+      const partners = (db.partners || [])
+        .filter(p => p.status === "approved" && !p.blocked)
+        .filter(p => {
+          if (!q) return true;
+          const matchStore = (p.name + " " + p.category + " " + p.address).toLowerCase().includes(q);
+          const matchProduct = p.categories && p.categories.some(c => 
+            c.products && c.products.some(prod => (prod.name + " " + (prod.desc || "")).toLowerCase().includes(q))
+          );
+          return matchStore || matchProduct;
+        });
 
       document.getElementById("storeCount").textContent = `${partners.length} lojas`;
       document.getElementById("stores").innerHTML = partners.map(p => `
@@ -1918,25 +2502,30 @@
             <div class="address">📍 ${p.address}</div>
             <span class="status ${p.open ? '' : 'closed'}">${p.open ? '● Aberto' : '● Fechado'}</span>
             <div class="store-meta">
-              <span>◷ ${p.time || '30-50 min'}</span>
+              <span>◷ ${p.time}</span>
               <span>Min: ${money(p.minOrder || 0)}</span>
-              <b>🏍️ ${p.delivery || 'R$ 8,00'}</b>
+              <b>🏍️ ${p.delivery}</b>
             </div>
           </div>
-          <div class="store-arrow">➔</div>
+          <div class="store-arrow">
+            <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
         </article>
-      `).join("") || '<div class="panel">Nenhuma loja cadastrada ainda. Seja a primeira!</div>';
+      `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
       let promo = [];
       (db.partners || []).filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         (p.categories || []).forEach(c => {
           (c.products || []).forEach(x => {
-            if (x.isPromo && !x.paused) promo.push({ ...x, store: p.name, partner: p.id });
+            if (x.isPromo && !x.paused) {
+              promo.push({ ...x, store: p.name, partner: p.id });
+            }
           });
         });
       });
 
-      document.getElementById("promos").innerHTML = promo.slice(0, 10).map(x => `
+      promo = promo.slice(0, 10);
+      document.getElementById("promos").innerHTML = promo.map(x => `
         <div class="promo" onclick="openCatalog(${x.partner})">
           <div class="promo-img">${renderMedia(x.image, "")}</div>
           <span class="tag">🔥 PROMOÇÃO</span>
@@ -1951,42 +2540,78 @@
 
     function openCatalog(id) {
       currentPartner = db.partners.find(p => p.id === id);
-      if (!currentPartner || currentPartner.blocked) return toast("Loja indisponível.");
+      if (!currentPartner || currentPartner.blocked) {
+        return toast("Estabelecimento indisponível no momento.");
+      }
       cart = [];
       updateCart();
 
       document.getElementById("catalogName").textContent = currentPartner.name;
       document.getElementById("catalogAddress").textContent = "📍 " + currentPartner.address;
+
       document.getElementById("pixTypeLabel").textContent = currentPartner.pixType || "Chave Pix";
-      document.getElementById("pixKeyDisplay").value = currentPartner.pixKey || "Consulte a loja";
+      document.getElementById("pixKeyDisplay").value = currentPartner.pixKey || "Consulte com a loja";
+
+      const soc = currentPartner.socials || {};
+      const accepted = currentPartner.acceptedPayments || ["Pix", "Dinheiro", "Cartão na entrega"];
+
+      const bubble = document.getElementById("storeFloatingBubble");
+      if (currentPartner.statuses && currentPartner.statuses.length > 0) {
+        const first = currentPartner.statuses[0];
+        document.getElementById("bubbleMediaPreview").innerHTML = first.type === "video" 
+          ? `<video src="${first.url}" style="width:100%;height:100%;object-fit:cover;"></video>` 
+          : `<img src="${first.url}" style="width:100%;height:100%;object-fit:cover;">`;
+        bubble.classList.remove("hidden");
+        initDraggableBubble();
+      } else {
+        bubble.classList.add("hidden");
+      }
 
       document.getElementById("catalogContent").innerHTML = `
         <div class="catalog-cover">
           <div class="cover-media">${renderMedia(currentPartner.banner || currentPartner.logo, "")}</div>
           <h2>${currentPartner.name}</h2>
           <p>${currentPartner.category} · ${currentPartner.address}</p>
+          
           <div class="catalog-badges">
             <span class="catalog-badge" style="background:${currentPartner.open ? 'var(--green)' : 'var(--primary)'}">
-              ${currentPartner.open ? '● Aberta' : '● Fechada'}
+              ${currentPartner.open ? '● Aberta Agora' : '● Fechada'}
             </span>
-            <span class="catalog-badge">Pedido mín. ${money(currentPartner.minOrder || 0)}</span>
-            <span class="catalog-badge">Entrega: ${currentPartner.delivery || 'R$ 8,00'}</span>
+            <span class="catalog-badge">◷ ${currentPartner.time}</span>
+            <span class="catalog-badge">Pedido mínimo ${money(currentPartner.minOrder || 0)}</span>
+            <span class="catalog-badge">Entrega: ${currentPartner.delivery}</span>
+          </div>
+
+          <!-- REDES SOCIAIS CONDICIONAIS -->
+          ${(soc.instagram || soc.facebook || soc.youtube || currentPartner.whatsapp) ? `
+            <div class="social-links">
+              ${soc.instagram ? `<a href="https://instagram.com/${soc.instagram.replace('@','')}" target="_blank" class="social-btn">📷 Instagram</a>` : ''}
+              ${soc.facebook ? `<a href="${soc.facebook}" target="_blank" class="social-btn">📘 Facebook</a>` : ''}
+              ${soc.youtube ? `<a href="${soc.youtube}" target="_blank" class="social-btn">📺 YouTube</a>` : ''}
+              ${currentPartner.whatsapp ? `<a href="https://wa.me/55${currentPartner.whatsapp.replace(/\D/g,'')}" target="_blank" class="social-btn" style="background:var(--green)">💬 WhatsApp</a>` : ''}
+            </div>
+          ` : ''}
+
+          <!-- FORMAS DE PAGAMENTO ACEITAS -->
+          <div class="payment-badges-list">
+            <small style="width:100%;color:#bbb;font-size:11px;display:block;">Formas de pagamento aceitas:</small>
+            ${accepted.map(pay => `<span class="pay-badge">✓ ${pay}</span>`).join("")}
           </div>
         </div>
 
         <div class="catalog-cats">
           ${(currentPartner.categories || []).map(c => `
-            <section class="cat open">
+            <section class="cat">
               <button class="cat-head" onclick="this.parentElement.classList.toggle('open')">
                 <span>${c.name} (${(c.products || []).filter(x => !x.paused).length})</span>
-                <span>▼</span>
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
               </button>
               <div class="products">
                 ${(c.products || []).map(x => `
                   <article class="product ${x.paused ? 'paused' : ''}">
                     <div>
                       ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO</span><br>` : ''}
-                      <h3>${x.name}</h3>
+                      <h3>${x.name} ${x.paused ? '<small style="color:red">(Pausado)</small>' : ''}</h3>
                       <p>${x.desc || ""}</p>
                       <div class="price">${money(Number(x.price))}</div>
                     </div>
@@ -1995,12 +2620,19 @@
                       ${!x.paused ? `<button class="add" onclick='addCart(${JSON.stringify(x.name)}, ${Number(x.price)}, ${JSON.stringify(x.image || '')})'>+</button>` : ''}
                     </div>
                   </article>
-                `).join("") || '<p style="padding:15px;color:var(--muted)">Nenhum produto cadastrado.</p>'}
+                `).join("") || '<p style="padding:15px;color:var(--muted)">Nenhum produto nesta categoria.</p>'}
               </div>
             </section>
-          `).join("") || '<div class="panel">Cardápio em atualização.</div>'}
+          `).join("") || '<div class="panel">Nenhuma categoria cadastrada ainda.</div>'}
+        </div>
+
+        <div style="text-align:center;padding:25px 0 10px;">
+          <button style="background:transparent;border:0;color:#999;font-size:12px;text-decoration:underline;" onclick="openStoreLoginDirect(${currentPartner.id})">
+            Área do Lojista (${currentPartner.name})
+          </button>
         </div>
       `;
+
       openModal("catalogModal");
     }
 
@@ -2015,35 +2647,97 @@
     function updateCart() {
       const n = cart.reduce((a, x) => a + x.qty, 0);
       const t = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      
       document.getElementById("fab").classList.toggle("hidden", !n);
-      document.getElementById("fabCount").textContent = `${n} itens`;
+      document.getElementById("fabCount").textContent = `${n} item${n === 1 ? '' : 's'}`;
       document.getElementById("fabTotal").textContent = money(t);
+
       const navBadge = document.getElementById("navCartBadge");
-      if (navBadge) { navBadge.textContent = n; navBadge.classList.toggle("hidden", !n); }
+      if (navBadge) {
+        navBadge.textContent = n;
+        navBadge.classList.toggle("hidden", !n);
+      }
+
+      const catBar = document.getElementById("catalogFloatingBar");
+      if (catBar) {
+        catBar.classList.toggle("hidden", !n);
+        document.getElementById("catalogBarItems").textContent = `${n} item${n === 1 ? '' : 's'}`;
+        document.getElementById("catalogBarTotal").textContent = money(t);
+      }
+    }
+
+    function goToCheckoutFromCatalog() {
+      const minVal = currentPartner?.minOrder || 0;
+      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      if (total < minVal) {
+        toast(`⚠️ Pedido mínimo de ${money(minVal)}. Adicione mais itens!`);
+        return;
+      }
+      closeModal("catalogModal");
+      openCart();
     }
 
     function openCart() {
-      if (currentPartner) document.getElementById("storeDeliveryFeeDisplay").textContent = `Taxa: ${currentPartner.delivery || 'R$ 8,00'}`;
+      const savedClient = JSON.parse(localStorage.getItem("r1_customer_profile") || "null");
+      if (savedClient) {
+        if (!document.getElementById("cName").value) document.getElementById("cName").value = savedClient.name || "";
+        if (!document.getElementById("cPhone").value) document.getElementById("cPhone").value = savedClient.phone || "";
+        if (!document.getElementById("cCep").value) document.getElementById("cCep").value = savedClient.cep || "";
+        if (!document.getElementById("cStreet").value) document.getElementById("cStreet").value = savedClient.street || "";
+        if (!document.getElementById("cNumber").value) document.getElementById("cNumber").value = savedClient.number || "";
+        if (!document.getElementById("cNeighborhood").value) document.getElementById("cNeighborhood").value = savedClient.neighborhood || "";
+        if (!document.getElementById("cCity").value) document.getElementById("cCity").value = savedClient.city || "Assis - SP";
+      }
+      if (currentPartner) {
+        document.getElementById("storeDeliveryFeeDisplay").textContent = `Taxa: ${currentPartner.delivery || 'R$ 7,00'}`;
+      }
+      chooseOrderType("entrega");
       renderCart();
       openModal("cartModal");
     }
 
     function chooseOrderType(type) {
       orderType = type;
-      document.getElementById("typeDelivery").classList.toggle("active", type === "entrega");
-      document.getElementById("typePickup").classList.toggle("active", type === "retirada");
-      document.getElementById("deliveryAddressGroup").classList.toggle("hidden", type === "retirada");
-      document.getElementById("deliveryMotoboyChoiceGroup").classList.toggle("hidden", type === "retirada");
+      const btnDel = document.getElementById("typeDelivery");
+      const btnPic = document.getElementById("typePickup");
+      const addrGroup = document.getElementById("deliveryAddressGroup");
+      const motoGroup = document.getElementById("deliveryMotoboyChoiceGroup");
+
+      if (type === "entrega") {
+        btnDel.classList.add("active");
+        btnPic.classList.remove("active");
+        addrGroup.classList.remove("hidden");
+        motoGroup.classList.remove("hidden");
+      } else {
+        btnPic.classList.add("active");
+        btnDel.classList.remove("active");
+        addrGroup.classList.add("hidden");
+        motoGroup.classList.add("hidden");
+      }
     }
 
     function renderCart() {
       const t = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const minVal = currentPartner?.minOrder || 0;
+      
       document.getElementById("cartTotal").textContent = money(t);
+
+      const warnEl = document.getElementById("minOrderWarning");
+      if (t < minVal) {
+        warnEl.textContent = `⚠️ Atenção: O pedido mínimo desta loja é de ${money(minVal)}.`;
+        warnEl.style.display = "block";
+      } else {
+        warnEl.style.display = "none";
+      }
+
       document.getElementById("cartItems").innerHTML = cart.length ? `
         <div class="cart-items">
           ${cart.map((x, i) => `
             <div class="cart-item">
-              <div><b>${x.name}</b><br><small>${money(x.price)} cada</small></div>
+              <div>
+                <b>${x.name}</b><br>
+                <small style="color:var(--muted)">${money(x.price)} cada</small>
+              </div>
               <div class="qty">
                 <button onclick="qty(${i}, -1)">−</button>
                 <b>${x.qty}</b>
@@ -2052,7 +2746,8 @@
             </div>
           `).join("")}
         </div>
-      ` : '<div class="panel">Seu carrinho está vazio.</div>';
+      ` : '<div class="panel">Seu pedido está vazio.</div>';
+      handlePaymentChange();
     }
 
     function qty(i, n) {
@@ -2070,91 +2765,412 @@
 
     function handlePaymentChange() {
       const pay = document.getElementById("cPayment").value;
-      document.getElementById("pixContainer").classList.toggle("hidden", pay !== "Pix");
-      document.getElementById("cashContainer").classList.toggle("hidden", pay !== "Dinheiro");
+      const pixBox = document.getElementById("pixContainer");
+      const cashBox = document.getElementById("cashContainer");
+
+      pixBox.classList.toggle("hidden", pay !== "Pix");
+      cashBox.classList.toggle("hidden", pay !== "Dinheiro");
+      calculateChange();
     }
 
     function copyPixKey() {
       const k = document.getElementById("pixKeyDisplay").value;
       navigator.clipboard.writeText(k);
-      toast("Chave Pix copiada!");
+      toast("Chave Pix copiada com sucesso!");
+    }
+
+    function handleNeedChange() {
+      const need = document.getElementById("needChange").value;
+      document.getElementById("changeInputGroup").classList.toggle("hidden", need !== "sim");
+      calculateChange();
     }
 
     function calculateChange() {
       const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const need = document.getElementById("needChange").value;
       const cashVal = Number(document.getElementById("cashAmount").value);
       const resEl = document.getElementById("changeResult");
-      if (cashVal > total) resEl.textContent = `Troco: ${money(cashVal - total)}`;
-      else resEl.textContent = "";
+
+      if (need === "sim" && cashVal > 0) {
+        if (cashVal < total) {
+          resEl.textContent = `⚠️ O valor informado (${money(cashVal)}) é menor que o total (${money(total)}).`;
+          resEl.style.color = "var(--primary)";
+        } else {
+          const change = cashVal - total;
+          resEl.textContent = `Troco a devolver: ${money(change)}`;
+          resEl.style.color = "var(--green)";
+        }
+      } else {
+        resEl.textContent = "";
+      }
+    }
+
+    function openMap() {
+      const street = document.getElementById("cStreet").value.trim();
+      const num = document.getElementById("cNumber").value.trim();
+      const city = document.getElementById("cCity").value.trim() || "Assis - SP";
+      const fullAddress = `${street}, ${num}, ${city}`;
+      if (!street) return toast("Informe seu endereço primeiro.");
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`, "_blank");
     }
 
     function sendOrder() {
-      if (!currentPartner || !cart.length) return toast("Adicione itens.");
+      if (!currentPartner || !cart.length) return toast("Adicione produtos ao pedido.");
+      const minVal = currentPartner?.minOrder || 0;
+      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+
+      if (total < minVal) {
+        return toast(`⚠️ O valor total (${money(total)}) não atinge o mínimo de ${money(minVal)}.`);
+      }
+
       const name = document.getElementById("cName").value.trim();
       const phone = document.getElementById("cPhone").value.trim();
+      const cep = document.getElementById("cCep").value.trim();
       const street = document.getElementById("cStreet").value.trim();
       const num = document.getElementById("cNumber").value.trim();
-      const neigh = document.getElementById("cNeighborhood").value.trim();
-      const city = document.getElementById("cCity").value.trim();
+      const neighborhood = document.getElementById("cNeighborhood").value.trim();
+      const city = document.getElementById("cCity").value.trim() || "Assis - SP";
       const note = document.getElementById("cNote").value.trim();
       const pay = document.getElementById("cPayment").value;
 
-      if (!name || !phone) return toast("Preencha nome e WhatsApp.");
-      if (orderType === "entrega" && (!street || !num)) return toast("Preencha o endereço de entrega.");
+      if (!name || !phone) return toast("Preencha seu nome e WhatsApp.");
+      if (orderType === "entrega" && (!street || !num)) return toast("Informe Rua e Número para entrega.");
 
-      const fullAddr = `${street}, ${num} - ${neigh}, ${city}`;
+      const fullAddress = `${street}, ${num} - ${neighborhood}, ${city} (CEP: ${cep})`;
+
+      if (!db.clients) db.clients = [];
+      const cleanPhone = phone.replace(/\D/g, "");
+      const existingClient = db.clients.find(cl => cl.phone.replace(/\D/g, "") === cleanPhone);
+      if (existingClient) {
+        existingClient.name = name;
+        existingClient.address = fullAddress;
+        existingClient.lastOrder = new Date().toISOString();
+      } else {
+        db.clients.push({
+          id: "cli_" + Date.now(),
+          name, phone, address: fullAddress, lastOrder: new Date().toISOString()
+        });
+      }
+
+      localStorage.setItem("r1_customer_profile", JSON.stringify({
+        name, phone, cep, street, number: num, neighborhood, city
+      }));
+
       const id = "R1-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`;
+      const trackingUrl = `${window.location.origin}${window.location.pathname}?rastreio=${id}`;
+
+      let commissionVal = 0;
+      let commissionText = "";
+      const plan = currentPartner.plan || "flex";
+
+      if (plan === "porcentagem") {
+        commissionVal = total * 0.06;
+        commissionText = `${money(commissionVal)} (6%)`;
+      } else if (plan === "pro") {
+        commissionVal = 0;
+        commissionText = "Incluso na Mensalidade";
+      } else {
+        commissionVal = 1.99;
+        commissionText = "R$ 1,99 (Fixo)";
+      }
+
+      let lines = [];
+      lines.push(`🛵 *NOVO PEDIDO: ${id}*`);
+      lines.push(`🏪 *Estabelecimento:* ${currentPartner.name}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`📋 *ITENS DO PEDIDO:*`);
+      cart.forEach(item => {
+        lines.push(`▪️ ${item.qty}x ${item.name} — ${money(item.qty * item.price)}`);
+      });
+      lines.push(`-----------------------------------`);
+      lines.push(`💰 *TOTAL DOS PRODUTOS:* ${money(total)}`);
+      
+      if (orderType === "entrega") {
+        lines.push(`🏍️ *Taxa de Entrega:* ${currentPartner.delivery || 'A combinar'}`);
+        if (pay === "Cartão na entrega") {
+          lines.push(`💳 *Retorno Maquininha (50%):* Sim (Adicional para retorno do motoboy à loja)`);
+        }
+        lines.push(`📦 *MODO:* Entrega no Endereço (${delivery === 'R1' ? 'Motoboy R1' : 'Entrega da Loja'})`);
+      } else {
+        lines.push(`📦 *MODO:* 🏪 Retirada no Balcão (Sem taxa)`);
+      }
+
+      lines.push(`💳 *Forma de Pagamento:* ${pay}`);
+
+      if (pay === "Dinheiro") {
+        const need = document.getElementById("needChange").value;
+        const cashVal = Number(document.getElementById("cashAmount").value);
+        if (need === "sim" && cashVal > total) {
+          lines.push(`💵 *Troco para:* ${money(cashVal)} (Devolver: ${money(cashVal - total)})`);
+        } else {
+          lines.push(`💵 *Troco:* Não precisa`);
+        }
+      } else if (pay === "Pix") {
+        lines.push(`⚡ *Pagamento Pix:* Comprovante anexado`);
+      }
+
+      lines.push(`-----------------------------------`);
+      lines.push(`👤 *DADOS DO CLIENTE:*`);
+      lines.push(`*Nome:* ${name}`);
+      lines.push(`*Contato:* ${phone}`);
+      
+      if (orderType === "entrega") {
+        lines.push(`*Endereço:* ${fullAddress}`);
+        lines.push(`📍 *Rota Google Maps:* ${mapLink}`);
+      } else {
+        lines.push(`📍 *Retirada:* O cliente irá retirar no balcão`);
+      }
+
+      if (note) lines.push(`*Observação:* ${note}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`📲 *Acompanhe seu pedido pelo Mapa:* ${trackingUrl}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`_Pedido gerado via App ${db.config.appName || 'R1 SHOP'}._`);
+
+      const fullMessageText = lines.join("\n");
+
+      let storePhoneClean = (currentPartner.whatsapp || "").replace(/\D/g, "");
+      if (storePhoneClean.length === 10 || storePhoneClean.length === 11) {
+        storePhoneClean = "55" + storePhoneClean;
+      }
 
       const newOrder = {
         id,
         storeId: currentPartner.id,
         storeName: currentPartner.name,
+        storeAddress: currentPartner.address,
+        storeLat: currentPartner.lat || -22.6580,
+        storeLng: currentPartner.lng || -50.4180,
         customerName: name,
         customerPhone: phone,
-        customerAddress: orderType === "entrega" ? fullAddr : "Retirada",
+        customerAddress: orderType === "entrega" ? fullAddress : "Retirada no Balcão",
+        customerLat: -22.6620,
+        customerLng: -50.4150,
+        note: note,
+        orderType: orderType,
         items: [...cart],
-        total,
+        total: total,
         payment: pay,
-        orderType,
         delivery: orderType === "entrega" ? delivery : "Balcão",
+        deliveryFeeText: currentPartner.delivery || "R$ 8,00",
+        commissionVal: commissionVal,
+        commissionText: commissionText,
+        planType: plan,
         status: "Novo",
+        motoboyId: null,
+        motoboyName: null,
+        motoboyPhone: null,
+        motoboyLat: null,
+        motoboyLng: null,
+        hiddenForStore: false,
+        hiddenForMotoboy: false,
         date: new Date().toISOString()
       };
 
-      if (!db.orders) db.orders = [];
       db.orders.unshift(newOrder);
       save();
 
-      let lines = [`🛵 *NOVO PEDIDO ${id}*`, `🏪 Loja: ${currentPartner.name}`, `--------------------`];
-      cart.forEach(it => lines.push(`▪️ ${it.qty}x ${it.name} - ${money(it.qty * it.price)}`));
-      lines.push(`💰 *Total:* ${money(total)}`, `💳 Pagamento: ${pay}`);
-      if (orderType === "entrega") lines.push(`📍 Endereço: ${fullAddr}`);
-      else lines.push(`📍 Retirada no balcão`);
-
-      const whatsClean = currentPartner.whatsapp.replace(/\D/g, "");
-      window.open(`https://wa.me/55${whatsClean}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
-
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${storePhoneClean}&text=${encodeURIComponent(fullMessageText)}`;
+      window.open(whatsappUrl, "_blank");
+      
       cart = [];
       updateCart();
       closeModal("cartModal");
       closeModal("catalogModal");
-      toast("Pedido enviado!");
+
+      document.getElementById("cNote").value = "";
+      document.getElementById("cashAmount").value = "";
+      document.getElementById("changeResult").textContent = "";
+
+      toast("✅ Pedido gerado com sucesso!");
+      openClientTracking(id);
+    }
+
+    function openClientTracking(orderId) {
+      const order = (db.orders || []).find(o => o.id === orderId);
+      if (!order) return toast("Pedido não localizado.");
+
+      document.getElementById("trackOrderTitle").textContent = `🛵 Pedido ${order.id}`;
+      document.getElementById("trackOrderSubtitle").textContent = `${order.storeName} ➔ ${order.customerName}`;
+
+      const badge = document.getElementById("trackStatusBadge");
+      const desc = document.getElementById("trackStatusDesc");
+      badge.textContent = order.status || "Novo";
+
+      if (order.status === "Em Preparo") {
+        desc.textContent = "👨‍🍳 O restaurante está preparando o seu pedido com carinho.";
+        badge.className = "status";
+      } else if (order.status === "Despachado") {
+        desc.textContent = "🛵 O Motoboy R1 já retirou seu pedido e está a caminho!";
+        badge.className = "status warning";
+      } else if (order.status === "Entregue") {
+        desc.textContent = "🟢 Pedido entregue com sucesso! Bom apetite!";
+        badge.className = "status";
+      } else {
+        desc.textContent = "🟡 Pedido recebido, aguardando confirmação da loja.";
+        badge.className = "status closed";
+      }
+
+      const motoCard = document.getElementById("motoboyInfoCard");
+      if (order.motoboyName) {
+        motoCard.classList.remove("hidden");
+        document.getElementById("trackMotoName").textContent = order.motoboyName;
+        document.getElementById("trackMotoVehicle").textContent = "Entregador Oficial Equipe R1";
+        const whatsBtn = document.getElementById("trackMotoWhatsBtn");
+        whatsBtn.onclick = () => {
+          const p = (order.motoboyPhone || "").replace(/\D/g, "");
+          window.open(`https://wa.me/55${p}?text=${encodeURIComponent(`Olá! Sou o cliente do pedido ${order.id}`)}`, "_blank");
+        };
+      } else {
+        motoCard.classList.add("hidden");
+      }
+
+      openModal("trackingModal");
+      renderClientTrackingMap(order);
+    }
+
+    function renderClientTrackingMap(order) {
+      setTimeout(() => {
+        const container = document.getElementById("clientTrackingMap");
+        if (!container) return;
+
+        if (activeClientMap) {
+          activeClientMap.remove();
+          activeClientMap = null;
+        }
+
+        const storeCoords = [order.storeLat || -22.6580, order.storeLng || -50.4180];
+        const clientCoords = [order.customerLat || -22.6620, order.customerLng || -50.4150];
+
+        activeClientMap = L.map('clientTrackingMap').setView(storeCoords, 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap R1'
+        }).addTo(activeClientMap);
+
+        L.marker(storeCoords).addTo(activeClientMap)
+          .bindPopup(`<b>🏪 ${order.storeName}</b><br>Origem do Pedido`).openPopup();
+
+        L.marker(clientCoords).addTo(activeClientMap)
+          .bindPopup(`<b>🏠 Endereço de Entrega</b><br>${order.customerAddress}`);
+
+        const latlngs = [storeCoords, clientCoords];
+        L.polyline(latlngs, { color: '#d9233e', weight: 4, dashArray: '6, 8' }).addTo(activeClientMap);
+
+        if (order.motoboyLat && order.motoboyLng) {
+          const motoCoords = [order.motoboyLat, order.motoboyLng];
+          const motoIcon = L.divIcon({
+            html: '<div style="font-size:24px;background:#121417;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;border:2px solid #d9233e;box-shadow:0 4px 10px rgba(0,0,0,0.5);">🛵</div>',
+            iconSize: [34, 34],
+            className: ''
+          });
+          L.marker(motoCoords, { icon: motoIcon }).addTo(activeClientMap)
+            .bindPopup(`<b>🛵 Motoboy a caminho!</b>`);
+        }
+
+        activeClientMap.fitBounds(L.latLngBounds(latlngs), { padding: [30, 30] });
+      }, 300);
+    }
+
+    function openOrderDecisionFlow(orderId) {
+      const order = (db.orders || []).find(o => o.id === orderId);
+      if (!order) return toast("Corrida não encontrada ou já finalizada.");
+
+      const body = document.getElementById("orderDecisionBody");
+      body.innerHTML = `
+        <div style="background:#fff;border-radius:14px;padding:12px;text-align:left;">
+          <div style="font-size:18px;font-weight:900;margin-bottom:6px;color:var(--dark);">
+            Pedido ${order.id}
+          </div>
+          <div style="margin-bottom:8px;">
+            <b>🏪 Retirada na Loja:</b> ${order.storeName}<br>
+            <small style="color:#666;">📍 ${order.storeAddress || 'Endereço da Loja'}</small>
+          </div>
+          <div style="margin-bottom:8px;">
+            <b>🏠 Entrega no Cliente:</b> ${order.customerName}<br>
+            <small style="color:#666;">📍 ${order.customerAddress}</small>
+          </div>
+          <div style="background:#f0fdf4;border:1px dashed var(--green);padding:10px;border-radius:10px;margin:10px 0;">
+            <b style="color:var(--green);font-size:15px;">💰 Valor do Frete: ${order.deliveryFeeText || 'R$ 8,00'}</b><br>
+            <small style="color:#444;">Forma de Pagamento do Cliente: <b>${order.payment}</b></small>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+            <button class="btn green" onclick="quickAcceptOrder('${order.id}')" style="padding:12px;font-size:13px;">
+              ✓ Aceitar Corrida
+            </button>
+            <button class="btn red" onclick="quickDeclineOrder('${order.id}')" style="padding:12px;font-size:13px;">
+              ✕ Recusar / Passar
+            </button>
+          </div>
+        </div>
+      `;
+      openModal("orderDecisionModal");
+    }
+
+    function quickAcceptOrder(orderId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (!o) return;
+
+      let moto = db.motoboys.find(m => m.id === loggedMotoboyId);
+      if (!moto) {
+        moto = db.motoboys[0];
+      }
+
+      o.motoboyId = moto.id;
+      o.motoboyName = moto.nick || moto.name;
+      o.motoboyPhone = moto.phone;
+      o.status = "Em Preparo";
+      save();
+
+      closeModal("orderDecisionModal");
+      adminMode = "motoboy";
+      loggedMotoboyId = moto.id;
+      openAdminPanel();
+      motoboyTab("Minhas Entregas");
+      toast("🎉 Corrida assumida com sucesso!");
+    }
+
+    function quickDeclineOrder(orderId) {
+      closeModal("orderDecisionModal");
+      toast("Corrida recusada. Ela continuará visível para outros entregadores.");
+    }
+
+    function updateLoginHint() {
+      const type = document.getElementById("loginType").value;
+      const hint = document.getElementById("loginHint");
+      if (type === "central") {
+        hint.innerHTML = "Acesso Central R1: informe seu login e senha de administrador (Padrão: <b>admin</b> / <b>1234</b>).";
+      } else if (type === "store") {
+        hint.innerHTML = "Acesso Lojista: informe o usuário e senha da sua loja.";
+      } else {
+        hint.innerHTML = "Acesso Motoboy R1: informe seu login de entregador autorizado.";
+      }
     }
 
     function doLogin() {
       ensureDbIntegrity();
       const type = document.getElementById("loginType").value;
-      const u = (document.getElementById("loginUser").value || "").trim().toLowerCase();
+      const u = (document.getElementById("loginUser").value || "").trim();
       const p = (document.getElementById("loginPass").value || "").trim();
 
-      if (!u || !p) return toast("Preencha usuário e senha.");
+      if (!u || !p) {
+        return toast("Preencha usuário e senha.");
+      }
 
       if (type === "central") {
         const c = db.config || {};
-        if ((u === (c.adminUser || "admin").toLowerCase() && p === (c.adminPass || "1234")) || (u === "admin" && p === "1234")) {
+        const validUser = (c.adminUser || "admin").toLowerCase();
+        const validPass = (c.adminPass || "1234").toString();
+
+        if ((u.toLowerCase() === validUser && p === validPass) || (u.toLowerCase() === "admin" && p === "1234")) {
           adminMode = "central";
+          loggedPartnerId = null;
+          loggedMotoboyId = null;
+          centralSelectedPartnerId = "all";
           adminSessionActive = true;
+          adminTabHistory = [];
           closeModal("loginModal");
           openAdminPanel();
           toast("✅ Bem-vindo à Central R1!");
@@ -2162,14 +3178,16 @@
         }
       } else if (type === "store") {
         const partner = (db.partners || []).find(x => 
-          (x.username && x.username.toLowerCase() === u) || 
+          (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
           (x.id && x.id.toString() === u) ||
           (x.whatsapp && x.whatsapp.replace(/\D/g, "") === u.replace(/\D/g, ""))
         );
         if (partner && (partner.pass || "1234").toString() === p) {
           adminMode = "store";
           loggedPartnerId = partner.id;
+          loggedMotoboyId = null;
           adminSessionActive = true;
+          adminTabHistory = [];
           closeModal("loginModal");
           openAdminPanel();
           toast(`✅ Bem-vindo, ${partner.name}!`);
@@ -2177,276 +3195,1914 @@
         }
       } else if (type === "motoboy") {
         const moto = (db.motoboys || []).find(x => 
-          (x.username && x.username.toLowerCase() === u) || 
-          (x.phone && x.phone.replace(/\D/g,"") === u.replace(/\D/g,""))
+          (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
+          (x.phone && x.phone.includes(u)) || 
+          x.id.toString() === u
         );
         if (moto && (moto.pass || "1234").toString() === p) {
+          if (moto.status !== "approved") return toast("Cadastro de motoboy em análise pela Central.");
           adminMode = "motoboy";
           loggedMotoboyId = moto.id;
+          loggedPartnerId = null;
           adminSessionActive = true;
+          adminTabHistory = [];
           closeModal("loginModal");
           openAdminPanel();
+          startMotoboyLocationTracking(moto.id);
           toast(`✅ Bem-vindo, ${moto.nick || moto.name}!`);
           return;
         }
       }
-      toast("❌ Usuário ou senha incorretos.");
+      toast("❌ Usuário ou senha inválidos.");
+    }
+
+    function startMotoboyLocationTracking(motoId) {
+      if ("geolocation" in navigator) {
+        if (motoboyWatchId) navigator.geolocation.clearWatch(motoboyWatchId);
+        motoboyWatchId = navigator.geolocation.watchPosition((pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const moto = (db.motoboys || []).find(m => m.id === motoId);
+          if (moto) {
+            moto.lat = lat;
+            moto.lng = lng;
+            (db.orders || []).forEach(o => {
+              if (o.motoboyId === motoId && o.status === "Despachado") {
+                o.motoboyLat = lat;
+                o.motoboyLng = lng;
+              }
+            });
+            save();
+          }
+        }, (err) => {
+          console.warn("GPS Motoboy:", err);
+        }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 });
+      }
+    }
+
+    function logoutAdmin() {
+      if (motoboyWatchId) {
+        navigator.geolocation.clearWatch(motoboyWatchId);
+        motoboyWatchId = null;
+      }
+      adminSessionActive = false;
+      adminMode = null;
+      loggedPartnerId = null;
+      loggedMotoboyId = null;
+      adminTabHistory = [];
+      closeModal("adminModal");
+      toast("Sessão encerrada.");
     }
 
     function openAdminPanel() {
       ensureDbIntegrity();
       let tabs = [];
       if (adminMode === "central") {
-        document.getElementById("adminTitle").textContent = "Central R1 - Admin";
-        document.getElementById("adminSubtitle").textContent = "Controle total da plataforma";
-        tabs = ["Visão geral", "Parceiros & Planos", "Cadastros Pendentes", "Motoboys", "Relatórios"];
+        document.getElementById("adminTitle").textContent = db.config.appName || "Central R1";
+        document.getElementById("adminSubtitle").textContent = "Gestão total, mapa de frota, parceiros e finanças";
+        tabs = ["Visão geral", "Mapa ao Vivo & Frota", "Identidade & App", "Banners Central", "Módulos & APIs", "Clientes", "Motoboys R1", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"];
       } else if (adminMode === "store") {
-        document.getElementById("adminTitle").textContent = "Painel da Loja";
-        tabs = ["Dashboard", "Produtos", "Dados da Loja"];
+        document.getElementById("adminTitle").textContent = "Painel do Lojista";
+        document.getElementById("adminSubtitle").textContent = "Produtos, pedidos, mapa e dados da loja";
+        tabs = ["Dashboard", "Produtos & Promoções", "Importar Catálogo (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
       } else {
-        document.getElementById("adminTitle").textContent = "Painel do Motoboy";
-        tabs = ["Corridas Abertas", "Minhas Entregas", "Extrato"];
+        document.getElementById("adminTitle").textContent = "Painel do Entregador R1";
+        document.getElementById("adminSubtitle").textContent = "Corridas disponíveis, entregas e repasses";
+        tabs = ["Corridas Abertas", "Minhas Entregas", "Extrato Pix & PDF", "Meu Perfil"];
       }
+        
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
-        <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this)">${t}</button>
+        <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
       `).join("");
+      
       openModal("adminModal");
-      adminTab(tabs[0], document.querySelector(".tab"));
+      adminTab(tabs[0], document.querySelector(".tab"), true);
     }
 
-    function adminTab(tab, btn) {
-      document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-      if (btn) btn.classList.add("active");
-      const body = document.getElementById("adminBody");
-
-      if (adminMode === "central") {
-        if (tab === "Visão geral") {
-          body.innerHTML = `
-            <div class="admin-grid">
-              <div class="metric"><small>Lojas Ativas</small><strong>${db.partners.length}</strong></div>
-              <div class="metric"><small>Pendentes</small><strong>${db.pending.length}</strong></div>
-              <div class="metric"><small>Motoboys</small><strong>${db.motoboys.length}</strong></div>
-              <div class="metric"><small>Total Pedidos</small><strong>${db.orders.length}</strong></div>
-            </div>
-          `;
-        } else if (tab === "Parceiros & Planos") {
-          body.innerHTML = `
-            <div class="panel">
-              <h3>🏪 Lojas Parceiras Cadastradas (${db.partners.length})</h3>
-              <div class="list">
-                ${db.partners.map((p, idx) => `
-                  <div class="row" style="flex-wrap:wrap;">
-                    <span>
-                      <b>${p.name}</b> (${p.category})<br>
-                      <small style="color:var(--muted)">
-                        Responsável: <b>${p.owner || 'Não informado'}</b> · CNPJ/CPF: <b>${p.document || 'Não informado'}</b><br>
-                        WhatsApp: <b>${p.whatsapp}</b> · Chave Pix: <b>${p.pixKey || 'Não inf.'}</b><br>
-                        Login: <code>${p.username || p.id}</code> | Senha: <b>${p.pass || '1234'}</b>
-                      </small>
-                    </span>
-                    <div style="display:flex;gap:4px;margin-top:4px;">
-                      <button class="btn green" style="padding:6px 10px;font-size:11px;width:auto;" onclick="openPartnerFullDetails(${p.id})">
-                        ✏️ Ver / Editar Ficha Completa
-                      </button>
-                      <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:6px 10px;font-size:11px;width:auto;" onclick="toggleStoreOpen(${p.id})">
-                        ${p.open ? 'Pausar' : 'Abrir'}
-                      </button>
-                      <button class="btn red" style="padding:6px 10px;font-size:11px;width:auto;" onclick="removeStore(${idx})">✕</button>
-                    </div>
-                  </div>
-                `).join("") || '<p class="hint">Nenhuma loja cadastrada.</p>'}
-              </div>
-            </div>
-          `;
-        } else if (tab === "Cadastros Pendentes") {
-          body.innerHTML = `
-            <div class="panel">
-              <h3>⏳ Lojas Aguardando Aprovação (${db.pending.length})</h3>
-              <div class="list">
-                ${db.pending.map((p, i) => `
-                  <div class="row" style="flex-wrap:wrap;">
-                    <span>
-                      <b>${p.name}</b> - Resp: ${p.owner}<br>
-                      <small style="color:var(--muted)">Doc: ${p.document || 'Não inf.'} · Whats: ${p.whatsapp}<br>Endereço: ${p.address}</small>
-                    </span>
-                    <div style="display:flex;gap:4px;">
-                      <button class="btn green" style="width:auto;padding:6px 12px;font-size:11px;" onclick="approveStore(${i})">✓ Aprovar e Liberar Acesso</button>
-                      <button class="btn red" style="width:auto;padding:6px 8px;font-size:11px;" onclick="rejectStore(${i})">✕ Recusar</button>
-                    </div>
-                  </div>
-                `).join("") || '<p class="hint">Nenhum cadastro pendente.</p>'}
-              </div>
-            </div>
-          `;
-        } else if (tab === "Motoboys") {
-          body.innerHTML = `
-            <div class="panel">
-              <h3>🏍️ Motoboys Cadastrados (${db.motoboys.length})</h3>
-              <div class="list">
-                ${db.motoboys.map((m, idx) => `
-                  <div class="row">
-                    <span><b>${m.name} (${m.nick})</b> - Moto: ${m.vehicle}<br><small>Whats: ${m.phone} | Pix: ${m.pix} | Senha: <b>${m.pass || '1234'}</b></small></span>
-                    <button class="btn red" style="width:auto;padding:5px 8px;" onclick="removeMotoboy(${idx})">✕</button>
-                  </div>
-                `).join("")}
-              </div>
-            </div>
-          `;
-        } else if (tab === "Relatórios") {
-          body.innerHTML = `
-            <div class="panel">
-              <h3>Histórico de Pedidos (${db.orders.length})</h3>
-              <div class="list">
-                ${db.orders.map(o => `
-                  <div class="order-card-history">
-                    <b>${o.id} - ${o.storeName}</b>: ${money(o.total)}<br>
-                    <small>Cliente: ${o.customerName} (${o.customerPhone}) · ${new Date(o.date).toLocaleString('pt-BR')}</small>
-                  </div>
-                `).join("") || '<p class="hint">Nenhum pedido registrado.</p>'}
-              </div>
-            </div>
-          `;
+    function adminTab(tab, btn, recordHistory = true) {
+      if (recordHistory) {
+        if (!adminTabHistory.length || adminTabHistory[adminTabHistory.length - 1] !== tab) {
+          adminTabHistory.push(tab);
         }
       }
+      document.querySelectorAll(".tab").forEach(x => {
+        x.classList.toggle("active", x.textContent.trim() === tab);
+      });
+      if (adminMode === "central") centralTab(tab);
+      else if (adminMode === "store") storeTab(tab);
+      else motoboyTab(tab);
     }
 
-    function openPartnerFullDetails(storeId) {
-      const p = db.partners.find(x => x.id === storeId);
+    function adminGoBackInternal() {
+      if (adminTabHistory.length > 1) {
+        adminTabHistory.pop();
+        const prevTab = adminTabHistory[adminTabHistory.length - 1];
+        adminTab(prevTab, null, false);
+      } else {
+        toast("Você já está na aba inicial.");
+      }
+    }
+
+    function getTargetPartner() {
+      if (adminMode === "central") {
+        if (centralSelectedPartnerId === "all") return (db.partners && db.partners[0]) ? db.partners[0] : null;
+        return (db.partners || []).find(p => p.id === Number(centralSelectedPartnerId)) || (db.partners && db.partners[0]) || null;
+      }
+      return (db.partners || []).find(p => p.id === loggedPartnerId) || (db.partners && db.partners[0]) || null;
+    }
+
+    function centralTab(tab) {
+      ensureDbIntegrity();
+      const body = document.getElementById("adminBody");
+      if (tab === "Visão geral") {
+        const approved = (db.partners || []).filter(p => p.status === "approved" && !p.blocked).length;
+        const totalSales = (db.orders || []).reduce((acc, o) => acc + (o.total || 0), 0);
+        const motosOnline = (db.motoboys || []).filter(m => m.online && m.status === 'approved').length;
+        body.innerHTML = `
+          <div class="admin-grid">
+            <div class="metric"><small>Lojas Ativas</small><strong>${approved}</strong></div>
+            <div class="metric"><small>Motoboys Online</small><strong class="success">${motosOnline}</strong></div>
+            <div class="metric"><small>Total Pedidos</small><strong>${db.orders.length}</strong></div>
+            <div class="metric"><small>Faturamento Total</small><strong class="success">${money(totalSales)}</strong></div>
+          </div>
+          <div class="panel" style="margin-top:12px;">
+            <h3>Central Administrativa R1</h3>
+            <p class="hint">Gestão completa e modular de lojas, mapa de frota ao vivo, clientes, entregadores e relatórios financeiros auditados.</p>
+          </div>
+        `;
+      } else if (tab === "Mapa ao Vivo & Frota") {
+        renderCentralFleetMap(body);
+      } else if (tab === "Identidade & App") {
+        renderAppIdentityManager(body);
+      } else if (tab === "Banners Central") {
+        renderCentralBannersManager(body);
+      } else if (tab === "Módulos & APIs") {
+        renderApiManager(body);
+      } else if (tab === "Clientes") {
+        renderClientsManager(body);
+      } else if (tab === "Motoboys R1") {
+        renderMotoboysManager(body);
+      } else if (tab === "Parceiros & Planos") {
+        renderPartnersAndPlans(body);
+      } else if (tab === "Produtos da Loja") {
+        renderProductManager(body, true);
+      } else if (tab === "Status & Vídeos 9:16") {
+        renderStatusMediaManager(body, true);
+      } else if (tab === "Relatórios Financeiros") {
+        renderReportsManager(body, true);
+      } else if (tab === "Cadastros") {
+        renderCentralApprovals(body);
+      }
+    }
+
+    function renderCentralFleetMap(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <h3>📍 Mapa de Frota e Corridas ao Vivo (Assis e Região)</h3>
+          <p class="hint">Acompanhe todas as lojas, motoboys e entregas em andamento em tempo real.</p>
+          <div id="centralFleetMapContainer" class="map-container-box" style="height:320px;"></div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        if (activeCentralMap) {
+          activeCentralMap.remove();
+          activeCentralMap = null;
+        }
+
+        const centerAssis = [-22.6600, -50.4160];
+        activeCentralMap = L.map('centralFleetMapContainer').setView(centerAssis, 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap Equipe R1'
+        }).addTo(activeCentralMap);
+
+        (db.partners || []).filter(p => p.status === 'approved' && !p.blocked).forEach(p => {
+          const lat = p.lat || -22.6580;
+          const lng = p.lng || -50.4180;
+          L.marker([lat, lng]).addTo(activeCentralMap)
+            .bindPopup(`<b>🏪 ${p.name}</b><br>${p.address}`);
+        });
+
+        (db.motoboys || []).filter(m => m.status === 'approved').forEach(m => {
+          const mLat = m.lat || -22.6610;
+          const mLng = m.lng || -50.4170;
+          const motoIcon = L.divIcon({
+            html: `<div style="font-size:22px;background:#121417;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;border:2px solid ${m.online ? '#168a55' : '#777'};box-shadow:0 3px 8px rgba(0,0,0,0.5);">🛵</div>`,
+            iconSize: [32, 32],
+            className: ''
+          });
+          L.marker([mLat, mLng], { icon: motoIcon }).addTo(activeCentralMap)
+            .bindPopup(`<b>🛵 ${m.nick || m.name}</b><br>${m.vehicle}<br>Status: ${m.online ? '<span style="color:green">Online</span>' : 'Offline'}`);
+        });
+      }, 300);
+    }
+
+    function renderCentralApprovals(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Novas Lojas Pendentes (${db.pending.length})</h3>
+          ${db.pending.length ? db.pending.map((p, i) => `
+            <div class="row">
+              <span>
+                <b>${p.name}</b> (${(p.plan || 'flex').toUpperCase()})<br>
+                <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp} · Doc: ${p.document || 'Não informado'}</small>
+              </span>
+              <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approve(${i})">Aprovar Loja</button>
+            </div>
+          `).join("") : '<p class="hint">Nenhuma loja pendente.</p>'}
+        </div>
+
+        <div class="panel">
+          <h3>Novos Motoboys Pendentes (${db.pendingMotoboys.length})</h3>
+          ${db.pendingMotoboys.length ? db.pendingMotoboys.map((m, idx) => `
+            <div class="row">
+              <span>
+                <b>${m.name} (${m.nick})</b><br>
+                <small style="color:var(--muted)">Moto: ${m.vehicle} · Whats: ${m.phone}<br>Pix: ${m.pix}</small>
+              </span>
+              <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approveMotoboy(${idx})">Aprovar Motoboy</button>
+            </div>
+          `).join("") : '<p class="hint">Nenhum motoboy pendente.</p>'}
+        </div>
+      `;
+    }
+
+    function renderMotoboysManager(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3>🏍️ Frota de Motoboys Cadastrados (${db.motoboys.length})</h3>
+            <button class="btn green" style="width:auto;padding:6px 12px;font-size:12px;" onclick="openModal('motoboyRegisterModal')">+ Novo Motoboy</button>
+          </div>
+          <div class="list">
+            ${db.motoboys.map((m, idx) => `
+              <div class="row" style="flex-wrap:wrap;">
+                <span>
+                  <b>${m.name} (${m.nick})</b> - Usuário: <code>${m.username || 'motoboy' + m.id}</code> | Senha: <b>${m.pass || '1234'}</b><br>
+                  <small style="color:var(--muted)">
+                    Veículo: ${m.vehicle} · Whats: ${m.phone} · Pix: ${m.pix}<br>
+                    Status: <b>${m.online ? '<span style="color:green">● ONLINE</span>' : '<span style="color:gray">● OFFLINE</span>'}</b>
+                  </small>
+                </span>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn ${m.online ? 'dark' : 'green'}" style="width:auto;padding:5px 8px;font-size:11px;" onclick="toggleMotoOnlineStatus(${m.id})">
+                    ${m.online ? 'Colocar Offline' : 'Colocar Online'}
+                  </button>
+                  <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeMotoboy(${idx})">✕</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleMotoOnlineStatus(motoId) {
+      const m = db.motoboys.find(x => x.id === motoId);
+      if (m) {
+        m.online = !m.online;
+        save();
+        centralTab("Motoboys R1");
+        toast(`Status do motoboy ${m.nick} alterado.`);
+      }
+    }
+
+    function removeMotoboy(idx) {
+      if (confirm("Deseja remover este motoboy?")) {
+        db.motoboys.splice(idx, 1);
+        save();
+        centralTab("Motoboys R1");
+        toast("Motoboy removido.");
+      }
+    }
+
+    function submitMotoboyRegister() {
+      const name = document.getElementById("motoRegName").value.trim();
+      const nick = document.getElementById("motoRegNick").value.trim() || name.split(" ")[0];
+      const phone = document.getElementById("motoRegPhone").value.trim().replace(/\D/g, "");
+      const vehicle = document.getElementById("motoRegVehicle").value.trim();
+      const pix = document.getElementById("motoRegPix").value.trim();
+
+      if (!name || !phone || !vehicle) return toast("Preencha nome, WhatsApp e dados da moto.");
+
+      const newMoto = {
+        id: Date.now(),
+        name, nick, phone, vehicle, pix,
+        username: "moto" + Date.now().toString().slice(-4),
+        pass: "1234",
+        status: "pending",
+        online: true,
+        lat: -22.6590,
+        lng: -50.4190,
+        currentOrderId: null
+      };
+
+      if (!db.pendingMotoboys) db.pendingMotoboys = [];
+      db.pendingMotoboys.push(newMoto);
+      save();
+      closeModal("motoboyRegisterModal");
+      toast("Cadastro enviado para a Central R1!");
+    }
+
+    function approveMotoboy(idx) {
+      const m = db.pendingMotoboys.splice(idx, 1)[0];
+      m.status = "approved";
+      db.motoboys.push(m);
+      save();
+      centralTab("Cadastros");
+      toast(`Motoboy aprovado! Login: ${m.username} / Senha: ${m.pass}`);
+    }
+
+    function motoboyTab(tab) {
+      ensureDbIntegrity();
+      const body = document.getElementById("adminBody");
+      const moto = db.motoboys.find(m => m.id === loggedMotoboyId);
+      if (!moto) return;
+
+      if (tab === "Corridas Abertas") {
+        const openOrders = (db.orders || []).filter(o => o.delivery === 'R1' && (o.status === 'Novo' || o.status === 'Em Preparo') && !o.motoboyId);
+        body.innerHTML = `
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <h3>🛵 Corridas Disponíveis (${openOrders.length})</h3>
+              <span class="status ${moto.online ? '' : 'closed'}">${moto.online ? 'Online' : 'Offline'}</span>
+            </div>
+            <p class="hint">Toque em Aceitar Corrida para iniciar o trajeto até a loja e cliente.</p>
+            
+            <div class="list" style="margin-top:10px;">
+              ${openOrders.map(o => `
+                <div class="order-card-history" style="background:#fff;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px;">
+                    <b>Pedido ${o.id}</b>
+                    <span style="color:var(--green);font-weight:900;">${money(o.total)}</span>
+                  </div>
+                  <div><b>🏪 Retirada na Loja:</b> ${o.storeName} (${o.storeAddress || 'Consulte endereço'})</div>
+                  <div><b>🏠 Entrega no Cliente:</b> ${o.customerName} - ${o.customerAddress}</div>
+                  <div style="margin-top:4px;color:var(--primary);font-weight:800;">
+                    🏍️ Taxa da Corrida: ${o.deliveryFeeText || 'R$ 8,00'}
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+                    <button class="btn green" onclick="motoboyAcceptOrder('${o.id}', ${moto.id})">
+                      ✓ Aceitar Corrida
+                    </button>
+                    <button class="btn red" onclick="motoboyDeclineOrder('${o.id}')">
+                      ✕ Recusar
+                    </button>
+                  </div>
+                </div>
+              `).join("") || '<p class="hint">Nenhuma corrida disponível no momento. Aguarde novos chamados.</p>'}
+            </div>
+          </div>
+        `;
+      } else if (tab === "Minhas Entregas") {
+        const myActiveOrders = (db.orders || []).filter(o => o.motoboyId === moto.id && !o.hiddenForMotoboy);
+        body.innerHTML = `
+          <div class="panel">
+            <h3>📦 Entregas em Andamento e Histórico</h3>
+            <div class="list" style="margin-top:10px;">
+              ${myActiveOrders.map(o => `
+                <div class="order-card-history" style="background:#fff;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px;">
+                    <b>${o.id} - ${o.storeName}</b>
+                    <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}">${o.status}</span>
+                  </div>
+                  <div><b>Cliente:</b> ${o.customerName} (${o.customerPhone})</div>
+                  <div><b>Endereço:</b> ${o.customerAddress}</div>
+                  <div><b>Pagamento:</b> ${o.payment}</div>
+                  <div style="color:var(--green);font-weight:800;margin-top:2px;">💰 Valor do Frete: ${o.deliveryFeeText || 'R$ 8,00'}</div>
+                  
+                  <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                    <button class="btn dark" style="font-size:12px;padding:8px;" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.customerAddress)}', '_blank')">
+                      📍 Abrir no GPS / Waze
+                    </button>
+                    ${o.status !== 'Despachado' && o.status !== 'Entregue' ? `
+                      <button class="btn warning" style="font-size:12px;padding:8px;" onclick="motoboySetDispatched('${o.id}')">
+                        🛵 Iniciar Rota (A Caminho)
+                      </button>
+                    ` : ''}
+                    ${o.status === 'Despachado' ? `
+                      <button class="btn green" style="font-size:12px;padding:8px;" onclick="motoboySetDelivered('${o.id}')">
+                        ✓ Confirmar Entrega Realizada
+                      </button>
+                    ` : ''}
+                    <button class="btn red" style="font-size:11px;padding:6px;width:auto;" onclick="motoboyHideOrder('${o.id}')" title="Ocultar do meu histórico">
+                      ✕ Ocultar
+                    </button>
+                  </div>
+                </div>
+              `).join("") || '<p class="hint">Você não tem corridas em andamento.</p>'}
+            </div>
+          </div>
+        `;
+      } else if (tab === "Extrato Pix & PDF") {
+        let completed = (db.orders || []).filter(o => o.motoboyId === moto.id && o.status === 'Entregue' && !o.hiddenForMotoboy);
+        
+        const now = new Date();
+        if (motoboyReportFilterPeriod === "hoje") {
+          completed = completed.filter(o => new Date(o.date).toDateString() === now.toDateString());
+        } else if (motoboyReportFilterPeriod === "semana") {
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          completed = completed.filter(o => new Date(o.date) >= weekAgo);
+        } else if (motoboyReportFilterPeriod === "mes") {
+          completed = completed.filter(o => {
+            const d = new Date(o.date);
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          });
+        }
+
+        const totalEarnings = completed.length * 8.00;
+
+        body.innerHTML = `
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h3>Extrato de Corridas & Repasses</h3>
+              <div style="display:flex;gap:6px;">
+                <button class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="sendMotoboyExtractWhatsApp(${moto.id})">
+                  📲 WhatsApp
+                </button>
+                <button class="btn dark" style="width:auto;padding:6px 10px;font-size:11px;" onclick="printReport()">
+                  📄 Baixar PDF
+                </button>
+              </div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label style="font-weight:800;font-size:12px;">Filtrar por Período:</label>
+              <select onchange="changeMotoboyReportFilter(this.value)">
+                <option value="todos" ${motoboyReportFilterPeriod === 'todos' ? 'selected' : ''}>Todo o Histórico</option>
+                <option value="hoje" ${motoboyReportFilterPeriod === 'hoje' ? 'selected' : ''}>Hoje</option>
+                <option value="semana" ${motoboyReportFilterPeriod === 'semana' ? 'selected' : ''}>Últimos 7 dias</option>
+                <option value="mes" ${motoboyReportFilterPeriod === 'mes' ? 'selected' : ''}>Este Mês</option>
+              </select>
+            </div>
+
+            <div class="admin-grid" style="margin-bottom:14px;">
+              <div class="metric"><small>Corridas Finalizadas</small><strong>${completed.length}</strong></div>
+              <div class="metric"><small>Total Líquido Pix</small><strong class="success">${money(totalEarnings)}</strong></div>
+            </div>
+
+            <div id="printableArea">
+              <h4 style="margin:10px 0;">Relatório de Entregas - ${moto.nick || moto.name}</h4>
+              <small style="color:var(--muted);display:block;margin-bottom:8px;">Chave Pix: <b>${moto.pix || 'Não informada'}</b></small>
+
+              ${completed.map(o => `
+                <div class="order-card-history" style="font-size:12px;">
+                  <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:4px;margin-bottom:4px;">
+                    <b>Pedido ${o.id} - ${o.storeName}</b>
+                    <span style="color:var(--green);font-weight:800;">+ R$ 8,00</span>
+                  </div>
+                  <div><b>Cliente:</b> ${o.customerName} - ${o.customerAddress}</div>
+                  <small style="color:#888;">Data/Hora: ${new Date(o.date).toLocaleString('pt-BR')}</small>
+                </div>
+              `).join("") || '<p class="hint">Nenhuma corrida concluída neste período.</p>'}
+            </div>
+          </div>
+        `;
+      } else {
+        body.innerHTML = `
+          <div class="panel">
+            <h3>Meu Perfil de Entregador</h3>
+            <div class="form">
+              <div class="field">
+                <label>Nome Completo</label>
+                <input value="${moto.name}" readonly>
+              </div>
+              <div class="field">
+                <label>Veículo / Placa</label>
+                <input value="${moto.vehicle}" id="motoEditVeh">
+              </div>
+              <div class="field">
+                <label>Chave Pix para Recebimento</label>
+                <input value="${moto.pix || ''}" id="motoEditPix">
+              </div>
+              <button class="btn red" onclick="saveMotoboyProfile(${moto.id})">Salvar Dados</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function changeMotoboyReportFilter(val) {
+      motoboyReportFilterPeriod = val;
+      motoboyTab("Extrato Pix & PDF");
+    }
+
+    function motoboyAcceptOrder(orderId, motoId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      const m = (db.motoboys || []).find(x => x.id === motoId);
+      if (o && m) {
+        o.motoboyId = m.id;
+        o.motoboyName = m.nick || m.name;
+        o.motoboyPhone = m.phone;
+        o.status = "Em Preparo";
+        save();
+        motoboyTab("Minhas Entregas");
+        toast(`Corrida ${orderId} aceita com sucesso!`);
+      }
+    }
+
+    function motoboyDeclineOrder(orderId) {
+      toast("Corrida recusada.");
+      motoboyTab("Corridas Abertas");
+    }
+
+    function motoboyHideOrder(orderId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (o) {
+        o.hiddenForMotoboy = true;
+        save();
+        motoboyTab("Minhas Entregas");
+        toast("Registro ocultado da sua tela.");
+      }
+    }
+
+    function sendMotoboyExtractWhatsApp(motoId) {
+      const moto = db.motoboys.find(m => m.id === motoId);
+      if (!moto) return;
+
+      const completed = (db.orders || []).filter(o => o.motoboyId === moto.id && o.status === 'Entregue' && !o.hiddenForMotoboy);
+      const totalEarnings = completed.length * 8.00;
+
+      let lines = [];
+      lines.push(`🛵 *EXTRATO DE ENTREGAS R1 - ${moto.nick || moto.name}*`);
+      lines.push(`📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}`);
+      lines.push(`-----------------------------------`);
+      lines.push(`🏍️ *Total de Corridas:* ${completed.length}`);
+      lines.push(`💰 *Total a Receber:* ${money(totalEarnings)}`);
+      lines.push(`🔑 *Chave Pix:* ${moto.pix || 'Não cadastrada'}`);
+      lines.push(`-----------------------------------`);
+      completed.slice(0, 10).forEach(o => {
+        lines.push(`▪️ ${o.id} - ${o.storeName} (+R$ 8,00)`);
+      });
+      lines.push(`-----------------------------------`);
+      lines.push(`_Gerado pelo App R1 SHOP_`);
+
+      const cleanPhone = (moto.phone || "").replace(/\D/g, "");
+      window.open(`https://api.whatsapp.com/send?phone=55${cleanPhone}&text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+    }
+
+    function motoboySetDispatched(orderId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (o) {
+        o.status = "Despachado";
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            o.motoboyLat = pos.coords.latitude;
+            o.motoboyLng = pos.coords.longitude;
+            save();
+          });
+        }
+        save();
+        motoboyTab("Minhas Entregas");
+        toast("Status atualizado para: Saiu para Entrega!");
+      }
+    }
+
+    function motoboySetDelivered(orderId) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (o) {
+        o.status = "Entregue";
+        save();
+        motoboyTab("Minhas Entregas");
+        toast("🎉 Entrega concluída com sucesso!");
+      }
+    }
+
+    function saveMotoboyProfile(motoId) {
+      const m = (db.motoboys || []).find(x => x.id === motoId);
+      if (m) {
+        m.vehicle = document.getElementById("motoEditVeh").value.trim();
+        m.pix = document.getElementById("motoEditPix").value.trim();
+        save();
+        toast("Perfil atualizado!");
+      }
+    }
+
+    function renderClientsManager(container) {
+      const clients = db.clients || [];
+      container.innerHTML = `
+        <div class="panel">
+          <h3>👥 Base de Clientes Cadastrados (${clients.length})</h3>
+          <p class="hint">Clientes que já realizaram pedidos na plataforma.</p>
+          <div class="list" style="margin-top:10px;">
+            ${clients.map((c, i) => `
+              <div class="row" style="flex-wrap:wrap;">
+                <span>
+                  <b>${c.name}</b> · ${c.phone}<br>
+                  <small style="color:var(--muted)">${c.address || 'Sem endereço completo'}</small>
+                </span>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn green" style="width:auto;padding:5px 8px;font-size:11px;" onclick="sendClientPromo('${c.phone}', '${c.name}')">
+                    Disparar Promoção
+                  </button>
+                  <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeClient(${i})">✕</button>
+                </div>
+              </div>
+            `).join("") || '<p class="hint">Nenhum cliente registrado ainda.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function sendClientPromo(phone, name) {
+      const clean = phone.replace(/\D/g, "");
+      const msg = `Olá ${name}! Confira as ofertas e novidades de hoje no ${db.config.appName || 'R1 SHOP'}: ${window.location.origin}${window.location.pathname}`;
+      window.open(`https://wa.me/55${clean}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+
+    function removeClient(i) {
+      if (confirm("Deseja remover este cliente da base?")) {
+        db.clients.splice(i, 1);
+        save();
+        centralTab("Clientes");
+        toast("Cliente removido.");
+      }
+    }
+
+    function renderCentralBannersManager(container) {
+      if (!db.config.banners) db.config.banners = [];
+      const banners = db.config.banners;
+      container.innerHTML = `
+        <div class="panel">
+          <h3>🖼️ Banners de Divulgação da Central R1</h3>
+          <div class="spec-card">
+            <b>Exibição:</b> Carrossel no topo da tela inicial. Formato Panorâmico (1080x450 px).
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>Título / Descrição do Banner</label>
+              <input id="newBannerTitle" placeholder="Ex: Campanha Motoboy R1">
+            </div>
+            <div class="field">
+              <label>Link da Imagem (URL)</label>
+              <input id="newBannerImg" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('newBannerImg', 'bannerCentralPreview')">
+            </div>
+            <div class="field">
+              <label>Ou Upload da Imagem (21:9)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerCentralPreview', 'newBannerImg', 500)">
+              <div id="bannerCentralPreview" class="file-preview" style="height:100px;">Prévia</div>
+            </div>
+            <div class="field">
+              <label>Link de Redirecionamento ao Clicar (Opcional)</label>
+              <input id="newBannerLink" placeholder="https://instagram.com/r1amobi ou https://...">
+            </div>
+            <button class="btn red" onclick="addCentralBanner()">Adicionar Banner</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Banners Ativos (${banners.length})</h3>
+          <div class="list">
+            ${banners.map((b, idx) => `
+              <div class="row">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:70px;height:35px;border-radius:6px;overflow:hidden;background:#222;">
+                    <img src="${b.image}" style="width:100%;height:100%;object-fit:cover;">
+                  </div>
+                  <span><b>${b.title || 'Banner'}</b></span>
+                </div>
+                <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeCentralBanner(${idx})">✕</button>
+              </div>
+            `).join("") || '<p class="hint">Nenhum banner cadastrado.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function addCentralBanner() {
+      const title = document.getElementById("newBannerTitle").value.trim();
+      const image = document.getElementById("newBannerImg").value.trim();
+      const link = document.getElementById("newBannerLink").value.trim();
+
+      if (!image) return toast("Informe o link ou imagem do banner.");
+
+      if (!db.config.banners) db.config.banners = [];
+      db.config.banners.push({ title, image, link });
+      save();
+      renderHome();
+      centralTab("Banners Central");
+      toast("Banner adicionado!");
+    }
+
+    function removeCentralBanner(idx) {
+      if (confirm("Deseja remover este banner?")) {
+        db.config.banners.splice(idx, 1);
+        save();
+        renderHome();
+        centralTab("Banners Central");
+        toast("Banner removido.");
+      }
+    }
+
+    function renderApiManager(container) {
+      const c = db.config || {};
+      container.innerHTML = `
+        <div class="panel">
+          <h3>📲 1. Link do Grupo de Motoboys no WhatsApp</h3>
+          <div class="spec-card">
+            <b>Automação sem API:</b> Cole aqui o Link de Convite do Grupo da Equipe R1 no WhatsApp. Ao clicar em "Chamar Grupo", o app abre direto o seu grupo!
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>Link de Convite do Grupo (https://chat.whatsapp.com/...)</label>
+              <input id="apiGroupLink" value="${c.whatsappGroupLink || ''}" placeholder="https://chat.whatsapp.com/ExemploGrupoR1">
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🗺️ 2. Módulo de Mapas & Cálculo de Distância (Frete)</h3>
+          <div class="form">
+            <div class="field">
+              <label>Provedor de Mapas Ativo</label>
+              <select id="apiMapProvider">
+                <option value="none" ${c.mapProvider === 'none' ? 'selected' : ''}>Desativado (Usar apenas Taxa Fixa das Lojas)</option>
+                <option value="mapbox" ${c.mapProvider === 'mapbox' ? 'selected' : ''}>Mapbox API (Recomendado / Gratuito 100k req)</option>
+                <option value="osrm" ${c.mapProvider === 'osrm' ? 'selected' : ''}>OpenRouteService / OSRM (100% Gratuito sem cartão)</option>
+                <option value="google" ${c.mapProvider === 'google' ? 'selected' : ''}>Google Maps Distance Matrix API</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Token / Chave de API do Mapa</label>
+              <input id="apiMapKey" value="${c.mapApiKey || ''}" placeholder="pk.eyJ... ou AIzaSy...">
+            </div>
+            <div style="display:grid;grid-template-columns: 1fr 1fr 1fr;gap:8px;">
+              <div class="field">
+                <label>Km Base</label>
+                <input id="apiBaseKm" type="number" value="${c.baseDeliveryKm || 4}">
+              </div>
+              <div class="field">
+                <label>Taxa Base (R$)</label>
+                <input id="apiBaseFee" type="number" step="0.5" value="${c.baseDeliveryFee || 7.00}">
+              </div>
+              <div class="field">
+                <label>Km Adicional (R$)</label>
+                <input id="apiExtraKm" type="number" step="0.1" value="${c.extraKmFee || 0.80}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🤖 3. Módulo de Inteligência Artificial (LLMs)</h3>
+          <div class="form">
+            <div class="field">
+              <label>Provedor de Inteligência Artificial</label>
+              <select id="apiAiProvider">
+                <option value="none" ${c.aiProvider === 'none' ? 'selected' : ''}>Desativado (Processador padrão embutido)</option>
+                <option value="gemini" ${c.aiProvider === 'gemini' ? 'selected' : ''}>Google Gemini API (Camada Gratuita)</option>
+                <option value="openai" ${c.aiProvider === 'openai' ? 'selected' : ''}>OpenAI (ChatGPT)</option>
+                <option value="claude" ${c.aiProvider === 'claude' ? 'selected' : ''}>Anthropic (Claude)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Chave de API da Inteligência Artificial</label>
+              <input id="apiAiKey" value="${c.aiApiKey || ''}" placeholder="Cole sua chave de API aqui">
+            </div>
+            <button class="btn red" onclick="saveApiSettings()">Salvar Configurações de APIs & Links</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveApiSettings() {
+      db.config.whatsappGroupLink = document.getElementById("apiGroupLink").value.trim();
+      db.config.mapProvider = document.getElementById("apiMapProvider").value;
+      db.config.mapApiKey = document.getElementById("apiMapKey").value.trim();
+      db.config.baseDeliveryKm = Number(document.getElementById("apiBaseKm").value) || 4;
+      db.config.baseDeliveryFee = Number(document.getElementById("apiBaseFee").value) || 7.00;
+      db.config.extraKmFee = Number(document.getElementById("apiExtraKm").value) || 0.80;
+
+      db.config.aiProvider = document.getElementById("apiAiProvider").value;
+      db.config.aiApiKey = document.getElementById("apiAiKey").value.trim();
+
+      save();
+      toast("Configurações salvas!");
+    }
+
+    function renderPartnersAndPlans(container) {
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Lojas Parceiras e Planos de Cobrança (${db.partners.length})</h3>
+          <div class="list">
+            ${db.partners.map((p, idx) => `
+              <div class="row" style="flex-wrap:wrap;">
+                <span>
+                  <b>${p.name} (ID: ${p.id})</b><br>
+                  <small style="color:var(--muted)">
+                    Responsável: <b>${p.owner || 'Não informado'}</b> · Doc: <b>${p.document || 'Não informado'}</b><br>
+                    Plano: <b>${(p.plan || 'flex').toUpperCase()}</b> · Status: <b>${p.paymentStatus === 'paid' ? '<span style="color:green">QUITADO</span>' : '<span style="color:red">PENDENTE</span>'}</b><br>
+                    WhatsApp: <b>${p.whatsapp}</b> · Chave Pix: <b>${p.pixKey || 'Não inf.'}</b><br>
+                    Login: <code>${p.username || p.id}</code> | Senha: <b>${p.pass || '1234'}</b>
+                  </small>
+                </span>
+                <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">
+                  <button class="btn outline" style="padding:5px 8px;font-size:11px;width:auto;" onclick="openPartnerDetailsModal(${p.id})">
+                    📄 Ficha / Detalhes
+                  </button>
+                  <select onchange="changePartnerPlan(${p.id}, this.value)" style="padding:4px;font-size:11px;border-radius:6px;">
+                    <option value="flex" ${p.plan === 'flex' ? 'selected' : ''}>Flex (R$ 1,99/ped)</option>
+                    <option value="porcentagem" ${p.plan === 'porcentagem' ? 'selected' : ''}>Porcentagem (6%)</option>
+                    <option value="pro" ${p.plan === 'pro' ? 'selected' : ''}>Pro (R$ 59,90/mês)</option>
+                  </select>
+                  <button class="btn ${p.paymentStatus === 'paid' ? 'outline' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="togglePaymentStatus(${p.id})">
+                    ${p.paymentStatus === 'paid' ? 'Desmarcar Pago' : 'Marcar como Pago'}
+                  </button>
+                  <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreOpenStatus(${p.id})">
+                    ${p.open ? 'Pausar' : 'Abrir'}
+                  </button>
+                  <button class="btn ${p.blocked ? 'green' : 'warning'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreBlockStatus(${p.id})">
+                    ${p.blocked ? 'Desbloquear' : 'Bloquear'}
+                  </button>
+                  <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removePartner(${idx})">✕</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function openPartnerDetailsModal(partnerId) {
+      const p = db.partners.find(x => x.id === partnerId);
       if (!p) return;
 
       const container = document.getElementById("partnerDetailsContent");
       container.innerHTML = `
         <div class="field">
-          <label>Nome da Loja</label>
-          <input id="fName" value="${p.name || ''}">
+          <label>Nome do Estabelecimento</label>
+          <input id="adminEditStoreName" value="${p.name || ''}">
         </div>
         <div class="field">
           <label>Nome do Responsável</label>
-          <input id="fOwner" value="${p.owner || ''}">
+          <input id="adminEditStoreOwner" value="${p.owner || ''}">
         </div>
         <div class="field">
-          <label>CNPJ ou CPF</label>
-          <input id="fDoc" value="${p.document || ''}">
+          <label>CNPJ / CPF</label>
+          <input id="adminEditStoreDoc" value="${p.document || ''}">
         </div>
         <div class="field">
-          <label>WhatsApp Oficial</label>
-          <input id="fWhats" value="${p.whatsapp || ''}">
-        </div>
-        <div class="field">
-          <label>Usuário de Login no Painel</label>
-          <input id="fUser" value="${p.username || p.id}">
+          <label>Usuário de Acesso (Login)</label>
+          <input id="adminEditStoreUser" value="${p.username || p.id}">
         </div>
         <div class="field">
           <label>Senha de Acesso</label>
-          <input id="fPass" value="${p.pass || '1234'}">
+          <input id="adminEditStorePass" value="${p.pass || '1234'}">
+        </div>
+        <div class="field">
+          <label>WhatsApp de Pedidos</label>
+          <input id="adminEditStoreWhats" value="${p.whatsapp || ''}">
         </div>
         <div class="field">
           <label>Endereço Completo</label>
-          <input id="fAddr" value="${p.address || ''}">
+          <input id="adminEditStoreAddr" value="${p.address || ''}">
         </div>
         <div class="field">
-          <label>Chave Pix para Recebimento</label>
-          <input id="fPix" value="${p.pixKey || ''}">
+          <label>Categoria</label>
+          <input id="adminEditStoreCat" value="${p.category || 'Alimentação'}">
+        </div>
+        <div class="field">
+          <label>Chave Pix da Loja</label>
+          <input id="adminEditStorePix" value="${p.pixKey || ''}">
         </div>
         <div class="field">
           <label>Taxa de Entrega Padrão</label>
-          <input id="fDelivery" value="${p.delivery || 'R$ 8,00'}">
+          <input id="adminEditStoreDelivery" value="${p.delivery || 'R$ 7,00'}">
+        </div>
+        <div class="field">
+          <label>Pedido Mínimo (R$)</label>
+          <input id="adminEditStoreMinOrder" type="number" step="0.01" value="${p.minOrder || 15}">
         </div>
         <div class="field">
           <label>Link da Logomarca (URL)</label>
-          <input id="fLogo" value="${p.logo || ''}" oninput="previewDirect('fLogo', 'fLogoPreview')">
+          <input id="adminEditStoreLogo" value="${p.logo || ''}" oninput="previewDirect('adminEditStoreLogo', 'adminStoreLogoPreview')">
         </div>
         <div class="field">
-          <label>Ou Upload de Nova Logo</label>
-          <input type="file" accept="image/*" onchange="previewUpload(this, 'fLogoPreview', 'fLogo', 400)">
-          <div id="fLogoPreview" class="file-preview" style="height:100px;">${renderMedia(p.logo, "")}</div>
+          <label>Ou Upload de Nova Logo (1:1)</label>
+          <input type="file" accept="image/*" onchange="previewUpload(this, 'adminStoreLogoPreview', 'adminEditStoreLogo', 400)">
+          <div id="adminStoreLogoPreview" class="file-preview" style="height:100px;">${renderMedia(p.logo, "")}</div>
         </div>
-        <button class="btn red" onclick="savePartnerFullDetails(${p.id})">Salvar Ficha da Loja</button>
+        <button class="btn red" onclick="savePartnerDetailsFromAdmin(${p.id})">Salvar Alterações da Loja</button>
       `;
       openModal("partnerDetailsModal");
     }
 
-    function savePartnerFullDetails(storeId) {
-      const p = db.partners.find(x => x.id === storeId);
+    function savePartnerDetailsFromAdmin(partnerId) {
+      const p = db.partners.find(x => x.id === partnerId);
       if (!p) return;
 
-      p.name = document.getElementById("fName").value.trim();
-      p.owner = document.getElementById("fOwner").value.trim();
-      p.document = document.getElementById("fDoc").value.trim();
-      p.whatsapp = document.getElementById("fWhats").value.trim().replace(/\D/g, "");
-      p.username = document.getElementById("fUser").value.trim().toLowerCase();
-      p.pass = document.getElementById("fPass").value.trim() || "1234";
-      p.address = document.getElementById("fAddr").value.trim();
-      p.pixKey = document.getElementById("fPix").value.trim();
-      p.delivery = document.getElementById("fDelivery").value.trim();
-      p.logo = document.getElementById("fLogo").value.trim();
+      p.name = document.getElementById("adminEditStoreName").value.trim();
+      p.owner = document.getElementById("adminEditStoreOwner").value.trim();
+      p.document = document.getElementById("adminEditStoreDoc").value.trim();
+      p.username = document.getElementById("adminEditStoreUser").value.trim().toLowerCase();
+      p.pass = document.getElementById("adminEditStorePass").value.trim() || "1234";
+      p.whatsapp = document.getElementById("adminEditStoreWhats").value.trim().replace(/\D/g, "");
+      p.address = document.getElementById("adminEditStoreAddr").value.trim();
+      p.category = document.getElementById("adminEditStoreCat").value.trim();
+      p.pixKey = document.getElementById("adminEditStorePix").value.trim();
+      p.delivery = document.getElementById("adminEditStoreDelivery").value.trim();
+      p.minOrder = Number(document.getElementById("adminEditStoreMinOrder").value) || 0;
+      p.logo = document.getElementById("adminEditStoreLogo").value.trim() || p.logo || "";
 
       save();
       renderHome();
       closeModal("partnerDetailsModal");
-      adminTab("Parceiros & Planos", null);
-      toast("✅ Ficha atualizada com sucesso!");
+      centralTab("Parceiros & Planos");
+      toast("Ficha e credenciais da loja atualizadas!");
     }
 
-    function approveStore(i) {
-      const p = db.pending.splice(i, 1)[0];
-      p.id = Date.now();
-      p.status = "approved";
-      p.open = true;
-      p.blocked = false;
-      p.username = (p.owner ? p.owner.toLowerCase().replace(/\s+/g, "") : "loja") + p.id.toString().slice(-3);
-      p.pass = "1234";
-      p.delivery = "R$ 8,00";
-      p.minOrder = 15.00;
-      p.categories = [{ name: "GERAL", products: [] }];
-
-      db.partners.push(p);
-      save();
-      renderHome();
-      adminTab("Cadastros Pendentes", null);
-      toast(`✅ Loja aprovada! Usuário: ${p.username} / Senha: ${p.pass}`);
-    }
-
-    function rejectStore(i) {
-      if (confirm("Recusar cadastro?")) {
-        db.pending.splice(i, 1);
+    function changePartnerPlan(id, planVal) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.plan = planVal;
         save();
-        adminTab("Cadastros Pendentes", null);
-        toast("Cadastro recusado.");
+        toast(`Plano alterado para ${planVal.toUpperCase()}.`);
       }
     }
 
-    function toggleStoreOpen(id) {
+    function togglePaymentStatus(id) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.paymentStatus = (p.paymentStatus === 'paid') ? 'pending' : 'paid';
+        save();
+        centralTab("Parceiros & Planos");
+        toast(`Status financeiro atualizado!`);
+      }
+    }
+
+    function toggleStoreOpenStatus(id) {
       const p = db.partners.find(x => x.id === id);
       if (p) {
         p.open = !p.open;
         save();
         renderHome();
-        adminTab("Parceiros & Planos", null);
+        centralTab("Parceiros & Planos");
         toast(`Status de ${p.name} alterado.`);
       }
     }
 
-    function removeStore(idx) {
-      if (confirm("Deseja excluir esta loja definitivamente?")) {
+    function toggleStoreBlockStatus(id) {
+      const p = db.partners.find(x => x.id === id);
+      if (p) {
+        p.blocked = !p.blocked;
+        save();
+        renderHome();
+        centralTab("Parceiros & Planos");
+        toast(`Estabelecimento ${p.name} ${p.blocked ? 'BLOQUEADO' : 'DESBLOQUEADO'}.`);
+      }
+    }
+
+    function renderAppIdentityManager(container) {
+      const c = db.config || {};
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Identidade & Logomarca da Plataforma</h3>
+          <div class="form">
+            <div class="field">
+              <label>Título da Plataforma</label>
+              <input id="editAppName" value="${c.appName || 'R1 SHOP'}" placeholder="Ex: R1 SHOP">
+            </div>
+            <div class="field">
+              <label>Subtítulo / Slogan</label>
+              <input id="editAppSubtitle" value="${c.appSubtitle || 'Marketplace Oficial'}" placeholder="Ex: Marketplace Oficial">
+            </div>
+            <div class="field">
+              <label>Logomarca Principal (Link direto URL)</label>
+              <input id="editAppLogo" value="${c.appLogo || ''}" placeholder="https://exemplo.com/logo-r1.png" oninput="previewDirect('editAppLogo', 'appLogoPreview')">
+            </div>
+            <div class="field">
+              <label>Ou faça Upload da Logomarca (1:1 - 400x400 px)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'appLogoPreview', 'editAppLogo', 400)">
+              <div id="appLogoPreview" class="file-preview" style="height:120px;">${c.appLogo ? `<img src="${c.appLogo}">` : 'Sem logomarca customizada'}</div>
+            </div>
+            <h4 style="margin:12px 0 4px;">Credenciais de Acesso da Central</h4>
+            <div class="field">
+              <label>Usuário de Administrador</label>
+              <input id="editAdminUser" value="${c.adminUser || 'admin'}">
+            </div>
+            <div class="field">
+              <label>Senha de Administrador</label>
+              <div class="password-wrapper">
+                <input type="password" id="editAdminPass" value="${c.adminPass || '1234'}">
+                <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editAdminPass')">
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="btn red" onclick="saveAppIdentity()">Salvar Alterações da Central</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveAppIdentity() {
+      db.config.appName = document.getElementById("editAppName").value.trim() || "R1 SHOP";
+      db.config.appSubtitle = document.getElementById("editAppSubtitle").value.trim() || "Marketplace Oficial";
+      db.config.appLogo = document.getElementById("editAppLogo").value.trim();
+      db.config.adminUser = document.getElementById("editAdminUser").value.trim() || "admin";
+      db.config.adminPass = document.getElementById("editAdminPass").value.trim() || "1234";
+      save();
+      renderHome();
+      updateAppHeaderVisuals();
+      toast("Configurações salvas com sucesso!");
+    }
+
+    function removePartner(idx) {
+      if (confirm("Deseja realmente excluir este parceiro?")) {
         db.partners.splice(idx, 1);
         save();
         renderHome();
-        adminTab("Parceiros & Planos", null);
-        toast("Loja removida.");
+        centralTab("Parceiros & Planos");
+        toast("Parceiro removido.");
       }
+    }
+
+    function approve(i) {
+      const p = db.pending.splice(i, 1)[0];
+      p.id = Date.now();
+      p.status = "approved";
+      p.paymentStatus = "paid";
+      p.open = true;
+      p.blocked = false;
+      p.username = (p.owner ? p.owner.toLowerCase().replace(/\s+/g, "") : "loja") + p.id.toString().slice(-3);
+      p.pass = "1234";
+      p.plan = p.plan || "flex";
+      p.deliveryType = "fixed";
+      p.logo = p.logo || "";
+      p.document = p.document || "";
+      p.pixType = "Celular";
+      p.pixKey = p.whatsapp;
+      p.delivery = "R$ 7,00";
+      p.time = "30 - 50 min";
+      p.minOrder = 15.00;
+      p.lat = -22.6580;
+      p.lng = -50.4180;
+      p.statuses = [];
+      p.categories = [ { name: "GERAL", products: [] } ];
+      db.partners.push(p);
+      save();
+      renderHome();
+      centralTab("Cadastros");
+      toast(`Parceiro aprovado! Login: ${p.username}`);
+    }
+
+    function storeTab(tab) {
+      ensureDbIntegrity();
+      const body = document.getElementById("adminBody");
+      const p = getTargetPartner();
+      if (!p) {
+        body.innerHTML = '<div class="panel">Loja não encontrada.</div>';
+        return;
+      }
+
+      if (tab === "Dashboard") {
+        const prodCount = (p.categories || []).reduce((a, c) => a + (c.products || []).length, 0);
+        const promoCount = (p.categories || []).reduce((a, c) => a + (c.products || []).filter(x => x.isPromo).length, 0);
+        const myOrders = (db.orders || []).filter(o => o.storeId === p.id);
+        const myTotal = myOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+
+        let feeDue = 0;
+        if (p.plan === "porcentagem") feeDue = myTotal * 0.06;
+        else if (p.plan === "pro") feeDue = 59.90;
+        else feeDue = myOrders.length * 1.99;
+
+        body.innerHTML = `
+          <div class="admin-grid">
+            <div class="metric"><small>Loja Conectada</small><strong>${p.name}</strong></div>
+            <div class="metric"><small>Plano Contratado</small><strong style="color:var(--primary);">${(p.plan || 'flex').toUpperCase()}</strong></div>
+            <div class="metric"><small>Faturamento Bruto</small><strong class="success">${money(myTotal)}</strong></div>
+            <div class="metric"><small>Taxa da Plataforma</small><strong style="color:var(--warning);">${money(feeDue)}</strong></div>
+          </div>
+          <div class="panel" style="margin-top:12px;">
+            <h3>Seu Link de Compartilhamento Direto</h3>
+            <p class="hint">Envie este link para seus clientes abrirem direto o seu catálogo:</p>
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <input value="${window.location.origin}${window.location.pathname}?loja=${p.id}" readonly id="myDirectStoreLink">
+              <button class="btn dark" style="width:auto;padding:8px 12px;" onclick="copyDirectLink()">Copiar</button>
+            </div>
+          </div>
+        `;
+      } else if (tab === "Produtos & Promoções") {
+        renderProductManager(body, false);
+      } else if (tab === "Importar Catálogo (Lote)") {
+        renderBatchImporter(body);
+      } else if (tab === "Categorias") {
+        renderCategoriesManager(body);
+      } else if (tab === "Status 9:16 & Capa") {
+        renderStatusMediaManager(body, false);
+      } else if (tab === "Relatório de Vendas") {
+        renderReportsManager(body, false);
+      } else {
+        renderStoreDataManager(body);
+      }
+    }
+
+    function copyDirectLink() {
+      const link = document.getElementById("myDirectStoreLink").value;
+      navigator.clipboard.writeText(link);
+      toast("Link da loja copiado!");
+    }
+
+    function renderBatchImporter(container) {
+      const p = getTargetPartner();
+      if (!p) return;
+      container.innerHTML = `
+        <div class="panel">
+          <h3>📋 Importação Rápida de Produtos por Lote</h3>
+          <div class="spec-card">
+            <b>Como usar:</b> Selecione a categoria e cole sua lista no formato:<br>
+            <code>Nome do Item - Descrição detalhada do produto - Preço</code><br>
+            <i>Exemplo: X-Bacon Especial - Pão, hambúrguer 150g, bacon crocante, cheddar - 28.50</i>
+          </div>
+          <div class="form">
+            <div class="field">
+              <label>1. Categoria de Destino</label>
+              <select id="batchCat">
+                ${(p.categories || []).map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
+              </select>
+            </div>
+            <div class="field">
+              <label>2. Cole os itens (um por linha)</label>
+              <textarea id="batchText" style="min-height:160px;" placeholder="X-Burguer Tradicional - Pão, hambúrguer e queijo - 22.00&#10;X-Salada - Pão, hambúrguer, alface e tomate - 24.00"></textarea>
+            </div>
+            <button class="btn red" onclick="processBatchImport()">Processar e Cadastrar Todos</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function processBatchImport() {
+      const p = getTargetPartner();
+      if (!p) return;
+      const cat = document.getElementById("batchCat").value;
+      const text = document.getElementById("batchText").value.trim();
+
+      if (!text) return toast("Cole a lista de itens para importar.");
+
+      const lines = text.split("\n");
+      let count = 0;
+
+      if (!p.categories) p.categories = [];
+      let c = p.categories.find(x => x.name === cat);
+      if (!c) {
+        c = { name: cat || "GERAL", products: [] };
+        p.categories.push(c);
+      }
+
+      lines.forEach(line => {
+        const parts = line.split("-").map(s => s.trim());
+        if (parts.length >= 2) {
+          const name = parts[0];
+          let desc = "";
+          let price = 0;
+
+          if (parts.length >= 3) {
+            desc = parts[1];
+            price = parseFloat(parts[2].replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+          } else {
+            price = parseFloat(parts[1].replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+          }
+
+          if (name && price > 0) {
+            c.products.push({
+              id: "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+              name: name,
+              desc: desc,
+              price: price,
+              image: "",
+              isPromo: false,
+              paused: false
+            });
+            count++;
+          }
+        }
+      });
+
+      save();
+      renderHome();
+      storeTab("Produtos & Promoções");
+      toast(`🎉 ${count} produtos importados com sucesso!`);
+    }
+
+    function renderProductManager(container, isCentral) {
+      const p = getTargetPartner();
+      if (!p) return;
+
+      container.innerHTML = `
+        ${isCentral ? `
+          <div class="panel">
+            <label style="font-weight:900;font-size:13px;display:block;margin-bottom:6px;">Selecione a Loja para Gerenciar:</label>
+            <select onchange="changeCentralPartner(this.value, 'Produtos da Loja')">
+              ${(db.partners || []).map(store => `<option value="${store.id}" ${store.id === p.id ? 'selected' : ''}>${store.name}</option>`).join("")}
+            </select>
+          </div>
+        ` : ''}
+
+        <div class="panel">
+          <h3>➕ Cadastrar Novo Produto em ${p.name}</h3>
+          <div class="form">
+            <div class="field">
+              <label>1. Categoria do Produto</label>
+              <select id="newCat">
+                ${(p.categories || []).map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
+              </select>
+            </div>
+            <div class="field">
+              <label>2. Nome do Produto / Item</label>
+              <input id="newName" placeholder="Ex: Pudim Cake Tradicional">
+            </div>
+            <div class="field">
+              <label>3. Preço de Venda (R$)</label>
+              <input id="newPrice" type="number" step="0.01" placeholder="Ex: 25.00">
+            </div>
+            <div class="field-checkbox">
+              <input type="checkbox" id="newIsPromo">
+              <label for="newIsPromo" style="cursor:pointer;margin:0;">
+                <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b>
+              </label>
+            </div>
+            <div class="field">
+              <label>4. Descrição do Produto</label>
+              <textarea id="newDesc" placeholder="Descreva o produto para o cliente..."></textarea>
+            </div>
+            <div class="field">
+              <label>5. Foto do Produto (Link direto URL)</label>
+              <input id="newImgUrl" placeholder="Cole o link da foto (https://...)" oninput="previewDirect('newImgUrl', 'productImgPreview')">
+            </div>
+            <div class="field">
+              <label>Ou faça Upload da Foto (1:1)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 400)">
+              <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
+            </div>
+            <button class="btn red" onclick="addProductToStore()">+ Adicionar Produto ao Cardápio</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>📋 Itens Cadastrados no Cardápio (${(p.categories || []).reduce((acc, c) => acc + (c.products || []).length, 0)})</h3>
+          ${(p.categories || []).map(c => `
+            <p style="margin:14px 0 6px;font-size:14px;color:var(--dark);"><b>📂 Categoria: ${c.name}</b></p>
+            ${(c.products || []).map((x, pIdx) => `
+              <div class="row">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:45px;height:45px;border-radius:8px;overflow:hidden;background:#f0f0f0;display:grid;place-items:center;">
+                    ${renderMedia(x.image, "")}
+                  </div>
+                  <span>
+                    ${x.isPromo ? `<span class="tag-highlight">🔥 PROMOÇÃO</span> ` : ''}
+                    <b>${x.name}</b> — <span style="color:var(--green);font-weight:900;">${money(Number(x.price))}</span><br>
+                    <small style="color:var(--muted)">${x.paused ? '<b style="color:red">Pausado</b>' : 'Ativo'}</small>
+                  </span>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  <button class="btn outline" style="padding:5px 8px;font-size:11px;" onclick="openEditProductModal('${c.name}', ${pIdx})">
+                    ✏️ Editar
+                  </button>
+                  <button class="btn ${x.isPromo ? 'warning' : 'outline'}" style="padding:5px 8px;font-size:11px;" onclick="togglePromoProduct('${c.name}', ${pIdx})">
+                    ${x.isPromo ? 'Tirar Promo' : 'Promo'}
+                  </button>
+                  <button class="btn dark" style="padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${pIdx})">
+                    ${x.paused ? 'Ativar' : 'Pausar'}
+                  </button>
+                  <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removeProduct('${c.name}', ${pIdx})">✕</button>
+                </div>
+              </div>
+            `).join("") || '<p class="hint">Nenhum produto nesta categoria.</p>'}
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function changeCentralPartner(id, returnTab) {
+      centralSelectedPartnerId = id;
+      centralTab(returnTab || "Produtos da Loja");
+    }
+
+    function addProductToStore() {
+      const p = getTargetPartner();
+      if (!p) return;
+      const n = document.getElementById("newName").value.trim();
+      const price = Number(document.getElementById("newPrice").value);
+      const cat = document.getElementById("newCat").value;
+      const desc = document.getElementById("newDesc").value.trim();
+      const isPromo = document.getElementById("newIsPromo").checked;
+      const imgUrl = document.getElementById("newImgUrl").value.trim();
+
+      if (!n || isNaN(price) || price <= 0) return toast("Preencha nome e preço válido.");
+
+      if (!p.categories) p.categories = [];
+      let c = p.categories.find(x => x.name === cat);
+      if (!c) {
+        c = { name: cat || "GERAL", products: [] };
+        p.categories.push(c);
+      }
+
+      c.products.push({
+        id: "p_" + Date.now(),
+        name: n,
+        isPromo: isPromo,
+        desc: desc,
+        price: price,
+        image: imgUrl || "",
+        paused: false
+      });
+
+      save();
+      renderHome();
+      if (adminMode === "central") centralTab("Produtos da Loja");
+      else storeTab("Produtos & Promoções");
+      toast("Produto gravado!");
+    }
+
+    function openEditProductModal(catName, prodIdx) {
+      const p = getTargetPartner();
+      if (!p) return;
+      const c = (p.categories || []).find(x => x.name === catName);
+      if (!c || !c.products[prodIdx]) return;
+
+      const prod = c.products[prodIdx];
+      document.getElementById("editProdCatName").value = catName;
+      document.getElementById("editProdIndex").value = prodIdx;
+      document.getElementById("editProdName").value = prod.name;
+      document.getElementById("editProdPrice").value = prod.price;
+      document.getElementById("editProdDesc").value = prod.desc || "";
+      document.getElementById("editProdImg").value = prod.image || "";
+      document.getElementById("editProdIsPromo").checked = !!prod.isPromo;
+      document.getElementById("editProdPaused").checked = !!prod.paused;
+      
+      const prevEl = document.getElementById("editProdPreview");
+      prevEl.innerHTML = prod.image ? `<img src="${prod.image}">` : "Sem Foto";
+
+      openModal("editProductModal");
+    }
+
+    function saveProductEdits() {
+      const p = getTargetPartner();
+      if (!p) return;
+      const catName = document.getElementById("editProdCatName").value;
+      const prodIdx = parseInt(document.getElementById("editProdIndex").value);
+
+      const c = (p.categories || []).find(x => x.name === catName);
+      if (c && c.products[prodIdx]) {
+        const prod = c.products[prodIdx];
+        prod.name = document.getElementById("editProdName").value.trim() || prod.name;
+        prod.price = Number(document.getElementById("editProdPrice").value) || prod.price;
+        prod.desc = document.getElementById("editProdDesc").value.trim();
+        prod.image = document.getElementById("editProdImg").value.trim();
+        prod.isPromo = document.getElementById("editProdIsPromo").checked;
+        prod.paused = document.getElementById("editProdPaused").checked;
+
+        save();
+        renderHome();
+        closeModal("editProductModal");
+        if (adminMode === "central") centralTab("Produtos da Loja");
+        else storeTab("Produtos & Promoções");
+        toast("Produto atualizado com sucesso!");
+      }
+    }
+
+    function togglePromoProduct(catName, prodIdx) {
+      const p = getTargetPartner();
+      if (!p) return;
+      const c = (p.categories || []).find(x => x.name === catName);
+      if (c && c.products[prodIdx]) {
+        c.products[prodIdx].isPromo = !c.products[prodIdx].isPromo;
+        save();
+        renderHome();
+        if (adminMode === "central") centralTab("Produtos da Loja");
+        else storeTab("Produtos & Promoções");
+        toast(c.products[prodIdx].isPromo ? "Produto em promoção!" : "Promoção desativada.");
+      }
+    }
+
+    function togglePauseProduct(catName, prodIdx) {
+      const p = getTargetPartner();
+      if (!p) return;
+      const c = (p.categories || []).find(x => x.name === catName);
+      if (c && c.products[prodIdx]) {
+        c.products[prodIdx].paused = !c.products[prodIdx].paused;
+        save();
+        renderHome();
+        if (adminMode === "central") centralTab("Produtos da Loja");
+        else storeTab("Produtos & Promoções");
+        toast("Status do produto alterado!");
+      }
+    }
+
+    function removeProduct(catName, prodIdx) {
+      const p = getTargetPartner();
+      if (!p) return;
+      const c = (p.categories || []).find(x => x.name === catName);
+      if (c && confirm("Deseja excluir este produto?")) {
+        c.products.splice(prodIdx, 1);
+        save();
+        renderHome();
+        if (adminMode === "central") centralTab("Produtos da Loja");
+        else storeTab("Produtos & Promoções");
+        toast("Produto removido.");
+      }
+    }
+
+    function renderCategoriesManager(container) {
+      const p = getTargetPartner();
+      if (!p) return;
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Categorias de ${p.name}</h3>
+          <div class="list">
+            ${(p.categories || []).map((c, idx) => `
+              <div class="row">
+                <b>${c.name}</b>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <small style="color:var(--muted)">${(c.products || []).length} itens</small>
+                  <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeCategory(${idx})">✕</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="form" style="margin-top:14px;">
+            <div class="field">
+              <label>Nova Categoria</label>
+              <input id="catName" placeholder="Ex: PUDIM CAKE, COMBOS, BEBIDAS">
+            </div>
+            <button class="btn red" onclick="addCategoryToStore()">Criar categoria</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function addCategoryToStore() {
+      const p = getTargetPartner();
+      if (!p) return;
+      const n = document.getElementById("catName").value.trim().toUpperCase();
+      if (!n) return toast("Digite o nome da categoria.");
+      if ((p.categories || []).some(c => c.name === n)) return toast("Categoria já existente.");
+
+      if (!p.categories) p.categories = [];
+      p.categories.push({ name: n, products: [] });
+      save();
+      storeTab("Categorias");
+      toast("Categoria criada!");
+    }
+
+    function removeCategory(idx) {
+      const p = getTargetPartner();
+      if (!p) return;
+      if (confirm(`Excluir a categoria "${p.categories[idx].name}" e seus itens?`)) {
+        p.categories.splice(idx, 1);
+        save();
+        storeTab("Categorias");
+        toast("Categoria removida.");
+      }
+    }
+
+    function renderStatusMediaManager(container, isCentral) {
+      const p = getTargetPartner();
+      if (!p) return;
+      if (!p.statuses) p.statuses = [];
+
+      container.innerHTML = `
+        ${isCentral ? `
+          <div class="panel">
+            <label style="font-weight:900;font-size:13px;display:block;margin-bottom:6px;">Selecione a Loja para Gerenciar Stories / Vídeos:</label>
+            <select onchange="changeCentralPartner(this.value, 'Status & Vídeos 9:16')">
+              ${(db.partners || []).map(store => `<option value="${store.id}" ${store.id === p.id ? 'selected' : ''}>${store.name}</option>`).join("")}
+            </select>
+          </div>
+        ` : ''}
+
+        <div class="panel">
+          <h3>📱 1. Status / Stories de ${p.name}</h3>
+          <div class="form">
+            <div class="field">
+              <label>Título / Nome da Oferta do Vídeo</label>
+              <input id="newStatusTitle" placeholder="Ex: Pudim em Dobro / Lanche da Noite">
+            </div>
+            <div class="field">
+              <label>Tipo de Mídia do Status</label>
+              <select id="newStatusType">
+                <option value="video">Vídeo Vertical MP4</option>
+                <option value="image">Foto / Arte Vertical</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Link Direto URL da Mídia</label>
+              <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou https://exemplo.com/foto.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
+            </div>
+            <div class="field">
+              <label>Ou faça Upload do Arquivo</label>
+              <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 400)">
+              <div id="statusPreviewBox" class="file-preview">Prévia do Status</div>
+            </div>
+            <button class="btn red" onclick="addStatusToStore(${isCentral})">+ Publicar Status Stories</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Stories Ativos no Topo (${p.statuses.length})</h3>
+          <div class="list">
+            ${p.statuses.map((st, sIdx) => `
+              <div class="row">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:40px;height:60px;background:#000;border-radius:6px;overflow:hidden;display:grid;place-items:center;">
+                    ${st.type === 'video' ? '<span style="color:#fff;font-size:10px;">VÍDEO</span>' : `<img src="${st.url}" style="width:100%;height:100%;object-fit:cover;">`}
+                  </div>
+                  <span>
+                    <b>${st.title || (st.type === 'video' ? 'Vídeo' : 'Foto')}</b><br>
+                    <small style="color:var(--muted);max-width:220px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${st.url}</small>
+                  </span>
+                </div>
+                <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeStatusFromStore(${sIdx}, ${isCentral})">Excluir</button>
+              </div>
+            `).join("") || '<p class="hint">Nenhum status publicado.</p>'}
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal)</h3>
+          <div class="form">
+            <div class="field">
+              <label>Link da Imagem da Capa</label>
+              <input id="editBannerUrl" value="${p.banner || ''}" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('editBannerUrl', 'bannerPreview')">
+            </div>
+            <div class="field">
+              <label>Ou Upload da Imagem da Capa</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerPreview', 'editBannerUrl', 500)">
+              <div id="bannerPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem banner de capa'}</div>
+            </div>
+            <button class="btn dark" onclick="saveBannerOnly(${isCentral})">Salvar Banner de Capa</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function addStatusToStore(isCentral) {
+      const p = getTargetPartner();
+      if (!p) return;
+      if (!p.statuses) p.statuses = [];
+
+      const title = document.getElementById("newStatusTitle").value.trim();
+      const type = document.getElementById("newStatusType").value;
+      const url = document.getElementById("newStatusUrl").value.trim();
+
+      if (!url) return toast("Selecione um arquivo ou link.");
+
+      p.statuses.push({ title, type, url });
+      save();
+      renderHome();
+      
+      const body = document.getElementById("adminBody");
+      renderStatusMediaManager(body, isCentral);
+      toast("Status gravado com sucesso!");
+    }
+
+    function removeStatusFromStore(sIdx, isCentral) {
+      const p = getTargetPartner();
+      if (!p) return;
+      if (confirm("Deseja excluir este status?")) {
+        p.statuses.splice(sIdx, 1);
+        save();
+        renderHome();
+        const body = document.getElementById("adminBody");
+        renderStatusMediaManager(body, isCentral);
+        toast("Status removido!");
+      }
+    }
+
+    function saveBannerOnly(isCentral) {
+      const p = getTargetPartner();
+      if (!p) return;
+      p.banner = document.getElementById("editBannerUrl").value.trim();
+      save();
+      renderHome();
+      toast("Banner gravado com sucesso!");
+    }
+
+    function renderReportsManager(container, isCentral) {
+      ensureDbIntegrity();
+      let p = getTargetPartner();
+      let orders = db.orders || [];
+
+      if (isCentral) {
+        if (centralSelectedPartnerId !== "all") {
+          orders = orders.filter(o => o.storeId === Number(centralSelectedPartnerId));
+        }
+      } else {
+        if (!p) return;
+        orders = orders.filter(o => o.storeId === p.id && !o.hiddenForStore);
+      }
+
+      const now = new Date();
+      if (reportFilterPeriod === "hoje") {
+        orders = orders.filter(o => new Date(o.date).toDateString() === now.toDateString());
+      } else if (reportFilterPeriod === "semana") {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        orders = orders.filter(o => new Date(o.date) >= weekAgo);
+      } else if (reportFilterPeriod === "mes") {
+        orders = orders.filter(o => {
+          const d = new Date(o.date);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+      }
+
+      const totalVal = orders.reduce((acc, o) => acc + (o.total || 0), 0);
+      const totalCommission = orders.reduce((acc, o) => acc + (o.commissionVal || 0), 0);
+      const avgTicket = orders.length ? totalVal / orders.length : 0;
+
+      container.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3>Histórico de Vendas & Comissões</h3>
+            <button class="btn dark" style="width:auto;padding:7px 12px;font-size:12px;" onclick="printReport()">
+              <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+              Imprimir / PDF
+            </button>
+          </div>
+
+          ${isCentral ? `
+            <div style="margin-bottom:12px;">
+              <label style="font-weight:800;font-size:12px;">Filtrar por Estabelecimento:</label>
+              <select onchange="changeCentralReportPartner(this.value)">
+                <option value="all" ${centralSelectedPartnerId === 'all' ? 'selected' : ''}>Todas as Lojas (Consolidado)</option>
+                ${(db.partners || []).map(store => `<option value="${store.id}" ${centralSelectedPartnerId == store.id ? 'selected' : ''}>${store.name}</option>`).join("")}
+              </select>
+            </div>
+          ` : ''}
+
+          <div style="margin-bottom:12px;">
+            <label style="font-weight:800;font-size:12px;">Filtrar por Período:</label>
+            <select id="repFilter" onchange="changeReportFilter(this.value, ${isCentral})">
+              <option value="todos" ${reportFilterPeriod === 'todos' ? 'selected' : ''}>Todo o Histórico</option>
+              <option value="hoje" ${reportFilterPeriod === 'hoje' ? 'selected' : ''}>Hoje</option>
+              <option value="semana" ${reportFilterPeriod === 'semana' ? 'selected' : ''}>Últimos 7 dias</option>
+              <option value="mes" ${reportFilterPeriod === 'mes' ? 'selected' : ''}>Este Mês</option>
+            </select>
+          </div>
+
+          <div class="admin-grid" style="margin-bottom:14px;">
+            <div class="metric"><small>Pedidos</small><strong>${orders.length}</strong></div>
+            <div class="metric"><small>Faturamento Bruto</small><strong class="success">${money(totalVal)}</strong></div>
+            <div class="metric"><small>Comissão R1 Total</small><strong style="color:var(--warning);">${money(totalCommission)}</strong></div>
+            <div class="metric"><small>Ticket Médio</small><strong>${money(avgTicket)}</strong></div>
+          </div>
+
+          <div id="printableArea">
+            <h4 style="margin:10px 0;">Relatório Detalhado - ${isCentral ? (centralSelectedPartnerId === 'all' ? 'Central R1 (Todas as Lojas)' : (db.partners.find(x => x.id == centralSelectedPartnerId)?.name || 'Loja')) : (p ? p.name : 'Loja')}</h4>
+            <small style="color:var(--muted);display:block;margin-bottom:10px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</small>
+
+            ${orders.map((o) => `
+              <div class="order-card-history">
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:6px;">
+                  <span><b>${o.id}</b> · ${o.storeName}</span>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="color:var(--green);font-weight:900;">${money(o.total)}</span>
+                    <button class="btn red" style="width:auto;padding:3px 6px;font-size:10px;" onclick="handleRemoveOrder('${o.id}', ${isCentral})" title="Remover pedido">✕</button>
+                  </div>
+                </div>
+                <div><b>Cliente:</b> ${o.customerName} (${o.customerPhone})</div>
+                <div><b>Modo:</b> ${o.orderType === 'retirada' ? 'Retirada no Balcão' : 'Entrega no Endereço'}</div>
+                ${o.customerAddress ? `<div><b>Endereço:</b> ${o.customerAddress}</div>` : ''}
+                <div><b>Pagamento:</b> ${o.payment} · <b>Entrega:</b> ${o.delivery === 'R1' ? 'Motoboy R1' : (o.delivery === 'Balcão' ? 'Balcão' : 'Entrega da Loja')}</div>
+                <div style="background:#fff7f8;padding:4px 8px;border-radius:6px;margin:4px 0;font-size:12px;color:var(--primary);font-weight:700;">
+                  📊 Comissão Plataforma R1: ${o.commissionText || money(o.commissionVal || 0)}
+                </div>
+                <div style="margin-top:4px;color:#555;"><b>Itens:</b> ${(o.items || []).map(it => `${it.qty}x ${it.name}`).join(", ")}</div>
+                
+                <div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:6px;border-top:1px dashed #eee;flex-wrap:wrap;">
+                  <span style="font-size:11px;font-weight:800;">Status:</span>
+                  <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}" style="font-size:10px;padding:2px 6px;">
+                    ${o.status || 'Novo'}
+                  </span>
+                  <button class="btn dark" style="width:auto;padding:3px 8px;font-size:10px;" onclick="openClientTracking('${o.id}')">📍 Ver no Mapa</button>
+                  <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="shareOrderToMotoboysGroup('${o.id}')">📢 Chamar Grupo Motoboys</button>
+                  <button class="btn warning" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Despachado', ${isCentral})">🛵 Despachar</button>
+                  <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Entregue', ${isCentral})">✓ Concluído</button>
+                </div>
+
+                <small style="color:#888;display:block;margin-top:6px;">Data/Hora: ${new Date(o.date).toLocaleString('pt-BR')}</small>
+              </div>
+            `).join("") || '<p class="hint">Nenhum pedido encontrado para o filtro.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function changeCentralReportPartner(val) {
+      centralSelectedPartnerId = val;
+      renderReportsManager(document.getElementById("adminBody"), true);
+    }
+
+    function changeReportFilter(val, isCentral) {
+      reportFilterPeriod = val;
+      const body = document.getElementById("adminBody");
+      renderReportsManager(body, isCentral);
+    }
+
+    function updateOrderStatus(orderId, newStatus, isCentral) {
+      const o = (db.orders || []).find(x => x.id === orderId);
+      if (o) {
+        o.status = newStatus;
+        save();
+        renderReportsManager(document.getElementById("adminBody"), isCentral);
+        toast(`Status atualizado para: ${newStatus}`);
+      }
+    }
+
+    function handleRemoveOrder(orderId, isCentral) {
+      if (isCentral) {
+        if (confirm("Central: Deseja apagar definitivamente este pedido da base auditada?")) {
+          const idx = (db.orders || []).findIndex(x => x.id === orderId);
+          if (idx !== -1) db.orders.splice(idx, 1);
+          save();
+          renderReportsManager(document.getElementById("adminBody"), true);
+          toast("Pedido excluído definitivamente pela Central.");
+        }
+      } else {
+        if (confirm("Lojista: Deseja ocultar este registro do seu relatório de visualização?")) {
+          const o = (db.orders || []).find(x => x.id === orderId);
+          if (o) o.hiddenForStore = true;
+          save();
+          renderReportsManager(document.getElementById("adminBody"), false);
+          toast("Registro ocultado da sua tela.");
+        }
+      }
+    }
+
+    function printReport() {
+      window.print();
+    }
+
+    function renderStoreDataManager(container) {
+      const p = getTargetPartner();
+      if (!p) return;
+      const soc = p.socials || {};
+      const accepted = p.acceptedPayments || ["Pix", "Dinheiro", "Cartão na entrega"];
+
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Dados, Redes e Pagamentos de ${p.name}</h3>
+          <div class="form">
+            <div class="field">
+              <label>Nome do comércio</label>
+              <input value="${p.name}" id="editStoreName">
+            </div>
+            <div class="field">
+              <label>Nome do Responsável</label>
+              <input value="${p.owner || ''}" id="editStoreOwner">
+            </div>
+            <div class="field">
+              <label>CNPJ / CPF</label>
+              <input value="${p.document || ''}" id="editStoreDoc">
+            </div>
+            <div class="field">
+              <label>WhatsApp de pedidos (com DDD)</label>
+              <input value="${p.whatsapp}" id="editWhats">
+            </div>
+            <div class="field">
+              <label>Modelo de Frete da Loja</label>
+              <select id="editDeliveryType">
+                <option value="fixed" ${p.deliveryType === 'fixed' ? 'selected' : ''}>Taxa Fixa Padrão</option>
+                <option value="dynamic" ${p.deliveryType === 'dynamic' ? 'selected' : ''}>Cálculo por Km / Perímetro (Mapbox/GPS)</option>
+              </select>
+            </div>
+
+            <h4 style="margin:10px 0 4px;">Redes Sociais da Loja</h4>
+            <div class="field">
+              <label>Instagram (@usuario ou link)</label>
+              <input value="${soc.instagram || ''}" id="editStoreInsta" placeholder="Ex: seunome.oficial">
+            </div>
+            <div class="field">
+              <label>Facebook (Link da página)</label>
+              <input value="${soc.facebook || ''}" id="editStoreFace" placeholder="https://facebook.com/...">
+            </div>
+            <div class="field">
+              <label>Canal do YouTube (Link)</label>
+              <input value="${soc.youtube || ''}" id="editStoreYt" placeholder="https://youtube.com/@...">
+            </div>
+
+            <h4 style="margin:10px 0 4px;">Formas de Pagamento & Bandeiras Aceitas</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#fafafa;padding:10px;border-radius:10px;border:1px solid #ddd;">
+              ${["Pix", "Dinheiro", "Cartão na entrega", "Visa", "Mastercard", "Elo", "Hipercard", "Alelo", "Sodexo", "Ticket Refeição", "VR"].map(flag => `
+                <label style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                  <input type="checkbox" class="pay-flag-check" value="${flag}" ${accepted.includes(flag) ? 'checked' : ''}>
+                  ${flag}
+                </label>
+              `).join("")}
+            </div>
+
+            <h4 style="margin:10px 0 4px;">Credenciais de Acesso da Loja</h4>
+            <div class="field">
+              <label>Usuário / Login da Loja</label>
+              <input value="${p.username || 'loja' + p.id}" id="editStoreUsername">
+            </div>
+            <div class="field">
+              <label>Senha da Loja</label>
+              <div class="password-wrapper">
+                <input type="password" id="editStorePass" value="${p.pass || '1234'}">
+                <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('editStorePass')">
+                  <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Logomarca da Loja (Link direto URL)</label>
+              <input value="${p.logo || ''}" id="editStoreLogo" placeholder="https://exemplo.com/minha-logo.jpg" oninput="previewDirect('editStoreLogo', 'storeLogoPreview')">
+            </div>
+            <div class="field">
+              <label>Ou faça Upload da Foto/Logo (1:1)</label>
+              <input type="file" accept="image/*" onchange="previewUpload(this, 'storeLogoPreview', 'editStoreLogo', 400)">
+              <div id="storeLogoPreview" class="file-preview" style="height:120px;">${renderMedia(p.logo, "")}</div>
+            </div>
+            <div class="field">
+              <label>Valor do Pedido Mínimo (R$)</label>
+              <input value="${p.minOrder || 15.00}" type="number" step="0.01" id="editMinOrder">
+            </div>
+            <div class="field">
+              <label>Tipo de Chave Pix</label>
+              <select id="editPixType">
+                <option value="Celular" ${p.pixType === 'Celular' ? 'selected' : ''}>Celular</option>
+                <option value="CPF" ${p.pixType === 'CPF' ? 'selected' : ''}>CPF</option>
+                <option value="CNPJ" ${p.pixType === 'CNPJ' ? 'selected' : ''}>CNPJ</option>
+                <option value="E-mail" ${p.pixType === 'E-mail' ? 'selected' : ''}>E-mail</option>
+                <option value="Chave Aleatória" ${p.pixType === 'Chave Aleatória' ? 'selected' : ''}>Chave Aleatória</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Chave Pix para Pagamento Copia e Cola</label>
+              <input value="${p.pixKey || ''}" id="editPixKey" placeholder="Ex: 18991111111 ou seu CPF/CNPJ">
+            </div>
+            <div class="field">
+              <label>Endereço completo da Loja</label>
+              <input value="${p.address}" id="editAddress">
+            </div>
+            <div class="field">
+              <label>Taxa de entrega padrão</label>
+              <input value="${p.delivery || 'R$ 7,00'}" id="editDelivery">
+            </div>
+            <div class="field">
+              <label>Tempo estimado</label>
+              <input value="${p.time || '25 - 40 min'}" id="editTime">
+            </div>
+            <div class="field">
+              <label>Status de Funcionamento</label>
+              <select id="editOpen">
+                <option value="true" ${p.open ? 'selected' : ''}>Aberto para pedidos</option>
+                <option value="false" ${!p.open ? 'selected' : ''}>Fechado temporariamente</option>
+              </select>
+            </div>
+            <button class="btn red" onclick="saveStoreData()">Salvar Dados e Credenciais</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveStoreData() {
+      const p = getTargetPartner();
+      if (!p) return;
+      p.name = document.getElementById("editStoreName").value.trim();
+      p.owner = document.getElementById("editStoreOwner").value.trim();
+      p.document = document.getElementById("editStoreDoc").value.trim();
+      p.whatsapp = document.getElementById("editWhats").value.trim().replace(/\D/g, "");
+      p.deliveryType = document.getElementById("editDeliveryType").value;
+      p.username = document.getElementById("editStoreUsername").value.trim() || p.username;
+      p.pass = document.getElementById("editStorePass").value.trim() || p.pass;
+      p.minOrder = Number(document.getElementById("editMinOrder").value) || 0;
+      p.pixType = document.getElementById("editPixType").value;
+      p.pixKey = document.getElementById("editPixKey").value.trim();
+      p.address = document.getElementById("editAddress").value.trim();
+      p.delivery = document.getElementById("editDelivery").value.trim();
+      p.time = document.getElementById("editTime").value.trim();
+      p.logo = document.getElementById("editStoreLogo").value.trim() || p.logo || "";
+      p.open = document.getElementById("editOpen").value === "true";
+
+      p.socials = {
+        instagram: document.getElementById("editStoreInsta").value.trim(),
+        facebook: document.getElementById("editStoreFace").value.trim(),
+        youtube: document.getElementById("editStoreYt").value.trim()
+      };
+
+      const checkedFlags = [];
+      document.querySelectorAll(".pay-flag-check:checked").forEach(cb => {
+        checkedFlags.push(cb.value);
+      });
+      p.acceptedPayments = checkedFlags;
+
+      save();
+      renderHome();
+      storeTab("Dados da Loja");
+      toast("Dados salvos e gravados com sucesso!");
     }
 
     function submitPartner() {
       const name = document.getElementById("pName").value.trim();
       const owner = document.getElementById("pOwner").value.trim();
-      const doc = document.getElementById("pDoc").value.trim();
+      const doc = document.getElementById("pDocument").value.trim();
       const whats = document.getElementById("pWhats").value.trim();
       const address = document.getElementById("pAddress").value.trim();
-      const cat = document.getElementById("pCategory").value;
-      const plan = document.getElementById("pPlan").value;
-      const pix = document.getElementById("pPix").value.trim();
-      const logo = document.getElementById("pLogoUrl").value.trim();
+      const category = document.getElementById("pCategory").value;
+      const plan = document.getElementById("pPlan").value || "flex";
+      const logo = document.getElementById("pLogoUrl").value.trim() || "";
 
       if (!name || !owner || !whats || !address) return toast("Preencha os campos obrigatórios.");
 
@@ -2456,20 +5112,40 @@
         owner,
         document: doc,
         whatsapp: whats.replace(/\D/g, ""),
+        pixType: "Celular",
+        pixKey: whats.replace(/\D/g, ""),
         address,
-        category: cat,
-        plan,
-        pixKey: pix || whats.replace(/\D/g, ""),
-        logo,
+        category,
+        plan: plan,
+        logo: logo,
+        statuses: [],
+        blocked: false,
+        lat: -22.6580,
+        lng: -50.4180,
         status: "pending"
       });
 
       save();
       closeModal("partnerModal");
-      toast("✅ Cadastro enviado para análise da Central R1!");
+      toast("Cadastro enviado para a Central R1!");
     }
 
-    window.addEventListener("DOMContentLoaded", initDatabase);
+    window.addEventListener("DOMContentLoaded", () => {
+      initDatabase();
+      const params = new URLSearchParams(window.location.search);
+      const storeParam = params.get("loja");
+      const trackParam = params.get("rastreio");
+      const corridaParam = params.get("corrida");
+
+      if (storeParam) {
+        const found = (db.partners || []).find(p => p.id.toString() === storeParam);
+        if (found && !found.blocked) openCatalog(found.id);
+      } else if (trackParam) {
+        openClientTracking(trackParam);
+      } else if (corridaParam) {
+        openOrderDecisionFlow(corridaParam);
+      }
+    });
   </script>
 </body>
 </html>
