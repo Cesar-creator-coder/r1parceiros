@@ -13,7 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-  <!-- Leaflet Maps (100% Gratuito & Leve para Rastreamento em Tempo Real) -->
+  <!-- Leaflet Maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -130,7 +130,6 @@
     }
     .bottom-install-btn svg { width: 16px; height: 16px; fill: var(--primary); }
 
-    /* TARJA HORIZONTAL DE PARCEIROS CONTÍNUA (MARQUEE) */
     .partner-ticker-bar {
       position: fixed;
       bottom: 65px;
@@ -1616,6 +1615,17 @@
     </div>
   </div>
 
+  <!-- MODAL DE FICHA CADASTRAL COMPLETA DA LOJA (ADMIN) -->
+  <div id="partnerDetailsModal" class="modal">
+    <div class="sheet center">
+      <div class="sheet-head">
+        <h2>📄 Ficha Cadastral da Loja</h2>
+        <button class="close" onclick="closeModal('partnerDetailsModal')">✕</button>
+      </div>
+      <div class="form" id="partnerDetailsContent"></div>
+    </div>
+  </div>
+
   <div id="partnerModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
@@ -1632,6 +1642,10 @@
         <div class="field">
           <label>Responsável</label>
           <input id="pOwner" placeholder="Seu nome">
+        </div>
+        <div class="field">
+          <label>CNPJ / CPF</label>
+          <input id="pDocument" placeholder="00.000.000/0000-00">
         </div>
         <div class="field">
           <label>WhatsApp para receber pedidos</label>
@@ -1857,6 +1871,7 @@
           id: 1,
           name: "Pudim da Claudinha",
           owner: "Claudinha",
+          document: "00.000.000/0001-00",
           username: "claudinha",
           pass: "1234",
           whatsapp: "5518991111111",
@@ -1882,7 +1897,7 @@
           statuses: [
             { 
               type: "video", 
-              url: "https://www.w3schools.com/html/mov_bbb.mp4",
+              url: "https://www.w3schools.com/html/mov_bbb.mp4", 
               title: "Pudim Tradicional Especial",
               actionType: "whatsapp",
               actionTarget: "Pudim Tradicional Especial"
@@ -1924,7 +1939,6 @@
 
     let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || seed;
 
-    /* GARANTE A INTEGRIDADE TOTAL DO BANCO DE DADOS */
     function ensureDbIntegrity() {
       if (!db || typeof db !== "object") db = seed;
       if (!db.config) db.config = seed.config;
@@ -1964,7 +1978,6 @@
     let activeCentralMap = null;
     let motoboyWatchId = null;
 
-    /* GRAVAÇÃO DEFINITIVA NO INDEXEDDB E FIREBASE */
     async function save() {
       ensureDbIntegrity();
       await setIDB("main_data", db);
@@ -2164,7 +2177,6 @@
       reader.readAsDataURL(file);
     }
 
-    /* BUSCA AUTOMÁTICA DE CEP (VIACEP 100% GRATUITO) */
     async function buscarCep(cepVal) {
       const cleanCep = (cepVal || "").replace(/\D/g, "");
       if (cleanCep.length !== 8) return;
@@ -2217,7 +2229,6 @@
       }
     }
 
-    /* DISPARO DIRETO DA CORRIDA NO GRUPO DE WHATSAPP DA EQUIPE R1 */
     function shareOrderToMotoboysGroup(orderId) {
       const order = (db.orders || []).find(o => o.id === orderId);
       if (!order) return toast("Pedido não encontrado.");
@@ -2248,7 +2259,6 @@
       }
     }
 
-    /* RENDERIZAÇÃO DE STORIES CONDICIONAL */
     function renderStatusList() {
       const partnersWithStatus = (db.partners || []).filter(p => p.status === "approved" && !p.blocked && p.statuses && p.statuses.length > 0);
       const containerBox = document.getElementById("statusContainerBox");
@@ -2375,7 +2385,6 @@
       }
     }
 
-    /* INICIALIZAÇÃO DA BOLHA ARRASTÁVEL */
     function initDraggableBubble() {
       const bubble = document.getElementById("storeFloatingBubble");
       if (!bubble) return;
@@ -2441,7 +2450,6 @@
       `).join("");
     }
 
-    /* RENDERIZAÇÃO DO CARROSSEL DE PARCEIROS EM TARJA CONTÍNUA (MARQUEE) */
     function renderPartnerTicker() {
       const track = document.getElementById("partnerTickerTrack");
       if (!track) return;
@@ -2504,7 +2512,6 @@
         </article>
       `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
-      /* PROMOÇÕES DO DIA */
       let promo = [];
       (db.partners || []).filter(p => p.status === "approved" && !p.blocked).forEach(p => {
         (p.categories || []).forEach(c => {
@@ -2574,7 +2581,6 @@
             <span class="catalog-badge">Entrega: ${currentPartner.delivery}</span>
           </div>
 
-          <!-- REDES SOCIAIS CONDICIONAIS -->
           ${(soc.instagram || soc.facebook || soc.youtube || currentPartner.whatsapp) ? `
             <div class="social-links">
               ${soc.instagram ? `<a href="https://instagram.com/${soc.instagram.replace('@','')}" target="_blank" class="social-btn">📷 Instagram</a>` : ''}
@@ -2584,7 +2590,6 @@
             </div>
           ` : ''}
 
-          <!-- FORMAS DE PAGAMENTO ACEITAS -->
           <div class="payment-badges-list">
             <small style="width:100%;color:#bbb;font-size:11px;display:block;">Formas de pagamento aceitas:</small>
             ${accepted.map(pay => `<span class="pay-badge">✓ ${pay}</span>`).join("")}
@@ -2806,7 +2811,6 @@
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`, "_blank");
     }
 
-    /* ENVIO DO PEDIDO COM DISPARO PARA RASTREIO E MOTOBOYS */
     function sendOrder() {
       if (!currentPartner || !cart.length) return toast("Adicione produtos ao pedido.");
       const minVal = currentPartner?.minOrder || 0;
@@ -3066,7 +3070,6 @@
       }, 300);
     }
 
-    /* TELA DE DECISÃO RÁPIDA DE CORRIDA VIA LINK DO WHATSAPP (ACEITAR / RECUSAR) */
     function openOrderDecisionFlow(orderId) {
       const order = (db.orders || []).find(o => o.id === orderId);
       if (!order) return toast("Corrida não encontrada ou já finalizada.");
@@ -3109,7 +3112,7 @@
 
       let moto = db.motoboys.find(m => m.id === loggedMotoboyId);
       if (!moto) {
-        moto = db.motoboys[0]; // fallback
+        moto = db.motoboys[0];
       }
 
       o.motoboyId = moto.id;
@@ -3143,7 +3146,6 @@
       }
     }
 
-    /* FUNÇÃO DE LOGIN 100% CORRIGIDA E BLINDADA */
     function doLogin() {
       ensureDbIntegrity();
       const type = document.getElementById("loginType").value;
@@ -3174,7 +3176,8 @@
       } else if (type === "store") {
         const partner = (db.partners || []).find(x => 
           (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
-          x.id.toString() === u
+          (x.id && x.id.toString() === u) ||
+          (x.whatsapp && x.whatsapp.replace(/\D/g, "") === u.replace(/\D/g, ""))
         );
         if (partner && (partner.pass || "1234").toString() === p) {
           adminMode = "store";
@@ -3305,13 +3308,11 @@
       return (db.partners || []).find(p => p.id === loggedPartnerId) || (db.partners && db.partners[0]) || null;
     }
 
-    /* PAINEL CENTRAL ADMINISTRATIVO */
     function centralTab(tab) {
       ensureDbIntegrity();
       const body = document.getElementById("adminBody");
       if (tab === "Visão geral") {
         const approved = (db.partners || []).filter(p => p.status === "approved" && !p.blocked).length;
-        const blocked = (db.partners || []).filter(p => p.blocked).length;
         const totalSales = (db.orders || []).reduce((acc, o) => acc + (o.total || 0), 0);
         const motosOnline = (db.motoboys || []).filter(m => m.online && m.status === 'approved').length;
         body.innerHTML = `
@@ -3402,7 +3403,7 @@
             <div class="row">
               <span>
                 <b>${p.name}</b> (${(p.plan || 'flex').toUpperCase()})<br>
-                <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp}</small>
+                <small style="color:var(--muted)">Responsável: ${p.owner} · ${p.category}<br>${p.address}<br>Whats: ${p.whatsapp} · Doc: ${p.document || 'Não informado'}</small>
               </span>
               <button class="btn green" style="width:auto;padding:8px 14px;" onclick="approve(${i})">Aprovar Loja</button>
             </div>
@@ -3435,7 +3436,7 @@
             ${db.motoboys.map((m, idx) => `
               <div class="row" style="flex-wrap:wrap;">
                 <span>
-                  <b>${m.name} (${m.nick})</b> - Usuário: <code>${m.username || 'motoboy' + m.id}</code><br>
+                  <b>${m.name} (${m.nick})</b> - Usuário: <code>${m.username || 'motoboy' + m.id}</code> | Senha: <b>${m.pass || '1234'}</b><br>
                   <small style="color:var(--muted)">
                     Veículo: ${m.vehicle} · Whats: ${m.phone} · Pix: ${m.pix}<br>
                     Status: <b>${m.online ? '<span style="color:green">● ONLINE</span>' : '<span style="color:gray">● OFFLINE</span>'}</b>
@@ -3510,7 +3511,6 @@
       toast(`Motoboy aprovado! Login: ${m.username} / Senha: ${m.pass}`);
     }
 
-    /* PAINEL DO ENTREGADOR / MOTOBOY R1 COM EXTRATO, PDF E FILTRO DE DIAS */
     function motoboyTab(tab) {
       ensureDbIntegrity();
       const body = document.getElementById("adminBody");
@@ -3988,11 +3988,15 @@
                 <span>
                   <b>${p.name} (ID: ${p.id})</b><br>
                   <small style="color:var(--muted)">
+                    Responsável: ${p.owner || 'Não inf.'} · Doc: ${p.document || 'Não inf.'}<br>
                     Plano: <b>${(p.plan || 'flex').toUpperCase()}</b> · Status: <b>${p.paymentStatus === 'paid' ? '<span style="color:green">QUITADO</span>' : '<span style="color:red">PENDENTE</span>'}</b><br>
-                    Whats: ${p.whatsapp} · Usuário: <code>${p.username || p.id}</code>
+                    Whats: ${p.whatsapp} · Usuário: <code>${p.username || p.id}</code> · Senha: <b>${p.pass || '1234'}</b>
                   </small>
                 </span>
                 <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">
+                  <button class="btn outline" style="padding:5px 8px;font-size:11px;width:auto;" onclick="openPartnerDetailsModal(${p.id})">
+                    📄 Ficha / Detalhes
+                  </button>
                   <select onchange="changePartnerPlan(${p.id}, this.value)" style="padding:4px;font-size:11px;border-radius:6px;">
                     <option value="flex" ${p.plan === 'flex' ? 'selected' : ''}>Flex (R$ 1,99/ped)</option>
                     <option value="porcentagem" ${p.plan === 'porcentagem' ? 'selected' : ''}>Porcentagem (6%)</option>
@@ -4014,6 +4018,84 @@
           </div>
         </div>
       `;
+    }
+
+    function openPartnerDetailsModal(partnerId) {
+      const p = db.partners.find(x => x.id === partnerId);
+      if (!p) return;
+
+      const container = document.getElementById("partnerDetailsContent");
+      container.innerHTML = `
+        <div class="field">
+          <label>Nome do Estabelecimento</label>
+          <input id="adminEditStoreName" value="${p.name || ''}">
+        </div>
+        <div class="field">
+          <label>Nome do Responsável</label>
+          <input id="adminEditStoreOwner" value="${p.owner || ''}">
+        </div>
+        <div class="field">
+          <label>CNPJ / CPF</label>
+          <input id="adminEditStoreDoc" value="${p.document || ''}">
+        </div>
+        <div class="field">
+          <label>Usuário de Acesso (Login)</label>
+          <input id="adminEditStoreUser" value="${p.username || p.id}">
+        </div>
+        <div class="field">
+          <label>Senha de Acesso</label>
+          <input id="adminEditStorePass" value="${p.pass || '1234'}">
+        </div>
+        <div class="field">
+          <label>WhatsApp de Pedidos</label>
+          <input id="adminEditStoreWhats" value="${p.whatsapp || ''}">
+        </div>
+        <div class="field">
+          <label>Endereço Completo</label>
+          <input id="adminEditStoreAddr" value="${p.address || ''}">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <input id="adminEditStoreCat" value="${p.category || 'Alimentação'}">
+        </div>
+        <div class="field">
+          <label>Chave Pix da Loja</label>
+          <input id="adminEditStorePix" value="${p.pixKey || ''}">
+        </div>
+        <div class="field">
+          <label>Taxa de Entrega Padrão</label>
+          <input id="adminEditStoreDelivery" value="${p.delivery || 'R$ 7,00'}">
+        </div>
+        <div class="field">
+          <label>Pedido Mínimo (R$)</label>
+          <input id="adminEditStoreMinOrder" type="number" step="0.01" value="${p.minOrder || 15}">
+        </div>
+        <button class="btn red" onclick="savePartnerDetailsFromAdmin(${p.id})">Salvar Alterações da Loja</button>
+      `;
+      openModal("partnerDetailsModal");
+    }
+
+    function savePartnerDetailsFromAdmin(partnerId) {
+      const p = db.partners.find(x => x.id === partnerId);
+      if (!p) return;
+
+      p.name = document.getElementById("adminEditStoreName").value.trim();
+      p.owner = document.getElementById("adminEditStoreOwner").value.trim();
+      p.document = document.getElementById("adminEditStoreDoc").value.trim();
+      p.username = document.getElementById("adminEditStoreUser").value.trim().toLowerCase();
+      p.pass = document.getElementById("adminEditStorePass").value.trim() || "1234";
+      p.whatsapp = document.getElementById("adminEditStoreWhats").value.trim().replace(/\D/g, "");
+      p.address = document.getElementById("adminEditStoreAddr").value.trim();
+      p.category = document.getElementById("adminEditStoreCat").value.trim();
+      p.pixKey = document.getElementById("adminEditStorePix").value.trim();
+      p.delivery = document.getElementById("adminEditStoreDelivery").value.trim();
+      p.minOrder = Number(document.getElementById("adminEditStoreMinOrder").value) || 0;
+
+      save();
+      renderHome();
+      closeModal("partnerDetailsModal");
+      centralTab("Parceiros & Planos");
+      toast("Ficha e credenciais da loja atualizadas!");
     }
 
     function changePartnerPlan(id, planVal) {
@@ -4134,6 +4216,7 @@
       p.plan = p.plan || "flex";
       p.deliveryType = "fixed";
       p.logo = p.logo || "";
+      p.document = p.document || "";
       p.pixType = "Celular";
       p.pixKey = p.whatsapp;
       p.delivery = "R$ 7,00";
@@ -4150,7 +4233,6 @@
       toast(`Parceiro aprovado! Login: ${p.username}`);
     }
 
-    /* PAINEL DO LOJISTA */
     function storeTab(tab) {
       ensureDbIntegrity();
       const body = document.getElementById("adminBody");
@@ -4161,8 +4243,6 @@
       }
 
       if (tab === "Dashboard") {
-        const prodCount = (p.categories || []).reduce((a, c) => a + (c.products || []).length, 0);
-        const promoCount = (p.categories || []).reduce((a, c) => a + (c.products || []).filter(x => x.isPromo).length, 0);
         const myOrders = (db.orders || []).filter(o => o.storeId === p.id);
         const myTotal = myOrders.reduce((acc, o) => acc + (o.total || 0), 0);
 
@@ -4208,7 +4288,6 @@
       toast("Link da loja copiado!");
     }
 
-    /* IMPORTADOR EM LOTE */
     function renderBatchImporter(container) {
       const p = getTargetPartner();
       if (!p) return;
@@ -4684,7 +4763,6 @@
       toast("Banner gravado com sucesso!");
     }
 
-    /* GESTÃO DE RELATÓRIOS AUDITADOS */
     function renderReportsManager(container, isCentral) {
       ensureDbIntegrity();
       let p = getTargetPartner();
@@ -4854,6 +4932,14 @@
               <input value="${p.name}" id="editStoreName">
             </div>
             <div class="field">
+              <label>Nome do Responsável</label>
+              <input value="${p.owner || ''}" id="editStoreOwner">
+            </div>
+            <div class="field">
+              <label>CNPJ / CPF</label>
+              <input value="${p.document || ''}" id="editStoreDoc">
+            </div>
+            <div class="field">
               <label>WhatsApp de pedidos (com DDD)</label>
               <input value="${p.whatsapp}" id="editWhats">
             </div>
@@ -4959,6 +5045,8 @@
       const p = getTargetPartner();
       if (!p) return;
       p.name = document.getElementById("editStoreName").value.trim();
+      p.owner = document.getElementById("editStoreOwner").value.trim();
+      p.document = document.getElementById("editStoreDoc").value.trim();
       p.whatsapp = document.getElementById("editWhats").value.trim().replace(/\D/g, "");
       p.deliveryType = document.getElementById("editDeliveryType").value;
       p.username = document.getElementById("editStoreUsername").value.trim() || p.username;
@@ -4993,6 +5081,7 @@
     function submitPartner() {
       const name = document.getElementById("pName").value.trim();
       const owner = document.getElementById("pOwner").value.trim();
+      const doc = document.getElementById("pDocument").value.trim();
       const whats = document.getElementById("pWhats").value.trim();
       const address = document.getElementById("pAddress").value.trim();
       const category = document.getElementById("pCategory").value;
@@ -5005,6 +5094,7 @@
       db.pending.push({
         name,
         owner,
+        document: doc,
         whatsapp: whats.replace(/\D/g, ""),
         pixType: "Celular",
         pixKey: whats.replace(/\D/g, ""),
