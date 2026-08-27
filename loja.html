@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#d9233e">
   <title>R1 Gestor - Painel do Lojista</title>
 
@@ -30,15 +30,28 @@
       --gold: #ff8a00;
     }
     * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    body {
       padding-bottom: 40px;
     }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
+    body.modal-open {
+      overflow: hidden !important;
+      height: 100vh !important;
+      touch-action: none;
+    }
+    button, input, select, textarea, .tab, .choice {
+      font: inherit;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { cursor: pointer; user-select: none; }
     .hidden { display: none !important; }
     .app {
       max-width: 680px;
@@ -100,6 +113,10 @@
       background: #fff;
       border-bottom: 1px solid var(--border);
       overflow-x: auto;
+      white-space: nowrap;
+      position: sticky;
+      top: 72px;
+      z-index: 20;
     }
     .tab {
       border: 1px solid #ddd;
@@ -108,7 +125,7 @@
       border-radius: 10px;
       font-weight: 800;
       font-size: 13px;
-      white-space: nowrap;
+      flex-shrink: 0;
     }
     .tab.active { background: var(--dark); color: var(--white); border-color: var(--dark); }
 
@@ -233,6 +250,7 @@
       max-width: 90%;
       text-align: center;
       border: 1px solid var(--primary);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.4);
     }
 
     .modal {
@@ -244,15 +262,17 @@
       align-items: center;
       justify-content: center;
       padding: 16px;
+      overscroll-behavior: contain;
     }
     .modal.show { display: flex; }
     .sheet {
       background: var(--white);
       width: min(560px, 100%);
-      max-height: 90vh;
+      max-height: 88vh;
       overflow-y: auto;
       border-radius: 20px;
       padding: 18px;
+      -webkit-overflow-scrolling: touch;
     }
   </style>
 </head>
@@ -264,7 +284,7 @@
         <b>Instalar App R1 Lojas</b><br>
         <small style="color:#ccc;">Receba pedidos com som de campainha no balcão</small>
       </div>
-      <button class="btn red" style="width:auto;padding:8px 14px;font-size:12px;" onclick="triggerPwaInstall()">Instalar</button>
+      <button type="button" class="btn red" style="width:auto;padding:8px 14px;font-size:12px;" onclick="triggerPwaInstall()">Instalar</button>
     </div>
 
     <header class="top">
@@ -276,7 +296,7 @@
         </div>
       </div>
       <div id="topActions" class="hidden">
-        <button class="btn red" style="width:auto;padding:6px 12px;font-size:11px;" onclick="logoutStore()">Sair</button>
+        <button type="button" class="btn red" style="width:auto;padding:6px 12px;font-size:11px;" onclick="logoutStore()">Sair</button>
       </div>
     </header>
 
@@ -293,7 +313,7 @@
             <label>Senha de Acesso</label>
             <input type="password" id="loginPass" placeholder="Sua senha">
           </div>
-          <button class="btn red" onclick="doStoreLogin()">Entrar no Painel</button>
+          <button type="button" class="btn red" onclick="doStoreLogin()">Entrar no Painel</button>
           <p class="hint" style="text-align:center;margin-top:8px;">Credencial padrão inicial: <b>1234</b></p>
         </div>
       </div>
@@ -302,12 +322,12 @@
     <!-- PAINEL OPERACIONAL DA LOJA -->
     <div id="mainScreen" class="hidden">
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('pedidos', this)">Pedidos ao Vivo</button>
-        <button class="tab" onclick="switchTab('produtos', this)">Cardápio & Promoções</button>
-        <button class="tab" onclick="switchTab('lote', this)">Importar em Lote / Foto</button>
-        <button class="tab" onclick="switchTab('status', this)">Stories 9:16 & Capa</button>
-        <button class="tab" onclick="switchTab('relatorios', this)">Relatório de Vendas</button>
-        <button class="tab" onclick="switchTab('dados', this)">Dados da Loja</button>
+        <button type="button" class="tab active" onclick="switchTab('pedidos', this, event)">Pedidos ao Vivo</button>
+        <button type="button" class="tab" onclick="switchTab('produtos', this, event)">Cardápio & Promoções</button>
+        <button type="button" class="tab" onclick="switchTab('lote', this, event)">Importar em Lote / Foto</button>
+        <button type="button" class="tab" onclick="switchTab('status', this, event)">Stories 9:16 & Capa</button>
+        <button type="button" class="tab" onclick="switchTab('relatorios', this, event)">Relatório de Vendas</button>
+        <button type="button" class="tab" onclick="switchTab('dados', this, event)">Dados da Loja</button>
       </div>
 
       <div class="main-body" id="tabContent"></div>
@@ -319,7 +339,7 @@
     <div class="sheet">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <h2 style="margin:0;font-size:18px;">✏️ Editar Produto</h2>
-        <button class="btn outline" style="width:auto;padding:6px 10px;" onclick="closeModal('editProductModal')">✕</button>
+        <button type="button" class="btn outline" style="width:auto;padding:6px 10px;" onclick="closeModal('editProductModal')">✕</button>
       </div>
       <div class="form">
         <input type="hidden" id="editProdCatName">
@@ -353,7 +373,7 @@
           <input type="checkbox" id="editProdPaused">
           <label for="editProdPaused" style="cursor:pointer;margin:0;"><b>Pausar Produto (Indisponível temporariamente)</b></label>
         </div>
-        <button class="btn red" onclick="saveProductEdits()">Salvar Alterações</button>
+        <button type="button" class="btn red" onclick="saveProductEdits()">Salvar Alterações</button>
       </div>
     </div>
   </div>
@@ -424,8 +444,23 @@
       return (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
-    function openModal(id) { document.getElementById(id).classList.add("show"); }
-    function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+    function openModal(id) { 
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add("show"); 
+        document.body.classList.add("modal-open");
+      }
+    }
+
+    function closeModal(id) { 
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove("show"); 
+        if (!document.querySelector(".modal.show")) {
+          document.body.classList.remove("modal-open");
+        }
+      }
+    }
 
     function playOrderBell() {
       try {
@@ -538,7 +573,8 @@
       toast("Sessão finalizada.");
     }
 
-    function switchTab(tab, btn) {
+    function switchTab(tab, btn, ev) {
+      if (ev) ev.preventDefault();
       currentTab = tab;
       document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
       if (btn) btn.classList.add("active");
@@ -578,16 +614,16 @@
                     <span class="status ${o.status === 'Despachado' ? 'warning' : (o.status === 'Entregue' ? '' : 'closed')}">
                       ${o.status || 'Novo'}
                     </span>
-                    <button class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="shareOrderToGroup('${o.id}')">
+                    <button type="button" class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="shareOrderToGroup('${o.id}')">
                       📢 Chamar Motoboys R1
                     </button>
-                    <button class="btn warning" style="width:auto;padding:6px 10px;font-size:11px;" onclick="updateOrderStatus('${o.id}', 'Despachado')">
+                    <button type="button" class="btn warning" style="width:auto;padding:6px 10px;font-size:11px;" onclick="updateOrderStatus('${o.id}', 'Despachado')">
                       🛵 Despachado
                     </button>
-                    <button class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="updateOrderStatus('${o.id}', 'Entregue')">
+                    <button type="button" class="btn green" style="width:auto;padding:6px 10px;font-size:11px;" onclick="updateOrderStatus('${o.id}', 'Entregue')">
                       ✓ Concluído
                     </button>
-                    <button class="btn red" style="width:auto;padding:6px 8px;font-size:11px;" onclick="hideOrder('${o.id}')">
+                    <button type="button" class="btn red" style="width:auto;padding:6px 8px;font-size:11px;" onclick="hideOrder('${o.id}')">
                       ✕ Ocultar
                     </button>
                   </div>
@@ -632,7 +668,7 @@
                 <input type="file" accept="image/*" onchange="previewUpload(this, 'prodPreview', 'newImgUrl', 400)">
                 <div id="prodPreview" class="file-preview">Prévia da Foto</div>
               </div>
-              <button class="btn red" onclick="addProduct()">+ Adicionar ao Cardápio</button>
+              <button type="button" class="btn red" onclick="addProduct()">+ Adicionar ao Cardápio</button>
             </div>
           </div>
 
@@ -652,9 +688,9 @@
                     </span>
                   </div>
                   <div style="display:flex;gap:4px;">
-                    <button class="btn outline" style="width:auto;padding:5px 8px;font-size:11px;" onclick="openEditProduct('${c.name}', ${idx})">✏️</button>
-                    <button class="btn dark" style="width:auto;padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${idx})">${x.paused ? 'Ativar' : 'Pausar'}</button>
-                    <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeProduct('${c.name}', ${idx})">✕</button>
+                    <button type="button" class="btn outline" style="width:auto;padding:5px 8px;font-size:11px;" onclick="openEditProduct('${c.name}', ${idx})">✏️</button>
+                    <button type="button" class="btn dark" style="width:auto;padding:5px 8px;font-size:11px;" onclick="togglePauseProduct('${c.name}', ${idx})">${x.paused ? 'Ativar' : 'Pausar'}</button>
+                    <button type="button" class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeProduct('${c.name}', ${idx})">✕</button>
                   </div>
                 </div>
               `).join("") || '<p class="hint">Nenhum produto nesta categoria.</p>'}
@@ -692,7 +728,7 @@
                 <label>Cole os itens (um por linha)</label>
                 <textarea id="batchText" style="min-height:160px;" placeholder="Item 1 - Descrição - 15.00&#10;Item 2 - Descrição - 20.00"></textarea>
               </div>
-              <button class="btn red" onclick="processBatch()">Processar e Cadastrar Todos</button>
+              <button type="button" class="btn red" onclick="processBatch()">Processar e Cadastrar Todos</button>
             </div>
           </div>
         `;
@@ -722,7 +758,7 @@
                 <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'stPreview', 'stUrl', 400)">
                 <div id="stPreview" class="file-preview">Prévia do Status</div>
               </div>
-              <button class="btn red" onclick="addStatus()">+ Publicar Stories</button>
+              <button type="button" class="btn red" onclick="addStatus()">+ Publicar Stories</button>
             </div>
           </div>
 
@@ -731,7 +767,7 @@
             ${p.statuses.map((st, idx) => `
               <div class="row">
                 <span><b>${st.title || 'Stories'}</b> (${st.type})</span>
-                <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeStatus(${idx})">✕ Excluir</button>
+                <button type="button" class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeStatus(${idx})">✕ Excluir</button>
               </div>
             `).join("") || '<p class="hint">Nenhum status publicado.</p>'}
           </div>
@@ -748,7 +784,7 @@
                 <input type="file" accept="image/*" onchange="previewUpload(this, 'capaPreview', 'bannerUrl', 600)">
                 <div id="capaPreview" class="file-preview">${p.banner ? `<img src="${p.banner}">` : 'Sem capa'}</div>
               </div>
-              <button class="btn dark" onclick="saveBanner()">Salvar Capa</button>
+              <button type="button" class="btn dark" onclick="saveBanner()">Salvar Capa</button>
             </div>
           </div>
         `;
@@ -774,7 +810,7 @@
           <div class="panel">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <h3>Relatório de Vendas</h3>
-              <button class="btn dark" style="width:auto;padding:6px 12px;font-size:11px;" onclick="window.print()">📄 Imprimir / PDF</button>
+              <button type="button" class="btn dark" style="width:auto;padding:6px 12px;font-size:11px;" onclick="window.print()">📄 Imprimir / PDF</button>
             </div>
 
             <div style="margin-bottom:12px;">
@@ -863,7 +899,7 @@
                   <option value="false" ${!p.open ? 'selected' : ''}>Fechado temporariamente</option>
                 </select>
               </div>
-              <button class="btn red" onclick="saveStoreSettings()">Salvar Alterações</button>
+              <button type="button" class="btn red" onclick="saveStoreSettings()">Salvar Alterações</button>
             </div>
           </div>
         `;
