@@ -35,7 +35,7 @@
       --shadow-hover: 0 12px 30px rgba(217,35,62,0.12);
     }
 
-    /* FIXAÇÃO ABSOLUTA DE TELAS E MODAIS */
+    /* FIXAÇÃO ABSOLUTA DE TELAS E MODAIS (COMEÇA OCULTO) */
     .modal {
       position: fixed !important;
       top: 0 !important;
@@ -44,10 +44,16 @@
       bottom: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
-      display: flex !important;
+      display: none !important;
       align-items: center !important;
       justify-content: center !important;
       scroll-behavior: auto !important;
+      z-index: 100 !important;
+    }
+
+    /* SÓ FICA VISÍVEL QUANDO FOR CLICADO PARA ABRIR */
+    .modal.show {
+      display: flex !important;
     }
 
     /* Garante que o conteúdo role apenas DENTRO do modal e não puxe a página */
