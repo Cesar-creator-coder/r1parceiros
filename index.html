@@ -34,6 +34,30 @@
       --shadow-card: 0 6px 20px rgba(18,20,23,0.06);
       --shadow-hover: 0 12px 30px rgba(217,35,62,0.12);
     }
+
+    /* FIXAÇÃO ABSOLUTA DE TELAS E MODAIS */
+    .modal {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      scroll-behavior: auto !important;
+    }
+
+    /* Garante que o conteúdo role apenas DENTRO do modal e não puxe a página */
+    .modal .sheet {
+      max-height: 90vh !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      transform: none !important;
+    }
+    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
