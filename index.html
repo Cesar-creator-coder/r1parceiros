@@ -5160,6 +5160,37 @@
         openOrderDecisionFlow(corridaParam);
       }
     });
+    function obterLinkCadastroDireto() {
+  const urlLimpa = window.location.origin + window.location.pathname;
+  return urlLimpa + '?cadastro=loja';
+}
+
+function enviarConviteWhatsApp() {
+  const link = obterLinkCadastroDireto();
+  const mensagem = "Olá! Seja um estabelecimento parceiro no *R1 SHOP*.\n\nReceba pedidos direto pelo WhatsApp com catálogo online e entregas rápidas via Motoboy R1.\n\n👉 *Preencha seu cadastro pelo link:*\n" + link;
+  window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(mensagem), '_blank');
+}
+
+function copiarLinkCadastro() {
+  const link = obterLinkCadastroDireto();
+  navigator.clipboard.writeText(link).then(() => {
+    alert("Link copiado com sucesso!");
+  }).catch(() => {
+    prompt("Copie o link abaixo:", link);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('cadastro') === 'loja') {
+    if (typeof openModal === 'function') {
+      openModal('partnerModal');
+    } else {
+      const modal = document.getElementById('partnerModal');
+      if (modal) modal.classList.add('show');
+    }
+  }
+});
   </script>
 </body>
 </html>
