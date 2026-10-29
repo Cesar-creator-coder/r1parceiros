@@ -12,6 +12,8 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <!-- Leaflet Maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -415,7 +417,8 @@
       padding-bottom: 8px;
     }
     .promo {
-      min-width: 210px;
+      min-width: 158px;
+      width: 158px;
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 10px;
@@ -429,8 +432,8 @@
       box-shadow: var(--shadow-hover);
     }
     .promo-img {
-      height: 110px;
-      border-radius: 12px;
+      height: 92px;
+      border-radius: 10px;
       background: #eee;
       display: grid;
       place-items: center;
@@ -438,6 +441,12 @@
       overflow: hidden;
     }
     .promo img { width: 100%; height: 100%; object-fit: cover; }
+    #promos .promo-img{height:120px;aspect-ratio:1/1;background:#f7f7f7;border:1px solid #ececec}
+    #promos .promo-img img{width:100%;height:100%;object-fit:contain;object-position:center;padding:5px}
+    .service-card .promo-img{height:132px;aspect-ratio:1/1;background:#f7f7f7;border:1px solid #ececec}
+    .service-card .promo-img img{width:100%;height:100%;object-fit:contain;object-position:center;padding:6px}
+    .service-card .service-whatsapp{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;padding:8px 7px;font-size:11px}
+    .service-card .service-whatsapp svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .tag {
       display: inline-block;
       background: var(--primary);
@@ -1127,9 +1136,145 @@
       .modal { align-items: center; }
       .sheet { border-radius: 20px; max-height: 88vh; }
     }
-  </style>
+  /* R1 Splash v2 - teste visual */
+#r1Splash{position:fixed;inset:0;z-index:9999;background:#08090c;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:opacity .45s ease,visibility .45s ease}
+#r1Splash.r1SplashOut{opacity:0;visibility:hidden;pointer-events:none}
+#r1Splash .r1SplashInner{position:relative;width:min(720px,100vw);height:100%;display:flex;align-items:center;justify-content:center}
+#r1Splash .r1SplashBike{position:absolute;width:min(88vw,700px);max-height:72vh;object-fit:contain;left:-110%;animation:r1BikeIn 1.15s cubic-bezier(.16,1,.3,1) .12s forwards,r1BikeOut .42s ease 1.65s forwards;filter:drop-shadow(0 18px 22px rgba(0,0,0,.65))}
+#r1Splash .r1Speed{position:absolute;width:75%;height:2px;left:0;top:50%;background:linear-gradient(90deg,transparent,rgba(217,35,62,.7),transparent);opacity:0;animation:r1Speed 1.1s ease .1s forwards}
+#r1Splash .r1SplashLogo{position:absolute;top:18%;width:min(180px,32vw);opacity:0;transform:scale(.72);animation:r1LogoIn .55s cubic-bezier(.16,1,.3,1) 1.85s forwards}
+#r1Splash .r1SplashTitle{position:absolute;top:64%;color:#fff;font:900 clamp(22px,5vw,38px)/1 Arial,sans-serif;letter-spacing:1px;opacity:0;transform:translateY(10px);animation:r1TitleIn .5s ease 2.15s forwards;text-align:center}
+#r1Splash .r1SplashTitle span{color:#d9233e}
+#r1Splash .r1SplashHint{position:absolute;bottom:9%;background:#d9233e;color:#fff;border:0;border-radius:28px;padding:13px 24px;font:800 13px Arial,sans-serif;letter-spacing:.4px;opacity:0;animation:r1HintIn .45s ease 2.55s forwards;box-shadow:0 8px 24px rgba(217,35,62,.35)}
+@keyframes r1BikeIn{0%{left:-110%;transform:scale(.78) rotate(-2deg)}100%{left:8%;transform:scale(1) rotate(0)}}
+@keyframes r1BikeOut{0%{left:8%;opacity:1}100%{left:115%;opacity:0}}
+@keyframes r1Speed{0%{opacity:0;transform:scaleX(.2)}35%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(.6)}}
+@keyframes r1LogoIn{to{opacity:1;transform:scale(1)}}
+@keyframes r1TitleIn{to{opacity:1;transform:translateY(0)}}
+@keyframes r1HintIn{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#r1Splash *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+#r1Splash .r1SplashCity {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 42%;
+  object-fit: cover;
+  object-position: bottom;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* R1 Home v2 - cidade e categorias */
+.r1-citybar{margin:12px 18px 0;padding:11px 13px;border:1px solid var(--border);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-card);font-size:13px;font-weight:800}
+.r1-citybar small{display:block;color:var(--muted);font-weight:600;font-size:10px;margin-top:2px}
+.r1-citybar button{border:0;background:rgba(217,35,62,.1);color:var(--primary);border-radius:10px;padding:7px 10px;font-weight:800;font-size:11px}
+.r1-categories{display:flex;gap:9px;overflow-x:auto;padding:13px 18px 2px;scrollbar-width:none}
+.r1-categories::-webkit-scrollbar{display:none}
+.r1-category{min-width:76px;border:1px solid var(--border);background:#fff;border-radius:14px;padding:9px 8px;text-align:center;font-size:11px;font-weight:800;color:var(--text);box-shadow:var(--shadow-card)}
+.r1-category span{display:flex;align-items:center;justify-content:center;height:30px;margin-bottom:3px}.r1-category span svg{width:27px;height:27px;stroke:var(--primary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.access-choice{min-height:76px!important;font-size:12px!important;font-weight:900!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}.access-choice svg{width:28px;height:28px;stroke:var(--primary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.access-choice span{display:block}
+.r1-category:active{transform:scale(.96);border-color:var(--primary);color:var(--primary)}
+
+/* R1 Home visual v3 */
+.app{max-width:860px}
+.hero{margin:14px 18px 0;padding:18px 18px 15px;background:linear-gradient(135deg,#16191f 0%,#252a33 100%);border-radius:20px;border:1px solid rgba(217,35,62,.35);box-shadow:0 8px 24px rgba(18,20,23,.14)}
+.hero h2{font-size:23px;margin-bottom:6px}
+.hero p{font-size:12px;margin-bottom:10px;color:#d7dbe1}
+.chips{gap:6px;justify-content:flex-start}
+.chip{padding:6px 9px;font-size:10px;background:rgba(255,255,255,.1)}
+.app-banners{padding:14px 18px 0;gap:10px}
+.app-banner-card{min-width:calc(100vw - 36px);max-width:620px;height:128px;border-radius:18px;box-shadow:0 6px 18px rgba(18,20,23,.12)}
+.section-title{margin-top:18px}
+.stores{gap:11px}
+.store-card{grid-template-columns:68px 1fr auto;padding:11px;gap:11px;border-left-width:4px}
+.store-img{width:68px;height:68px;border-radius:12px}
+.store-card h3{font-size:15px}
+.address{font-size:11px}
+.store-meta{gap:6px;font-size:10px;margin-top:6px}
+.store-arrow{width:34px;height:34px}
+@media (min-width:700px){.app-banner-card{min-width:520px;height:150px}.r1-categories{justify-content:center}.stores{grid-template-columns:1fr 1fr}}
+
+/* R1 Promo Carousel v4 */
+.r1-promo-carousel{position:relative;margin:14px 18px 0;height:150px;border-radius:20px;overflow:hidden;background:#16191f;box-shadow:0 8px 24px rgba(18,20,23,.16)}
+.r1-promo-slide{position:absolute;inset:0;opacity:0;transition:opacity .45s ease;pointer-events:none}
+.r1-promo-slide.active{opacity:1;pointer-events:auto}
+.r1-promo-slide img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.65)}
+.r1-promo-copy{position:absolute;inset:0;padding:18px 20px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+.r1-promo-copy strong{font-size:21px;line-height:1.05;margin-bottom:5px}.r1-promo-copy small{font-size:12px;margin-bottom:10px}.r1-promo-copy button{border:0;background:var(--primary);color:#fff;border-radius:10px;padding:8px 12px;font-size:11px;font-weight:900}
+.r1-promo-dots{position:absolute;bottom:9px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3}.r1-promo-dot{width:7px;height:7px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.55)}.r1-promo-dot.active{background:#fff;transform:scale(1.25)}
+.hero{display:none!important}
+
+/* R1 Search and Filters v5 */
+.r1-filterbar{display:flex;gap:8px;overflow-x:auto;padding:12px 18px 2px;scrollbar-width:none}.r1-filterbar::-webkit-scrollbar{display:none}.r1-filter-btn{white-space:nowrap;border:1px solid var(--border);background:#fff;color:var(--text);border-radius:12px;padding:9px 12px;font-size:11px;font-weight:800;box-shadow:var(--shadow-card)}.r1-filter-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}.r1-result-head{display:flex;align-items:center;justify-content:space-between;margin:18px 0 9px}.r1-result-head h2{font-size:18px;margin:0}.r1-result-head small{color:var(--muted);font-weight:700}
+
+/* R1 Remove duplicate banner v6 */
+/* O banner da Central permanece visível */
+''
+/* R1 Catalog visual refinement v7 */
+.catalog-cover{border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#1a1d22,#252a32);box-shadow:0 8px 22px rgba(0,0,0,.14);margin-bottom:12px}.catalog-cover .cover-media{height:170px}.catalog-cover .cover-media img,.catalog-cover .cover-media video{width:100%;height:100%;object-fit:cover}.catalog-cover>h2{font-size:22px;margin:14px 16px 3px}.catalog-cover>p{margin:0 16px 12px;color:#cbd0d6;font-size:12px}.catalog-badges{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px}.catalog-badge{font-size:10px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font-weight:800}.payment-badges-list{display:flex!important;flex-wrap:wrap;gap:6px;padding:12px 16px!important;background:#11151a}.pay-badge{font-size:10px!important;padding:6px 8px!important;border-radius:9px!important;background:#fff!important;color:#1d2129!important;font-weight:800!important}.cat{border:1px solid var(--border);border-radius:15px;margin:10px 0;overflow:hidden;background:#fff}.cat-head{width:100%;padding:13px 14px!important;background:#fff!important;color:var(--text)!important;font-weight:900!important}.product{padding:13px!important;min-height:104px}.product h3{font-size:15px!important}.product p{font-size:11px!important;line-height:1.35}.product .add{width:34px!important;height:34px!important;border-radius:50%!important;background:var(--primary)!important;color:#fff!important;font-size:22px!important;border:0!important}.social-links{padding:0 16px 12px!important}.social-btn{font-size:11px!important;border-radius:10px!important}
+.recent-searches{display:flex;gap:7px;flex-wrap:wrap;padding:8px 18px 0}.recent-searches:empty{display:none}.recent-search-title{width:100%;font-size:11px;color:var(--muted);font-weight:800}.recent-search-chip{border:1px solid var(--border);background:#fff;border-radius:10px;padding:7px 9px;font-size:11px;color:var(--text);font-weight:700}.recent-search-clear{border:0;background:transparent;color:var(--primary);font-size:10px;font-weight:800;padding:7px}
+
+.app-banners{display:flex!important;overflow-x:auto;scroll-snap-type:x mandatory}.app-banner-card{min-width:calc(100vw - 36px);height:150px;border-radius:18px;overflow:hidden;scroll-snap-align:start}.app-banner-card img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Central banners: one at a time, automatic rotation with swipe-friendly layout */
+.r1-promo-carousel.central-managed{display:none!important}.r1-central-slides{position:relative;width:calc(100% - 36px);max-width:720px;min-width:0;aspect-ratio:8 / 3;height:auto;margin:14px auto 0;border-radius:18px;overflow:hidden;background:#11151a;box-shadow:0 8px 24px rgba(18,20,23,.16)}.r1-central-slide{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .5s ease;pointer-events:none;background:#11151a}.r1-central-slide.active{opacity:1;pointer-events:auto}.r1-central-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#11151a}.r1-central-dots{display:none!important}.r1-central-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:34px;height:34px;border:0;border-radius:50%;background:rgba(18,20,23,.68);color:#fff;font-size:25px;line-height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.25);opacity:.9}.r1-central-arrow:hover{background:rgba(217,35,62,.92)}.r1-central-arrow.prev{left:10px}.r1-central-arrow.next{right:10px}.r1-central-dot{width:8px;height:8px;border:0;border-radius:50%;background:#c7c7c7;padding:0}.r1-central-dot.active{background:#d9233e;transform:scale(1.2)}
+
+/* Painéis R1: navegação visual responsiva */
+#adminTabs{display:flex;gap:8px;overflow-x:auto;padding:8px 4px;scrollbar-width:none}#adminTabs::-webkit-scrollbar{display:none}#adminTabs .tab{flex:0 0 auto;border:1px solid #ddd;background:#fff;border-radius:12px;padding:9px 11px;font-weight:800;font-size:11px;white-space:nowrap;color:#3b3f46}#adminTabs .tab.active{background:#d9233e;color:#fff;border-color:#d9233e;box-shadow:0 5px 12px rgba(217,35,62,.2)}
+
+@media (max-width:600px){#adminTabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px 2px;overflow:visible}#adminTabs .tab{width:100%;min-height:48px;white-space:normal;line-height:1.15;text-align:center;padding:8px 5px;font-size:11px;display:flex;align-items:center;justify-content:center;gap:3px}.admin-modal .sheet-head{position:sticky;top:0;z-index:5;background:#fff}.admin-modal .sheet{padding-bottom:20px}}
+
+    /* Negócios e Serviços: cards uniformes, sem efeito de escadinha */
+    #serviceDirectorySection{padding:14px 16px 16px;margin:18px 12px 20px!important;background:#fff;border:1px solid #e8e9ed;border-radius:18px;box-shadow:0 5px 18px rgba(20,24,35,.06)}
+    #serviceDirectorySection .section-title{margin:0 0 5px;gap:10px;flex-wrap:wrap}
+    #serviceDirectorySection .section-title h2{font-size:18px;line-height:1.25}
+    #serviceDirectorySection .service-section-subtitle{color:var(--muted);font-size:12px;line-height:1.4;margin:0 0 12px}
+    #serviceDirectorySection .service-see-all{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:34px;padding:0 12px;border:1px solid #d9233e;border-radius:999px;background:#fff;color:#c71f38;font-size:12px;font-weight:800;white-space:nowrap;cursor:pointer}
+    #serviceDirectorySection .service-see-all:hover{background:#fff4f5}
+    #serviceDirectoryCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;gap:12px;overflow:visible;padding:0}
+    #serviceDirectoryCards .service-card{display:flex;flex-direction:column;align-self:stretch;box-sizing:border-box;min-width:0;width:auto;height:100%;min-height:320px;padding:10px;border-radius:15px;overflow:hidden}
+    #serviceDirectoryCards .service-card .promo-img{width:100%;height:auto;aspect-ratio:1/1;flex:none;margin-bottom:8px}
+    #serviceDirectoryCards .service-card .tag{align-self:flex-start;min-height:20px;margin:0 0 5px;position:static}
+    #serviceDirectoryCards .service-card h3{font-size:14px;line-height:1.3;margin:2px 0 5px;min-height:36px;max-height:36px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+    #serviceDirectoryCards .service-card .service-meta{font-size:11px;line-height:1.35;color:var(--muted);height:30px;min-height:30px;max-height:30px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+    #serviceDirectoryCards .service-card .service-whatsapp{width:100%;height:36px;min-height:36px;max-height:36px;flex:0 0 36px;margin-top:auto;padding:0 8px;border-radius:9px;font-size:11px}
+    @media(min-width:700px){#serviceDirectoryCards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(min-width:1050px){#serviceDirectoryCards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+  
+    /* AJUSTES DE RESPONSIVIDADE (celular, tablet, computador) */
+    html { -webkit-text-size-adjust: 100%; }
+    body { overflow-x: hidden; }
+    img, video, canvas { max-width: 100%; }
+    @supports (height: 100dvh) {
+      .modal { height: 100dvh !important; }
+      .modal .sheet { max-height: 90dvh !important; }
+      .app { min-height: 100dvh; }
+    }
+    @media (max-width: 380px) {
+      .brand h1 { font-size: 16px; }
+      .icon-btn { padding: 8px 9px; }
+    }
+    @media (min-width: 900px) {
+      .modal .sheet { max-width: 560px; }
+    }
+</style>
 </head>
 <body>
+  <div id="r1Splash" role="dialog" aria-label="Abertura R1 SHOP DELIVERY">
+    <div class="r1SplashInner">
+      <img class="r1SplashCity" src="./r1-splash-cidade.png" alt="Cidade R1">
+            <div class="r1Speed"></div>
+      <img class="r1SplashBike" src="./r1-motoboy.png" alt="Motoboy R1 SHOP DELIVERY">
+      <img class="r1SplashLogo" src="./r1-logo.png" alt="R1">
+      <div class="r1SplashTitle"><span>R1</span> SHOP DELIVERY</div>
+      <button class="r1SplashHint" type="button">TOQUE PARA ENTRAR</button>
+    </div>
+  </div>
+
   <div class="app">
     <header class="top">
       <div class="topline">
@@ -1169,8 +1314,43 @@
       <div class="status-list" id="statusList"></div>
     </div>
 
+    <div class="r1-citybar">
+      <div>📍 <select id="r1CitySelect" onchange="setR1City(this.value)" style="border:0;background:transparent;font-weight:900;font-size:13px;color:var(--text);"><option>Carregando cidades...</option></select><small>Mostrando parceiros da cidade escolhida</small></div>
+      <span id="r1CityStatus" style="font-size:10px;color:var(--muted);">Cidade ativa</span>
+    </div>
+    <div class="r1-categories" aria-label="Categorias">
+      <button class="r1-category" type="button" onclick="setR1Category('')"><span data-cat-icon="todos"></span>Todos</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Alimentação')"><span data-cat-icon="alimentacao"></span>Alimentação</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Mercado')"><span data-cat-icon="mercado"></span>Mercado</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Serviços')"><span data-cat-icon="servicos"></span>Serviços</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Sorveteria')"><span data-cat-icon="sorvete"></span>Sorveteria</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Açaí')"><span data-cat-icon="acai"></span>Açaí</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Pizzaria')"><span data-cat-icon="pizza"></span>Pizzaria</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Clínica')"><span data-cat-icon="clinica"></span>Clínicas</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Laboratório')"><span data-cat-icon="laboratorio"></span>Laboratórios</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Advocacia')"><span data-cat-icon="advocacia"></span>Advocacia</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Conveniência')"><span data-cat-icon="conveniencia"></span>Conveniência</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Adega')"><span data-cat-icon="adega"></span>Adegas</button>
+      <button class="r1-category" type="button" onclick="setR1Category('24 Horas')"><span data-cat-icon="24h"></span>24 Horas</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Mototáxi')"><span data-cat-icon="moto"></span>Mototáxi</button>
+      <button class="r1-category" type="button" onclick="setR1Category('Motoboy')"><span data-cat-icon="entrega"></span>Motoboy</button>
+    </div>
+
     <!-- BANNERS DA CENTRAL -->
     <div class="app-banners hidden" id="appBannersBox"></div>
+
+
+    <section class="r1-promo-carousel" aria-label="Promoções em destaque">
+      <div class="r1-promo-slide active">
+        <img src="./banner-r1.jpg" alt="Promoção R1">
+        <div class="r1-promo-copy">
+          <strong>Peça local.<br>Receba rápido.</strong>
+          <small>Confira as ofertas da sua cidade</small>
+          <button type="button" onclick="document.getElementById('search').focus()">Ver ofertas</button>
+        </div>
+      </div>
+      <div class="r1-promo-dots"><button class="r1-promo-dot active" type="button"></button></div>
+    </section>
 
     <section class="hero">
       <h2>Compre local. <span>Receba rápido.</span></h2>
@@ -1192,17 +1372,29 @@
     </section>
 
     <div class="search">
-      <input type="text" id="search" placeholder="Buscar lojas, pratos, bebidas, produtos..." oninput="searchAll()">
+      <input type="text" id="search" placeholder="Buscar lojas, pratos, bebidas, produtos..." oninput="searchAll()" onkeydown="if(event.key==='Enter') rememberSearch(this.value)">
       <button onclick="searchAll()">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </button>
     </div>
+    <div id="recentSearches" class="recent-searches"></div>
 
-    <section class="section">
+    <div class="r1-filterbar" aria-label="Filtros">
+      <button class="r1-filter-btn active" type="button" onclick="setR1Filter(this,'')">Todos</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'aberto')">🟢 Abertos agora</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'entrega')">🛵 Entrega</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'gratis')">🚚 Entrega grátis</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'ofertas')">🔥 Ofertas do dia</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'r1entrega')">🏍️ Entrega R1</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'distancia')">📍 Mais próximos</button>
+      <button class="r1-filter-btn" type="button" onclick="setR1Filter(this,'tempo')">⏱ Mais rápidos</button>
+    </div>
+
+    <section class="section" id="promoSection">
       <div class="section-title">
         <h2>
           <svg viewBox="0 0 24 24"><path d="M19.48 12.35c-1.57-.56-2.54-1.19-3.55-2.35-.95-1.09-1.57-2.48-1.57-3.99 0-.48.06-.94.17-1.39-2.92.83-5.07 3.52-5.07 6.72 0 1.25.33 2.43.91 3.45.19.33.1.75-.2 1-.3.25-.72.24-1-.02-.85-.75-1.46-1.74-1.74-2.86-.09-.37-.4-.64-.78-.65-.38-.01-.72.23-.84.6C5.28 14.44 5 16.19 5 18c0 3.86 3.14 7 7 7s7-3.14 7-7c0-1.89-.75-3.6-1.97-4.85-.27-.28-.35-.7-.2-1.04.14-.34.48-.56.85-.56.09 0 .18.01.27.05.53.19 1.03.45 1.53.75z"/></svg>
-          Promoção do Dia
+          Ofertas do Dia
         </h2>
         <span>Ofertas</span>
       </div>
@@ -1218,6 +1410,11 @@
         <span id="storeCount">0 lojas</span>
       </div>
       <div class="stores" id="stores"></div>
+      <section id="serviceDirectorySection" class="hidden" style="margin-top:18px;">
+        <div class="section-title"><h2>Negócios e Serviços</h2><button id="serviceSeeAllBtn" class="service-see-all" type="button" onclick="showServiceCategories()">Ver todos <span aria-hidden="true">›</span></button></div>
+        <p class="service-section-subtitle">Profissionais e comércios da sua região</p>
+        <div id="serviceDirectoryCards" class="promos"></div>
+      </section>
     </section>
 
     <button id="fab" class="fab hidden" onclick="openCart()">
@@ -1264,11 +1461,11 @@
             <small id="storyHeaderSubtitle" style="font-size:11px;color:#ccc;">Destaque</small>
           </div>
         </div>
-        <button style="background:transparent;border:0;color:#fff;font-size:20px;font-weight:900;" onclick="closeStatusStories()">✕</button>
+        <button aria-label="Sair do vídeo" style="background:#222b;color:#fff;border:1px solid #ffffff66;border-radius:8px;font-size:15px;font-weight:900;padding:6px 10px;" onclick="closeStatusStories()">✕ Sair</button>
       </div>
 
-      <button class="story-nav-btn story-nav-prev" onclick="prevStory()"></button>
-      <button class="story-nav-btn story-nav-next" onclick="nextStory()"></button>
+      <button aria-label="Voltar vídeo" class="story-nav-btn story-nav-prev" onclick="prevStory()">‹ Voltar</button>
+      <button aria-label="Avançar vídeo" class="story-nav-btn story-nav-next" onclick="nextStory()">Avançar ›</button>
 
       <div class="story-content-view" id="storyMediaContainer"></div>
 
@@ -1314,6 +1511,8 @@
     </div>
   </div>
 
+  <div id="productOptionsModal" class="modal"><div class="sheet center"><div class="sheet-head"><h2 id="optionsProductName">Personalizar produto</h2><button class="close" onclick="closeModal('productOptionsModal')">✕</button></div><div id="productOptionsBody" class="form"></div><button class="btn red" onclick="confirmProductOptions()">Adicionar ao carrinho</button></div></div>
+
   <div id="cartModal" class="modal">
     <div class="sheet">
       <div class="sheet-head">
@@ -1325,8 +1524,9 @@
 
       <div id="cartItems"></div>
 
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:8px 0;"><span id="cartDeliveryFee">Taxa de entrega</span><span></span></div>
       <div class="total">
-        <span>Total dos Itens</span>
+        <span>Total do Pedido</span>
         <span id="cartTotal">R$ 0,00</span>
       </div>
 
@@ -1382,10 +1582,6 @@
             <label>Cidade / UF</label>
             <input type="text" id="cCity" placeholder="Assis - SP" value="Assis - SP">
           </div>
-          <button type="button" class="btn dark" onclick="openMap()" style="margin-bottom:8px;">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Testar rota no Google Maps
-          </button>
         </div>
         
         <div class="field">
@@ -1438,6 +1634,7 @@
           </div>
         </div>
 
+        <button type="button" class="btn outline" onclick="continueShopping()" style="margin-bottom:8px;">← Continuar comprando</button>
         <button class="btn green" onclick="sendOrder()">
           <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
           Finalizar e enviar para o WhatsApp da loja
@@ -1505,10 +1702,17 @@
         </button>
       </div>
       <div class="login-box form">
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;">
+          <button type="button" class="btn outline access-choice" onclick="chooseAccessType('store')"><svg viewBox="0 0 24 24"><path d="M3 10h18v10H3zM5 10l2-5h10l2 5M8 14h8M7 20v-4M17 20v-4"/></svg><span>Entrar como Lojista</span></button>
+          <button type="button" class="btn outline access-choice" onclick="chooseAccessType('motoboy')"><svg viewBox="0 0 24 24"><circle cx="7" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M7 17l4-7h4l3 7M11 10H8M15 10l2-3h3"/></svg><span>Entrar como Motoboy</span></button>
+        </div>
+        <div style="background:#fff8f9;border:1px solid #f0c9cf;border-radius:12px;padding:10px;text-align:center;margin-bottom:12px;">
+          <b style="display:block;color:var(--primary);">🚀 Quer vender pela R1?</b><small>Cadastre sua loja e receba pedidos online.</small><br><button type="button" class="btn red" style="width:auto;padding:7px 12px;margin-top:7px;font-size:11px;" onclick="closeModal('loginModal');openModal('partnerModal')">Quero ser parceiro</button>
+        </div>
+        <div style="text-align:center;margin:-3px 0 12px;"><button type="button" style="background:transparent;border:0;color:#666;text-decoration:underline;font-size:11px;cursor:pointer;" onclick="closeModal('loginModal');openModal('motoboyRegisterModal')">🏍️ Quero trabalhar como entregador</button></div>
         <div class="field">
           <label>Tipo de acesso</label>
           <select id="loginType" onchange="updateLoginHint()">
-            <option value="central">Central R1 (Administrador)</option>
             <option value="store">Painel do Lojista</option>
             <option value="motoboy">Entregador / Motoboy R1</option>
           </select>
@@ -1632,9 +1836,13 @@
           <input type="file" accept="image/*" onchange="previewUpload(this, 'editProdPreview', 'editProdImg', 400)">
           <div id="editProdPreview" class="file-preview" style="height:110px;">Prévia</div>
         </div>
+        <div class="field" style="border:1px solid #f0c9cf;border-radius:10px;padding:10px;background:#fff8f9;">
+          <label>Adicionais do produto (um por linha: Nome | Preço)</label>
+          <textarea id="editProdAddons" placeholder="Bacon | 5,00"></textarea>
+        </div>
         <div class="field-checkbox">
           <input type="checkbox" id="editProdIsPromo">
-          <label for="editProdIsPromo" style="cursor:pointer;margin:0;"><b>🔥 Destacar na Promoção do Dia</b></label>
+          <label for="editProdIsPromo" style="cursor:pointer;margin:0;"><b>🔥 Destacar na Ofertas do Dia</b></label>
         </div>
         <div class="field-checkbox" style="background:#f4f5f7;border-color:#ccc;">
           <input type="checkbox" id="editProdPaused">
@@ -1660,18 +1868,6 @@
     <div class="sheet">
       <div class="sheet-head">
         <h2>Seja parceiro R1</h2>
-        <div style="background:#1c1f24; border:1px dashed #d9233e; border-radius:12px; padding:12px; margin:10px 0 15px 0;">
-  <b style="color:#fff; font-size:13px; display:block; margin-bottom:4px;">📲 Convidar Novo Parceiro</b>
-  <small style="color:#cbd0d6; font-size:11px; display:block; margin-bottom:10px;">Envie o link de cadastro direto pelo WhatsApp para a loja.</small>
-  <div style="display:flex; gap:8px;">
-    <button type="button" onclick="enviarConviteWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:0; padding:10px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;">
-      WhatsApp
-    </button>
-    <button type="button" onclick="copiarLinkCadastro()" style="flex:1; background:#2b303a; color:#fff; border:1px solid rgba(255,255,255,0.2); padding:10px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;">
-      Copiar Link
-    </button>
-  </div>
-</div>
         <button class="close" onclick="closeModal('partnerModal')">
           <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -1699,7 +1895,7 @@
         </div>
         <div class="field">
           <label>Categoria</label>
-          <select id="pCategory">
+          <select id="pCategory" onchange="toggleCustomPartnerCategory()">
             <option value="Alimentação">Alimentação</option>
             <option value="Farmácia">Farmácia</option>
             <option value="Mercado">Mercado</option>
@@ -1707,19 +1903,49 @@
             <option value="Perfumaria">Perfumaria</option>
             <option value="Loja">Loja</option>
             <option value="Serviços">Serviços</option>
-            <option value="Outro">Outro</option>
+            <option value="Clínica Médica">Clínica Médica</option>
+            <option value="Clínica Odontológica">Clínica Odontológica</option>
+            <option value="Laboratório">Laboratório</option>
+            <option value="Escritório de Advocacia">Escritório de Advocacia</option>
+            <option value="Loja de Conveniência">Loja de Conveniência</option>
+            <option value="Adega">Adega</option>
+            <option value="Outro">Outra categoria</option>
           </select>
+          <input id="pCustomCategory" style="display:none;margin-top:8px;" placeholder="Digite sua categoria (ex.: Pintor, Fotógrafa, Manicure)" />
+          <small class="hint">Se não encontrar sua categoria, escolha “Outra categoria” e crie uma.</small>
         </div>
         <div class="field">
-          <label>Escolha seu Plano de Parceria</label>
-          <select id="pPlan">
-            <option value="flex">Plano Flex (R$ 1,99 por pedido)</option>
-            <option value="porcentagem">Plano Porcentagem (6% por venda)</option>
-            <option value="pro">Plano Pro Mensal (R$ 59,90/mês fixo)</option>
+          <label>Como você quer aparecer na R1?</label>
+          <select id="pProfileType">
+            <option value="cardapio">Cardápio — restaurante, lanchonete, pizzaria ou alimentação</option>
+            <option value="catalogo">Catálogo — loja e produtos</option>
+            <option value="perfil">Perfil simples / Divulgação — serviço ou negócio</option>
           </select>
+          <input type="hidden" id="pPlan" value="flex">
         </div>
         <div class="field">
-          <label>Logo / Foto da Loja (Proporção Quadrada 1:1 - 400x400 px)</label>
+          <label>Cidade do estabelecimento</label>
+          <select id="pCityId">${(db.config.cities||[]).filter(c=>c.status==='active').map(c=>`<option value="${c.id}">${c.name} - ${c.uf}</option>`).join('') || '<option value="assis-sp">Assis - SP</option>'}</select>
+          <small class="hint">O cadastro será encaminhado para a Central da cidade escolhida.</small>
+        </div>
+        <div class="field">
+          <label><input type="checkbox" id="pOpen24h" style="width:auto;margin-right:6px;"> Este estabelecimento funciona 24 horas</label>
+        </div>
+
+        <div class="panel" style="background:#fff8f9;border-color:#f0c9cf;margin:4px 0 10px;">
+          <b>Documentos do cadastro</b>
+          <p class="hint" style="margin:6px 0 8px;">Leia os documentos antes de enviar o cadastro.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn outline" style="width:auto;padding:7px 10px;font-size:11px;" onclick="openModal('termsModal');trackMetric('terms_open')">Termos de Uso</button>
+            <button type="button" class="btn outline" style="width:auto;padding:7px 10px;font-size:11px;" onclick="openModal('privacyModal');trackMetric('privacy_open')">Política de Privacidade</button>
+          </div>
+        </div>
+        <div class="field-checkbox">
+          <input type="checkbox" id="pTerms">
+          <label for="pTerms">Li e aceito os <a href="#" onclick="openModal('termsModal');return false;">Termos de Uso</a> e a <a href="#" onclick="openModal('privacyModal');return false;">Política de Privacidade</a>.</label>
+        </div>
+        <div class="field">
+          <label>Logo / Foto da Loja — recomendado 512 × 512 px, proporção 1:1</label>
           <input id="pLogoUrl" placeholder="Cole o link da imagem (https://...)" oninput="previewDirect('pLogoUrl', 'partnerPreview')">
           <input type="file" accept="image/*" onchange="previewUpload(this, 'partnerPreview', 'pLogoUrl', 400)">
           <div id="partnerPreview" class="file-preview">Prévia da Logo</div>
@@ -1728,6 +1954,13 @@
         <p class="hint">A Central R1 fará a aprovação no painel administrativo.</p>
       </div>
     </div>
+  </div>
+
+  <div id="termsModal" class="modal">
+    <div class="sheet center"><div class="sheet-head"><h2>Termos de Uso — R1 SHOP DELIVERY</h2><button class="close" onclick="closeModal('termsModal')">✕</button></div><div class="form"><p>O R1 SHOP DELIVERY disponibiliza uma plataforma de tecnologia e intermediação para aproximar clientes e parceiros. O parceiro é responsável pela veracidade das informações cadastradas, disponibilidade, preços, preparo, embalagem, qualidade e atendimento dos produtos ou serviços anunciados.</p><p>O cadastro é voluntário e não cria obrigação de permanência. O parceiro pode solicitar pausa ou encerramento do cadastro. A plataforma poderá restringir acessos em caso de fraude, informações falsas, uso indevido ou violação das regras básicas.</p><p>Pedidos, entregas, pagamentos e comunicações devem seguir as informações apresentadas na plataforma e as combinações feitas entre cliente e parceiro, conforme a modalidade escolhida.</p><p>O parceiro deve manter seus dados atualizados e não pode cadastrar conteúdo que viole direitos de terceiros ou a legislação aplicável.</p><p>Estes termos poderão ser atualizados para acompanhar a evolução do serviço. A versão vigente será apresentada no cadastro.</p></div></div>
+  </div>
+  <div id="privacyModal" class="modal">
+    <div class="sheet center"><div class="sheet-head"><h2>Política de Privacidade</h2><button class="close" onclick="closeModal('privacyModal')">✕</button></div><div class="form"><p>O R1 SHOP DELIVERY utiliza os dados fornecidos para criar contas, analisar cadastros, apresentar lojas, organizar pedidos, permitir comunicação e prestar suporte.</p><p>Os dados são acessados somente por pessoas e serviços necessários ao funcionamento da plataforma, respeitando a finalidade do cadastro e do pedido.</p><p>O parceiro deve informar dados verdadeiros e pode solicitar atualização ou revisão de seus dados pelos canais disponíveis.</p><p>Não cadastramos dados de cartão nesta etapa. As formas de pagamento atuais permanecem conforme já disponíveis no sistema.</p><p>Em caso de dúvida sobre privacidade, o usuário poderá procurar a Central R1.</p></div></div>
   </div>
 
   <div id="toast" class="toast"></div>
@@ -1879,11 +2112,14 @@
 
     let isFirebaseReady = false;
     let fsDb = null;
+    let fbAuth = null;
+    const CENTRAL_UID = "yumzvOiSgGahY6d4kWCNyd4bRYk2";
 
     try {
       if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
         firebase.initializeApp(firebaseConfig);
         fsDb = firebase.firestore();
+        try { fbAuth = firebase.auth(); } catch (e) { console.warn("Auth indisponível."); }
         isFirebaseReady = true;
       }
     } catch (e) {
@@ -1906,7 +2142,8 @@
         baseDeliveryKm: 4,
         baseDeliveryFee: 7.00,
         extraKmFee: 0.80,
-        banners: []
+        banners: [],
+        cities: [{id:"assis-sp",name:"Assis",uf:"SP",status:"active"}]
       },
       partners: [
         {
@@ -1987,6 +2224,8 @@
       if (!db.config.adminUser) db.config.adminUser = "admin";
       if (!db.config.adminPass) db.config.adminPass = "1234";
       if (!db.config.banners) db.config.banners = [];
+      if (!Array.isArray(db.config.cities) || !db.config.cities.length) db.config.cities = [{id:"assis-sp",name:"Assis",uf:"SP",status:"active"}];
+      (db.partners || []).forEach(p => { if (!p.cityId) p.cityId = "assis-sp"; });
       if (!Array.isArray(db.partners)) db.partners = seed.partners;
       if (!Array.isArray(db.motoboys)) db.motoboys = seed.motoboys;
       if (!Array.isArray(db.orders)) db.orders = [];
@@ -1997,7 +2236,8 @@
     ensureDbIntegrity();
 
     let currentPartner = null;
-    let cart = [];
+    let cart = JSON.parse(localStorage.getItem("r1_cart") || "[]");
+    let cartStoreId = localStorage.getItem("r1_cart_store") || null;
     let orderType = "entrega";
     let delivery = "R1";
     let adminMode = null;
@@ -2104,12 +2344,21 @@
 
       if (logoSecretClicks >= 5) {
         logoSecretClicks = 0;
-        document.getElementById("loginType").value = "central";
+        const select = document.getElementById("loginType");
+        if (select && !select.querySelector('option[value="central"]')) {
+          const option = document.createElement("option");
+          option.value = "central";
+          option.textContent = "Central R1 — Administrador";
+          select.insertBefore(option, select.firstChild);
+        }
+        document.querySelectorAll(".access-choice").forEach(btn => btn.style.display = "none");
+        if (select) { select.value = "central"; select.style.display = "block"; }
         updateLoginHint();
         if (adminSessionActive && adminMode === "central") {
           openAdminPanel();
         } else {
           openModal("loginModal");
+          toast("Acesso Central R1");
         }
       }
     }
@@ -2302,7 +2551,8 @@
     }
 
     function renderStatusList() {
-      const partnersWithStatus = (db.partners || []).filter(p => p.status === "approved" && !p.blocked && p.statuses && p.statuses.length > 0);
+      const activeCity = getR1ActiveCity();
+      const partnersWithStatus = (db.partners || []).filter(p => p.status === "approved" && !p.blocked && p.statuses && p.statuses.length > 0 && (!activeCity || p.cityId === activeCity.id));
       const containerBox = document.getElementById("statusContainerBox");
       
       if (!partnersWithStatus.length) {
@@ -2323,7 +2573,8 @@
 
     function openStatusStories(partnerId) {
       const p = db.partners.find(x => x.id === partnerId);
-      if (!p || p.blocked || !p.statuses || !p.statuses.length) return;
+      const activeCity = getR1ActiveCity();
+      if (!p || p.blocked || !p.statuses || !p.statuses.length || (activeCity && p.cityId !== activeCity.id)) return;
 
       activeStoryPartner = p;
       activeStoryIndex = 0;
@@ -2367,7 +2618,7 @@
       const isVideo = current.type === "video" || (current.url && (current.url.endsWith(".mp4") || current.url.startsWith("data:video")));
 
       if (isVideo) {
-        container.innerHTML = `<video id="storyVideoEl" src="${current.url}" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+        container.innerHTML = `<video id="storyVideoEl" src="${current.url}" autoplay controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
         const videoEl = document.getElementById("storyVideoEl");
         videoEl.onended = () => nextStory();
         videoEl.onerror = () => { storyTimer = setTimeout(() => nextStory(), 4000); };
@@ -2479,24 +2730,59 @@
 
     function renderAppBanners() {
       const box = document.getElementById("appBannersBox");
-      const banners = (db.config && db.config.banners) ? db.config.banners : [];
+      const allBanners = (db.config && Array.isArray(db.config.banners)) ? db.config.banners : [];
+      const activeCity = getR1ActiveCity();
+      const banners = allBanners.filter(b => {
+        const cityId = b.cityId || "assis-sp";
+        return cityId === "all" || !activeCity || cityId === activeCity.id;
+      });
+      const fixed = document.querySelector('.r1-promo-carousel');
+      box.innerHTML = '';
       if (!banners.length) {
-        box.classList.add("hidden");
+        box.classList.add('hidden');
+        fixed?.classList.add('hidden');
         return;
       }
-      box.classList.remove("hidden");
-      box.innerHTML = banners.map(b => `
-        <div class="app-banner-card" onclick="${b.link ? `window.open('${b.link}', '_blank')` : ''}">
-          <img src="${b.image}" alt="${b.title || 'Banner'}">
-        </div>
-      `).join("");
+      fixed?.classList.add('hidden');
+      box.classList.remove('hidden');
+      box.innerHTML = '';
+      const slides = document.createElement('div'); slides.className='r1-central-slides';
+      const dots = document.createElement('div'); dots.className='r1-central-dots';
+      banners.forEach((b,i)=>{
+        const slide=document.createElement('div'); slide.className='r1-central-slide'+(i===0?' active':'');
+        const img=document.createElement('img'); img.alt=b.title||'Banner R1'; img.src=(typeof b.image==='string'&&b.image.trim())?b.image.trim():'./banner-r1.jpg';
+        img.onerror=function(){if(this.dataset.fallback)return;this.dataset.fallback='1';this.src='./banner-r1.jpg';};
+        slide.appendChild(img);
+        if(b.link) slide.onclick=()=>window.open(b.link,'_blank');
+        slides.appendChild(slide);
+        const dot=document.createElement('button'); dot.className='r1-central-dot'+(i===0?' active':''); dot.type='button'; dot.onclick=(ev)=>{ev.stopPropagation();showCentralBanner(i);}; dots.appendChild(dot);
+      });
+      const prev=document.createElement('button'); prev.className='r1-central-arrow prev'; prev.type='button'; prev.setAttribute('aria-label','Banner anterior'); prev.innerHTML='‹'; prev.onclick=()=>centralBannerPrev(); const next=document.createElement('button'); next.className='r1-central-arrow next'; next.type='button'; next.setAttribute('aria-label','Próximo banner'); next.innerHTML='›'; next.onclick=()=>centralBannerNext(); slides.appendChild(prev); slides.appendChild(next); box.appendChild(slides); window._r1CentralIndex=0; repairCentralBanners();
+      clearInterval(window._r1CentralTimer); if(banners.length>1) window._r1CentralTimer=setInterval(()=>showCentralBanner((window._r1CentralIndex+1)%banners.length),6000);
     }
+
+    function repairCentralBanners(){
+      document.querySelectorAll('.r1-central-slide img').forEach(img=>{
+        if(!img.getAttribute('src') || img.getAttribute('src') === 'undefined' || img.getAttribute('src') === 'null') img.src='./banner-r1.jpg';
+      });
+    }
+
+    function showCentralBanner(index) {
+      const slides=[...document.querySelectorAll('.r1-central-slide')];
+      if(!slides.length) return;
+      const total=slides.length;
+      window._r1CentralIndex=((index % total)+total)%total;
+      slides.forEach((x,i)=>x.classList.toggle('active',i===window._r1CentralIndex));
+    }
+    function centralBannerPrev(){ showCentralBanner((window._r1CentralIndex||0)-1); }
+    function centralBannerNext(){ showCentralBanner((window._r1CentralIndex||0)+1); }
 
     function renderPartnerTicker() {
       const track = document.getElementById("partnerTickerTrack");
       if (!track) return;
 
-      const activePartners = (db.partners || []).filter(p => p.status === "approved" && !p.blocked);
+      const activeCity = getR1ActiveCity();
+      const activePartners = (db.partners || []).filter(p => p.status === "approved" && !p.blocked && (!activeCity || p.cityId === activeCity.id));
       if (!activePartners.length) {
         track.parentElement.classList.add("hidden");
         return;
@@ -2515,16 +2801,52 @@
       track.innerHTML = itemsHtml + itemsHtml + itemsHtml;
     }
 
+    function getR1ActiveCity(){
+      ensureDbIntegrity();
+      const cities=(db.config&&db.config.cities)||[];
+      const saved=localStorage.getItem('r1_active_city')||'assis-sp';
+      return cities.find(c=>c.id===saved && c.status==='active') || cities.find(c=>c.status==='active') || null;
+    }
+    function renderR1CitySelector(){
+      const select=document.getElementById('r1CitySelect'); if(!select) return;
+      const cities=(db.config&&db.config.cities||[]).filter(c=>c.status==='active');
+      const active=getR1ActiveCity();
+      select.innerHTML=cities.map(c=>`<option value="${c.id}" ${active&&c.id===active.id?'selected':''}>${c.name} - ${c.uf}</option>`).join('') || '<option>Nenhuma cidade ativa</option>';
+    }
+    function setR1City(id){
+      localStorage.setItem('r1_active_city',id); const box=document.getElementById('appBannersBox'); if(box) box.innerHTML=''; renderR1CitySelector(); renderHome();
+    }
+    function renderCitiesManager(container){
+      ensureDbIntegrity(); const cities=db.config.cities||[];
+      container.innerHTML=`<div class="panel"><h3>🏙️ Cidades</h3><p class="hint">Cadastre cidades manualmente. Somente cidades ativas aparecem para os clientes.</p><div style="display:grid;grid-template-columns:1fr 100px auto;gap:6px;margin-bottom:12px;"><input id="newCityName" placeholder="Nome da cidade"><input id="newCityUf" placeholder="UF" maxlength="2"><button class="btn red" style="width:auto;" onclick="addR1City()">Adicionar</button></div>${cities.map(c=>`<div class="order-card-history" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;"><div><b>${c.name} - ${c.uf}</b><small style="display:block;color:#777;">Status: ${c.status}</small></div><button class="btn ${c.status==='active'?'red':'green'}" style="width:auto;padding:7px 10px;" onclick="toggleR1City('${c.id}')">${c.status==='active'?'Pausar':'Ativar'}</button></div>`).join('')}</div>`;
+    }
+    function addR1City(){
+      const n=document.getElementById('newCityName')?.value.trim(), uf=(document.getElementById('newCityUf')?.value.trim()||'SP').toUpperCase();
+      if(!n) return toast('Informe o nome da cidade.'); const id=(n+'-'+uf).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-');
+      if((db.config.cities||[]).some(c=>c.id===id)) return toast('Essa cidade já está cadastrada.'); db.config.cities.push({id,name:n,uf,status:'planned'}); save(); centralTab('Cidades'); toast('Cidade cadastrada como planejada.');
+    }
+    function toggleR1City(id){ const c=(db.config.cities||[]).find(x=>x.id===id); if(!c)return; c.status=c.status==='active'?'paused':'active'; save(); renderR1CitySelector(); centralTab('Cidades'); toast(c.status==='active'?'Cidade ativada.':'Cidade pausada.'); }
     function renderHome() {
       updateAppHeaderVisuals();
+      renderR1CitySelector();
       renderStatusList();
       renderAppBanners();
       renderPartnerTicker();
       checkInstallButtonsVisibility();
       const q = (document.getElementById("search").value || "").toLowerCase().trim();
       
-      const partners = (db.partners || [])
+      const activeCity = getR1ActiveCity();
+      let partners = (db.partners || [])
         .filter(p => p.status === "approved" && !p.blocked)
+        .filter(p => !activeCity || p.cityId === activeCity.id)
+        .filter(p => {
+          if (window.r1ActiveFilter === "aberto") return !!p.open;
+          if (window.r1ActiveFilter === "entrega") return !!p.delivery && !String(p.delivery).toLowerCase().includes("não");
+          if (window.r1ActiveFilter === "gratis") return String(p.delivery||"").toLowerCase().includes("grátis") || String(p.delivery||"").toLowerCase().includes("gratis") || Number(p.deliveryFee||0)===0;
+          if (window.r1ActiveFilter === "r1entrega") return String(p.delivery||"").toLowerCase().includes("r1") || p.usesR1Delivery === true;
+          if (window.r1ActiveFilter === "ofertas") return (p.categories||[]).some(c=>(c.products||[]).some(x=>x.isPromo && !x.paused));
+          return true;
+        })
         .filter(p => {
           if (!q) return true;
           const matchStore = (p.name + " " + p.category + " " + p.address).toLowerCase().includes(q);
@@ -2533,6 +2855,8 @@
           );
           return matchStore || matchProduct;
         });
+      if (window.r1ActiveFilter === "tempo") partners.sort((a,b)=>(Number(a.deliveryMinutes||999)-Number(b.deliveryMinutes||999)));
+      if (window.r1ActiveFilter === "distancia") partners.sort((a,b)=>(Number(a.distanceKm||999)-Number(b.distanceKm||999)));
 
       document.getElementById("storeCount").textContent = `${partners.length} lojas`;
       document.getElementById("stores").innerHTML = partners.map(p => `
@@ -2554,8 +2878,9 @@
         </article>
       `).join("") || '<div class="panel">Nenhum resultado encontrado para a busca.</div>';
 
+      renderServiceDirectory();
       let promo = [];
-      (db.partners || []).filter(p => p.status === "approved" && !p.blocked).forEach(p => {
+      (db.partners || []).filter(p => p.status === "approved" && !p.blocked && (!getR1ActiveCity() || p.cityId === getR1ActiveCity().id)).forEach(p => {
         (p.categories || []).forEach(c => {
           (c.products || []).forEach(x => {
             if (x.isPromo && !x.paused) {
@@ -2566,10 +2891,12 @@
       });
 
       promo = promo.slice(0, 10);
+      const promoSection = document.getElementById("promoSection");
+      if (promoSection) promoSection.classList.toggle("hidden", promo.length === 0);
       document.getElementById("promos").innerHTML = promo.map(x => `
-        <div class="promo" onclick="openCatalog(${x.partner})">
-          <div class="promo-img">${renderMedia(x.image, "")}</div>
-          <span class="tag">🔥 PROMOÇÃO</span>
+        <div class="promo" onclick="openPromoOffer(${x.partner}, ${JSON.stringify(x.name)})">
+          <div class="promo-img">${renderMedia(x.image || x.imageUrl || x.photo || x.img || "", "")}</div>
+          <span class="tag">🔥 OFERTA</span>
           <h3>${x.name}</h3>
           <div class="price">${money(x.price)}</div>
           <small style="color:var(--muted)">${x.store}</small>
@@ -2577,14 +2904,64 @@
       `).join("") || '<p style="color:var(--muted);padding:10px;">Nenhum produto em promoção no momento.</p>';
     }
 
+    window.r1ActiveFilter = window.r1ActiveFilter || "";
+    function setR1Filter(button, filter){
+      window.r1ActiveFilter=filter||"";
+      document.querySelectorAll(".r1-filter-btn").forEach(b=>b.classList.remove("active"));
+      if(button) button.classList.add("active");
+      renderHome();
+    }
+
+    function renderServiceDirectory(){
+      const section=document.getElementById("serviceDirectorySection"), box=document.getElementById("serviceDirectoryCards");
+      if(!section||!box)return;
+      const activeCity=getR1ActiveCity();
+      const all=(db.partners||[]).filter(p=>p.status==='approved'&&!p.blocked&&p.profileType==='perfil'&&(!activeCity||p.cityId===activeCity.id)).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+      if(!all.length){section.classList.add('hidden');return;}
+      section.classList.remove('hidden');
+      const expanded=!!window.r1ShowAllServices;
+      const list=expanded?all:all.slice(0,6);
+      box.innerHTML=list.map(p=>`<article class="promo service-card" onclick="openProfileDirectory(${p.id})"><div class="promo-img">${renderMedia(p.logo,'')}</div><span class="tag">DIVULGAÇÃO</span><h3>${p.name}</h3><div class="service-meta">${p.category||'Serviço'}${p.address?' · '+p.address:''}</div><button class="btn green service-whatsapp" type="button"><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.1A8 8 0 1 1 20 11.5z"/><path d="M8.5 8.5c.3-.5.6-.5.9-.1l1 1.2c.2.2.2.5 0 .8l-.5.5c.7 1.2 1.5 1.9 2.8 2.5l.5-.5c.3-.2.6-.2.8 0l1.2 1c.4.3.3.7-.1.9-.5.3-1.1.4-1.7.2-2.4-.7-4.2-2.5-5.4-4.6-.4-.7-.4-1.3.5-1.9z"/></svg>WhatsApp</button></article>`).join('');
+      const button=document.getElementById('serviceSeeAllBtn');
+      if(button){button.hidden=all.length<=6;button.innerHTML=expanded?'Mostrar menos <span aria-hidden="true">⌃</span>':'Ver todos <span aria-hidden="true">›</span>'; }
+    }
+    function showServiceCategories(){window.r1ShowAllServices=!window.r1ShowAllServices;renderServiceDirectory();}
+
+    function openProfileDirectory(id){
+      const p=(db.partners||[]).find(x=>x.id===id); if(!p)return;
+      if(p.profileType !== 'perfil'){ toast('O WhatsApp público está disponível somente para Perfis de Divulgação.'); return; }
+      const phone=String(p.whatsapp||'').replace(/\D/g,'');
+      const msg=encodeURIComponent(`Olá! Vi o perfil de ${p.name} na R1 SHOP DELIVERY e gostaria de mais informações.`);
+      if(phone) window.open(`https://wa.me/${phone}?text=${msg}`,'_blank'); else toast('Este perfil ainda não cadastrou WhatsApp.');
+    }
+    function showServiceCategories(){toast('Categorias de Negócios e Serviços serão exibidas aqui.');}
+
     function searchAll() { renderHome(); }
+
+    function openPromoOffer(partnerId, productName){
+      openCatalog(partnerId);
+      setTimeout(()=>{
+        const nodes=[...document.querySelectorAll("#catalogContent .product")];
+        const target=nodes.find(n=>n.textContent.toLowerCase().includes(String(productName).toLowerCase()));
+        if(target){
+          target.closest(".cat")?.classList.add("open");
+          target.scrollIntoView({behavior:"smooth",block:"center"});
+          target.style.outline="3px solid var(--primary)";
+          setTimeout(()=>target.style.outline="",1800);
+        }
+      },250);
+    }
 
     function openCatalog(id) {
       currentPartner = db.partners.find(p => p.id === id);
       if (!currentPartner || currentPartner.blocked) {
         return toast("Estabelecimento indisponível no momento.");
       }
-      cart = [];
+      if (cart.length && cartStoreId && String(cartStoreId) !== String(id)) {
+        if (!confirm('Seu carrinho tem itens de outra loja. Deseja limpar e começar nesta loja?')) return;
+        cart=[]; localStorage.removeItem('r1_cart'); localStorage.removeItem('r1_cart_store');
+      }
+      if (cart.length && !cartStoreId) cartStoreId=id;
       updateCart();
 
       document.getElementById("catalogName").textContent = currentPartner.name;
@@ -2623,12 +3000,11 @@
             <span class="catalog-badge">Entrega: ${currentPartner.delivery}</span>
           </div>
 
-          ${(soc.instagram || soc.facebook || soc.youtube || currentPartner.whatsapp) ? `
+          ${(soc.instagram || soc.facebook || soc.youtube) ? `
             <div class="social-links">
               ${soc.instagram ? `<a href="https://instagram.com/${soc.instagram.replace('@','')}" target="_blank" class="social-btn">📷 Instagram</a>` : ''}
               ${soc.facebook ? `<a href="${soc.facebook}" target="_blank" class="social-btn">📘 Facebook</a>` : ''}
               ${soc.youtube ? `<a href="${soc.youtube}" target="_blank" class="social-btn">📺 YouTube</a>` : ''}
-              ${currentPartner.whatsapp ? `<a href="https://wa.me/55${currentPartner.whatsapp.replace(/\D/g,'')}" target="_blank" class="social-btn" style="background:var(--green)">💬 WhatsApp</a>` : ''}
             </div>
           ` : ''}
 
@@ -2656,7 +3032,7 @@
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:center;">
                       <div class="prod-media">${renderMedia(x.image, "")}</div>
-                      ${!x.paused ? `<button class="add" onclick='addCart(${JSON.stringify(x.name)}, ${Number(x.price)}, ${JSON.stringify(x.image || '')})'>+</button>` : ''}
+                      ${!x.paused ? `<button class="add" onclick='${(x.addons||[]).length ? `openProductOptions(${JSON.stringify(x.name)},${Number(x.price)},${JSON.stringify(x.image||'')},${JSON.stringify(x.addons||[])})` : `addCart(${JSON.stringify(x.name)},${Number(x.price)},${JSON.stringify(x.image||'')})`}' >+</button>` : ''}
                     </div>
                   </article>
                 `).join("") || '<p style="padding:15px;color:var(--muted)">Nenhum produto nesta categoria.</p>'}
@@ -2664,15 +3040,29 @@
             </section>
           `).join("") || '<div class="panel">Nenhuma categoria cadastrada ainda.</div>'}
         </div>
-
-        <div style="text-align:center;padding:25px 0 10px;">
-          <button style="background:transparent;border:0;color:#999;font-size:12px;text-decoration:underline;" onclick="openStoreLoginDirect(${currentPartner.id})">
-            Área do Lojista (${currentPartner.name})
-          </button>
-        </div>
       `;
 
       openModal("catalogModal");
+    }
+
+    let selectedProductOptions = null;
+    function openProductOptions(name, price, image, addons){
+      selectedProductOptions={name,price,image,addons:addons||[]};
+      document.getElementById('optionsProductName').textContent=name;
+      document.getElementById('productOptionsBody').innerHTML=`<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:8px;margin-bottom:8px;"><span>Preço do produto</span><b>${money(price)}</b></div><p style="color:var(--muted);font-size:12px;">Escolha os adicionais desejados:</p>${(addons||[]).map((a,i)=>`<label class="field-checkbox" style="display:flex;justify-content:space-between;align-items:center;"><span>${a.name} <b>+ ${money(Number(a.price)||0)}</b></span><input type="checkbox" data-addon-index="${i}" onchange="updateProductOptionsTotal()"></label>`).join('')}<div id="productOptionsTotal" style="display:flex;justify-content:space-between;margin-top:12px;padding:12px;border-radius:10px;background:#f4f5f7;font-size:16px;"><b>Total do item</b><b>${money(price)}</b></div>`;
+      openModal('productOptionsModal');
+    }
+    function updateProductOptionsTotal(){
+      if(!selectedProductOptions)return; const chosen=[...document.querySelectorAll('#productOptionsBody input[data-addon-index]:checked')].map(el=>selectedProductOptions.addons[Number(el.dataset.addonIndex)]); const extra=chosen.reduce((n,a)=>n+(Number(a.price)||0),0); const el=document.querySelector('#productOptionsTotal b:last-child'); if(el)el.textContent=money(Number(selectedProductOptions.price)+extra);
+    }
+
+    function confirmProductOptions(){
+      if(!selectedProductOptions)return;
+      const chosen=[...document.querySelectorAll('#productOptionsBody input[data-addon-index]:checked')].map(el=>selectedProductOptions.addons[Number(el.dataset.addonIndex)]);
+      const extra=chosen.reduce((n,a)=>n+(Number(a.price)||0),0);
+      const label=chosen.length?` + ${chosen.map(a=>a.name).join(', ')}`:'';
+      cart.push({name:selectedProductOptions.name+label,price:Number(selectedProductOptions.price)+extra,image:selectedProductOptions.image,qty:1,addons:chosen});
+      updateCart(); closeModal('productOptionsModal'); toast('Produto personalizado adicionado'); selectedProductOptions=null;
     }
 
     function addCart(name, price, image) {
@@ -2684,6 +3074,8 @@
     }
 
     function updateCart() {
+      localStorage.setItem('r1_cart', JSON.stringify(cart));
+      if(cart.length && currentPartner) { cartStoreId=currentPartner.id; localStorage.setItem('r1_cart_store', String(currentPartner.id)); }
       const n = cart.reduce((a, x) => a + x.qty, 0);
       const t = cart.reduce((a, x) => a + x.qty * x.price, 0);
       
@@ -2714,6 +3106,12 @@
       }
       closeModal("catalogModal");
       openCart();
+    }
+
+    function continueShopping(){
+      closeModal('cartModal');
+      if(currentPartner) openCatalog(currentPartner.id);
+      else closeModal('catalogModal');
     }
 
     function openCart() {
@@ -2753,13 +3151,26 @@
         addrGroup.classList.add("hidden");
         motoGroup.classList.add("hidden");
       }
+      if (typeof renderCart === "function" && cart.length) renderCart();
+    }
+
+    function getDeliveryFeeValue(){
+      if(orderType !== 'entrega' || !currentPartner) return 0;
+      const raw=currentPartner.delivery;
+      if(typeof raw==='number') return raw;
+      const n=parseFloat(String(raw||'0').replace(/[^0-9,.-]/g,'').replace(/\.(?=.*\.)/g,'').replace(',','.'));
+      return Number.isFinite(n)?n:0;
     }
 
     function renderCart() {
-      const t = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const subtotal = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const fee = getDeliveryFeeValue();
+      const t = subtotal + fee;
       const minVal = currentPartner?.minOrder || 0;
       
       document.getElementById("cartTotal").textContent = money(t);
+      const feeEl=document.getElementById('cartDeliveryFee');
+      if(feeEl) feeEl.textContent=orderType==='entrega' ? `Taxa de entrega: ${money(fee)}` : 'Retirada: sem taxa';
 
       const warnEl = document.getElementById("minOrderWarning");
       if (t < minVal) {
@@ -2856,9 +3267,11 @@
     function sendOrder() {
       if (!currentPartner || !cart.length) return toast("Adicione produtos ao pedido.");
       const minVal = currentPartner?.minOrder || 0;
-      const total = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const subtotal = cart.reduce((a, x) => a + x.qty * x.price, 0);
+      const deliveryFee = getDeliveryFeeValue();
+      const total = subtotal + deliveryFee;
 
-      if (total < minVal) {
+      if (subtotal < minVal) {
         return toast(`⚠️ O valor total (${money(total)}) não atinge o mínimo de ${money(minVal)}.`);
       }
 
@@ -2900,18 +3313,12 @@
       const trackingUrl = `${window.location.origin}${window.location.pathname}?rastreio=${id}`;
 
       let commissionVal = 0;
-      let commissionText = "";
-      const plan = currentPartner.plan || "flex";
-
-      if (plan === "porcentagem") {
-        commissionVal = total * 0.06;
-        commissionText = `${money(commissionVal)} (6%)`;
-      } else if (plan === "pro") {
-        commissionVal = 0;
-        commissionText = "Incluso na Mensalidade";
-      } else {
-        commissionVal = 1.99;
-        commissionText = "R$ 1,99 (Fixo)";
+      let commissionText = "Sem comissão até 15 produtos ativos";
+      const activeProducts = (currentPartner.categories || []).reduce((n,c)=>n+(c.products||[]).filter(x=>!x.paused).length,0);
+      // Regra atual: 3% sobre o subtotal de produtos, somente acima de 15 ativos.
+      if (activeProducts > 15) {
+        commissionVal = subtotal * 0.03;
+        commissionText = `${money(commissionVal)} (3% sobre produtos)`;
       }
 
       let lines = [];
@@ -2923,15 +3330,17 @@
         lines.push(`▪️ ${item.qty}x ${item.name} — ${money(item.qty * item.price)}`);
       });
       lines.push(`-----------------------------------`);
-      lines.push(`💰 *TOTAL DOS PRODUTOS:* ${money(total)}`);
+      lines.push(`💰 *TOTAL DOS PRODUTOS:* ${money(subtotal)}`);
       
       if (orderType === "entrega") {
-        lines.push(`🏍️ *Taxa de Entrega:* ${currentPartner.delivery || 'A combinar'}`);
+        lines.push(`🏍️ *Taxa de Entrega:* ${money(deliveryFee)}`);
+        lines.push(`💰 *TOTAL DO PEDIDO:* ${money(total)}`);
         if (pay === "Cartão na entrega") {
           lines.push(`💳 *Retorno Maquininha (50%):* Sim (Adicional para retorno do motoboy à loja)`);
         }
         lines.push(`📦 *MODO:* Entrega no Endereço (${delivery === 'R1' ? 'Motoboy R1' : 'Entrega da Loja'})`);
       } else {
+        lines.push(`💰 *TOTAL DO PEDIDO:* ${money(total)}`);
         lines.push(`📦 *MODO:* 🏪 Retirada no Balcão (Sem taxa)`);
       }
 
@@ -2995,7 +3404,7 @@
         deliveryFeeText: currentPartner.delivery || "R$ 8,00",
         commissionVal: commissionVal,
         commissionText: commissionText,
-        planType: plan,
+        planType: currentPartner.plan || "flex",
         status: "Novo",
         motoboyId: null,
         motoboyName: null,
@@ -3010,10 +3419,19 @@
       db.orders.unshift(newOrder);
       save();
 
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=${storePhoneClean}&text=${encodeURIComponent(fullMessageText)}`;
-      window.open(whatsappUrl, "_blank");
+      if (!storePhoneClean || storePhoneClean.length < 12) {
+        toast("A loja ainda não possui um WhatsApp válido cadastrado.");
+        return;
+      }
+      const whatsappUrl = `https://wa.me/${storePhoneClean}?text=${encodeURIComponent(fullMessageText)}`;
+      const whatsappWindow = window.open(whatsappUrl, "_blank");
+      if (!whatsappWindow) {
+        toast("O navegador bloqueou a abertura do WhatsApp. Permita pop-ups e tente novamente.");
+        return;
+      }
       
       cart = [];
+      localStorage.removeItem('r1_cart'); localStorage.removeItem('r1_cart_store'); cartStoreId=null;
       updateCart();
       closeModal("cartModal");
       closeModal("catalogModal");
@@ -3176,11 +3594,17 @@
       toast("Corrida recusada. Ela continuará visível para outros entregadores.");
     }
 
+    function chooseAccessType(type){
+      const select=document.getElementById("loginType"); if(select) select.value=type;
+      updateLoginHint();
+      document.getElementById("loginUser")?.focus();
+    }
+
     function updateLoginHint() {
       const type = document.getElementById("loginType").value;
       const hint = document.getElementById("loginHint");
       if (type === "central") {
-        hint.innerHTML = "Acesso Central R1: informe seu login e senha de administrador (Padrão: <b>admin</b> / <b>1234</b>).";
+        hint.innerHTML = "Acesso Central R1: informe o e-mail e a senha de administrador.";
       } else if (type === "store") {
         hint.innerHTML = "Acesso Lojista: informe o usuário e senha da sua loja.";
       } else {
@@ -3199,11 +3623,12 @@
       }
 
       if (type === "central") {
-        const c = db.config || {};
-        const validUser = (c.adminUser || "admin").toLowerCase();
-        const validPass = (c.adminPass || "1234").toString();
-
-        if ((u.toLowerCase() === validUser && p === validPass) || (u.toLowerCase() === "admin" && p === "1234")) {
+        if (!fbAuth) return toast("Login indisponível. Verifique a conexão.");
+        fbAuth.signInWithEmailAndPassword(u, p).then((cred) => {
+          if (cred.user.uid !== CENTRAL_UID) {
+            fbAuth.signOut();
+            return toast("❌ Esta conta não tem acesso à Central.");
+          }
           adminMode = "central";
           loggedPartnerId = null;
           loggedMotoboyId = null;
@@ -3213,8 +3638,11 @@
           closeModal("loginModal");
           openAdminPanel();
           toast("✅ Bem-vindo à Central R1!");
-          return;
-        }
+        }).catch((e) => {
+          const code = (e && e.code) || "";
+          toast(code === "auth/unauthorized-domain" ? "⚠️ Domínio não autorizado no Firebase." : "❌ E-mail ou senha inválidos.");
+        });
+        return;
       } else if (type === "store") {
         const partner = (db.partners || []).find(x => 
           (x.username && x.username.toLowerCase() === u.toLowerCase()) || 
@@ -3280,6 +3708,7 @@
     }
 
     function logoutAdmin() {
+      if (fbAuth && adminMode === "central") { try { fbAuth.signOut(); } catch (e) {} }
       if (motoboyWatchId) {
         navigator.geolocation.clearWatch(motoboyWatchId);
         motoboyWatchId = null;
@@ -3299,19 +3728,20 @@
       if (adminMode === "central") {
         document.getElementById("adminTitle").textContent = db.config.appName || "Central R1";
         document.getElementById("adminSubtitle").textContent = "Gestão total, mapa de frota, parceiros e finanças";
-        tabs = ["Visão geral", "Mapa ao Vivo & Frota", "Identidade & App", "Banners Central", "Módulos & APIs", "Clientes", "Motoboys R1", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros"];
+        tabs = ["Visão geral", "Mapa ao Vivo & Frota", "Identidade & App", "Banners Central", "Módulos & APIs", "Clientes", "Motoboys R1", "Parceiros & Planos", "Produtos da Loja", "Status & Vídeos 9:16", "Relatórios Financeiros", "Cadastros", "Cidades"];
       } else if (adminMode === "store") {
         document.getElementById("adminTitle").textContent = "Painel do Lojista";
         document.getElementById("adminSubtitle").textContent = "Produtos, pedidos, mapa e dados da loja";
-        tabs = ["Dashboard", "Produtos & Promoções", "Importar Catálogo (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Dados da Loja"];
+        tabs = ["Dashboard", "Cardápio & Produtos", "Produtos & Promoções", "Importar Catálogo (Lote)", "Categorias", "Status 9:16 & Capa", "Relatório de Vendas", "Acertos Internos", "Dados da Loja"];
       } else {
         document.getElementById("adminTitle").textContent = "Painel do Entregador R1";
         document.getElementById("adminSubtitle").textContent = "Corridas disponíveis, entregas e repasses";
         tabs = ["Corridas Abertas", "Minhas Entregas", "Extrato Pix & PDF", "Meu Perfil"];
       }
         
+      const tabIcons={"Dashboard":"🏠","Cardápio & Produtos":"🍽️","Produtos & Promoções":"🍔","Importar Catálogo (Lote)":"📥","Categorias":"📂","Status 9:16 & Capa":"🎥","Relatório de Vendas":"📊","Dados da Loja":"⚙️","Visão geral":"🏠","Mapa ao Vivo & Frota":"🗺️","Identidade & App":"🎨","Banners Central":"🖼️","Módulos & APIs":"🧩","Clientes":"👥","Motoboys R1":"🏍️","Parceiros & Planos":"🤝","Produtos da Loja":"🍔","Status & Vídeos 9:16":"🎥","Relatórios Financeiros":"📈","Cadastros":"📝","Cidades":"🏙️","Corridas Abertas":"📣","Minhas Entregas":"📦","Extrato Pix & PDF":"💰","Meu Perfil":"👤"};
       document.getElementById("adminTabs").innerHTML = tabs.map((t, i) => `
-        <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${t}</button>
+        <button class="tab ${i === 0 ? 'active' : ''}" onclick="adminTab('${t}', this, true)">${tabIcons[t]||'•'} ${t}</button>
       `).join("");
       
       openModal("adminModal");
@@ -3368,6 +3798,22 @@
             <h3>Central Administrativa R1</h3>
             <p class="hint">Gestão completa e modular de lojas, mapa de frota ao vivo, clientes, entregadores e relatórios financeiros auditados.</p>
           </div>
+          <div class="panel" style="margin-top:12px;border-color:#b7c8e8;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;">
+              <h3 style="margin:0;">📊 Cliques e acessos</h3>
+              <button class="btn outline" style="width:auto;padding:7px 10px;font-size:11px;" onclick="renderMetricsPanel()">Atualizar</button>
+            </div>
+            <div id="metricsPanelCards" class="admin-grid" style="margin-top:10px;"><div class="metric"><small>Carregando...</small><strong>—</strong></div></div>
+            <p class="hint" style="margin-bottom:0;">Métricas registradas a partir desta atualização. O sistema não recupera cliques antigos.</p>
+          </div>
+          <div class="panel" style="margin-top:12px;border-color:#d9233e;">
+            <h3>📲 Convidar novo parceiro</h3>
+            <p class="hint">Os convites ficam disponíveis somente para a Central.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn green" style="width:auto;" onclick="enviarConviteWhatsApp();trackMetric('invite_whatsapp')">WhatsApp</button>
+              <button class="btn dark" style="width:auto;" onclick="copiarLinkCadastro();trackMetric('invite_copy_link')">Copiar Link</button>
+            </div>
+          </div>
         `;
       } else if (tab === "Mapa ao Vivo & Frota") {
         renderCentralFleetMap(body);
@@ -3391,6 +3837,8 @@
         renderReportsManager(body, true);
       } else if (tab === "Cadastros") {
         renderCentralApprovals(body);
+      } else if (tab === "Cidades") {
+        renderCitiesManager(body);
       }
     }
 
@@ -3866,7 +4314,7 @@
         <div class="panel">
           <h3>🖼️ Banners de Divulgação da Central R1</h3>
           <div class="spec-card">
-            <b>Exibição:</b> Carrossel no topo da tela inicial. Formato Panorâmico (1080x450 px).
+            <b>Exibição:</b> Carrossel no topo da tela inicial. Formato recomendado: 1200 × 450 px (proporção 8:3).
           </div>
           <div class="form">
             <div class="field">
@@ -3874,11 +4322,16 @@
               <input id="newBannerTitle" placeholder="Ex: Campanha Motoboy R1">
             </div>
             <div class="field">
+              <label>Cidade do banner</label>
+              <select id="newBannerCity"><option value="all">Todas as cidades</option>${(db.config.cities||[]).map(c=>`<option value="${c.id}" ${c.id==='assis-sp'?'selected':''}>${c.name} - ${c.uf}</option>`).join('')}</select>
+              <small class="hint">Escolha a cidade onde este banner será exibido.</small>
+            </div>
+            <div class="field">
               <label>Link da Imagem (URL)</label>
               <input id="newBannerImg" placeholder="https://exemplo.com/banner.jpg" oninput="previewDirect('newBannerImg', 'bannerCentralPreview')">
             </div>
             <div class="field">
-              <label>Ou Upload da Imagem (21:9)</label>
+              <label>Ou Upload da Imagem (1200 × 450 px)</label>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'bannerCentralPreview', 'newBannerImg', 500)">
               <div id="bannerCentralPreview" class="file-preview" style="height:100px;">Prévia</div>
             </div>
@@ -3899,7 +4352,7 @@
                   <div style="width:70px;height:35px;border-radius:6px;overflow:hidden;background:#222;">
                     <img src="${b.image}" style="width:100%;height:100%;object-fit:cover;">
                   </div>
-                  <span><b>${b.title || 'Banner'}</b></span>
+                  <span><b>${b.title || 'Banner'}</b><small style="display:block;color:#777;">Cidade: ${(db.config.cities||[]).find(c=>c.id===(b.cityId||'assis-sp'))?.name || (b.cityId==='all'?'Todas':'Assis')}</small></span>
                 </div>
                 <button class="btn red" style="width:auto;padding:5px 8px;font-size:11px;" onclick="removeCentralBanner(${idx})">✕</button>
               </div>
@@ -3913,11 +4366,12 @@
       const title = document.getElementById("newBannerTitle").value.trim();
       const image = document.getElementById("newBannerImg").value.trim();
       const link = document.getElementById("newBannerLink").value.trim();
+      const cityId = document.getElementById("newBannerCity")?.value || "assis-sp";
 
       if (!image) return toast("Informe o link ou imagem do banner.");
 
       if (!db.config.banners) db.config.banners = [];
-      db.config.banners.push({ title, image, link });
+      db.config.banners.push({ title, image, link, cityId });
       save();
       renderHome();
       centralTab("Banners Central");
@@ -4021,45 +4475,37 @@
     }
 
     function renderPartnersAndPlans(container) {
+      ensureDbIntegrity();
+      const q = (window.r1PartnerSearch || '').toLowerCase().trim();
+      const cities = db.config.cities || [];
+      const cityName = id => (cities.find(c=>c.id===id)?.name || (id==='assis-sp'?'Assis':'Sem cidade'));
+      const list = (db.partners || []).map((p,idx)=>({p,idx})).filter(x => {
+        const p=x.p; return !q || [p.name,p.owner,p.whatsapp,p.category,cityName(p.cityId)].some(v=>String(v||'').toLowerCase().includes(q));
+      }).sort((a,b)=>String(a.p.name||'').localeCompare(String(b.p.name||''),'pt-BR'));
+      const groups = {}; list.forEach(x => { const k=cityName(x.p.cityId); (groups[k] ||= []).push(x); });
       container.innerHTML = `
         <div class="panel">
           <h3>Lojas Parceiras e Planos de Cobrança (${db.partners.length})</h3>
-          <div class="list">
-            ${db.partners.map((p, idx) => `
-              <div class="row" style="flex-wrap:wrap;">
-                <span>
-                  <b>${p.name} (ID: ${p.id})</b><br>
-                  <small style="color:var(--muted)">
-                    Responsável: ${p.owner || 'Não inf.'} · Doc: ${p.document || 'Não inf.'}<br>
-                    Plano: <b>${(p.plan || 'flex').toUpperCase()}</b> · Status: <b>${p.paymentStatus === 'paid' ? '<span style="color:green">QUITADO</span>' : '<span style="color:red">PENDENTE</span>'}</b><br>
-                    Whats: ${p.whatsapp} · Usuário: <code>${p.username || p.id}</code> · Senha: <b>${p.pass || '1234'}</b>
-                  </small>
-                </span>
-                <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">
-                  <button class="btn outline" style="padding:5px 8px;font-size:11px;width:auto;" onclick="openPartnerDetailsModal(${p.id})">
-                    📄 Ficha / Detalhes
-                  </button>
-                  <select onchange="changePartnerPlan(${p.id}, this.value)" style="padding:4px;font-size:11px;border-radius:6px;">
-                    <option value="flex" ${p.plan === 'flex' ? 'selected' : ''}>Flex (R$ 1,99/ped)</option>
-                    <option value="porcentagem" ${p.plan === 'porcentagem' ? 'selected' : ''}>Porcentagem (6%)</option>
-                    <option value="pro" ${p.plan === 'pro' ? 'selected' : ''}>Pro (R$ 59,90/mês)</option>
-                  </select>
-                  <button class="btn ${p.paymentStatus === 'paid' ? 'outline' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="togglePaymentStatus(${p.id})">
-                    ${p.paymentStatus === 'paid' ? 'Desmarcar Pago' : 'Marcar como Pago'}
-                  </button>
-                  <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreOpenStatus(${p.id})">
-                    ${p.open ? 'Pausar' : 'Abrir'}
-                  </button>
-                  <button class="btn ${p.blocked ? 'green' : 'warning'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreBlockStatus(${p.id})">
-                    ${p.blocked ? 'Desbloquear' : 'Bloquear'}
-                  </button>
-                  <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removePartner(${idx})">✕</button>
-                </div>
-              </div>
-            `).join("")}
+          <div style="display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap;">
+            <span style="font-size:20px;">⌕</span><input id="centralPartnerSearch" value="${q.replace(/"/g,'&quot;')}" placeholder="Pesquisar loja, responsável, cidade ou categoria" oninput="window.r1PartnerSearch=this.value; renderPartnersAndPlans(document.querySelector('#centralPanel .panel')?.parentElement || this.closest('.panel'))" style="flex:1;min-width:220px;">
           </div>
-        </div>
-      `;
+          ${Object.keys(groups).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(city=>`
+            <div class="panel" style="margin:12px 0;border-left:4px solid var(--red);">
+              <h4 style="margin:0 0 8px;">${city} — ${groups[city].length} parceiro(s)</h4>
+              <div class="list">${groups[city].map(({p,idx})=>`
+                <div class="row" style="flex-wrap:wrap;">
+                  <span><b>${p.name} (ID: ${p.id})</b><br><small style="color:var(--muted)">Responsável: ${p.owner || 'Não inf.'} · Categoria: ${p.category || 'Não inf.'} · ${p.open24h ? '24 HORAS' : 'Horário normal'}<br>Whats: ${p.whatsapp || ''} · Status: ${p.blocked ? 'Bloqueado' : (p.status || 'ativo')}</small></span>
+                  <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">
+                    <button class="btn outline" style="padding:5px 8px;font-size:11px;width:auto;" onclick="openPartnerDetailsModal(${p.id})">📄 Ficha / Detalhes</button>
+                    <select onchange="changePartnerPlan(${p.id}, this.value)" style="padding:4px;font-size:11px;border-radius:6px;"><option value="flex" selected>Plano atual</option></select>
+                    <button class="btn ${p.paymentStatus === 'paid' ? 'outline' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="togglePaymentStatus(${p.id})">${p.paymentStatus === 'paid' ? 'Desmarcar Pago' : 'Marcar como Pago'}</button>
+                    <button class="btn ${p.open ? 'dark' : 'green'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreOpenStatus(${p.id})">${p.open ? 'Pausar' : 'Abrir'}</button>
+                    <button class="btn ${p.blocked ? 'green' : 'warning'}" style="padding:5px 8px;font-size:11px;" onclick="toggleStoreBlockStatus(${p.id})">${p.blocked ? 'Desbloquear' : 'Bloquear'}</button>
+                    <button class="btn red" style="padding:5px 8px;font-size:11px;" onclick="removePartner(${idx})">✕</button>
+                  </div>
+                </div>`).join('')}</div>
+            </div>`).join('') || '<p class="hint">Nenhum parceiro encontrado.</p>'}
+        </div>`;
     }
 
     function openPartnerDetailsModal(partnerId) {
@@ -4101,6 +4547,10 @@
           <input id="adminEditStoreCat" value="${p.category || 'Alimentação'}">
         </div>
         <div class="field">
+          <label>Cidade do estabelecimento</label>
+          <select id="adminEditStoreCity">${(db.config.cities||[]).map(c=>`<option value="${c.id}" ${p.cityId===c.id?'selected':''}>${c.name} - ${c.uf} (${c.status})</option>`).join('')}</select>
+        </div>
+        <div class="field">
           <label>Chave Pix da Loja</label>
           <input id="adminEditStorePix" value="${p.pixKey || ''}">
         </div>
@@ -4129,6 +4579,7 @@
       p.whatsapp = document.getElementById("adminEditStoreWhats").value.trim().replace(/\D/g, "");
       p.address = document.getElementById("adminEditStoreAddr").value.trim();
       p.category = document.getElementById("adminEditStoreCat").value.trim();
+      p.cityId = document.getElementById("adminEditStoreCity")?.value || p.cityId || "assis-sp";
       p.pixKey = document.getElementById("adminEditStorePix").value.trim();
       p.delivery = document.getElementById("adminEditStoreDelivery").value.trim();
       p.minOrder = Number(document.getElementById("adminEditStoreMinOrder").value) || 0;
@@ -4157,6 +4608,17 @@
         centralTab("Parceiros & Planos");
         toast(`Status financeiro atualizado!`);
       }
+    }
+
+    function toggleStoreOpen(){
+      const p=getTargetPartner();
+      if(!p) return toast("Loja não encontrada.");
+      p.open = !p.open;
+      save();
+      renderHome();
+      const body=document.getElementById("adminBody");
+      storeTab("Dashboard");
+      toast(p.open ? "Loja aberta para os clientes." : "Loja fechada para os clientes.");
     }
 
     function toggleStoreOpenStatus(id) {
@@ -4287,28 +4749,40 @@
       if (tab === "Dashboard") {
         const myOrders = (db.orders || []).filter(o => o.storeId === p.id);
         const myTotal = myOrders.reduce((acc, o) => acc + (o.total || 0), 0);
-
-        let feeDue = 0;
-        if (p.plan === "porcentagem") feeDue = myTotal * 0.06;
-        else if (p.plan === "pro") feeDue = 59.90;
-        else feeDue = myOrders.length * 1.99;
+        const productSales = myOrders.reduce((acc,o)=>acc+(o.items||[]).reduce((n,i)=>n+(Number(i.price)||0)*(Number(i.qty)||1),0),0);
+        const activeProducts=(p.categories||[]).reduce((n,c)=>n+(c.products||[]).filter(x=>!x.paused).length,0);
+        const feeDue = activeProducts > 15 ? productSales * 0.03 : 0;
 
         body.innerHTML = `
           <div class="admin-grid">
             <div class="metric"><small>Loja Conectada</small><strong>${p.name}</strong></div>
-            <div class="metric"><small>Plano Contratado</small><strong style="color:var(--primary);">${(p.plan || 'flex').toUpperCase()}</strong></div>
+            <div class="metric"><small>Status da Loja</small><strong style="color:${p.open ? 'var(--green)' : 'var(--primary)'};">${p.open ? 'ABERTA' : 'FECHADA'}</strong></div>
             <div class="metric"><small>Faturamento Bruto</small><strong class="success">${money(myTotal)}</strong></div>
-            <div class="metric"><small>Taxa da Plataforma</small><strong style="color:var(--warning);">${money(feeDue)}</strong></div>
+            <div class="metric"><small>Taxa R1 (3% acima de 15 produtos)</small><strong style="color:var(--warning);">${money(feeDue)}</strong></div>
           </div>
-          <div class="panel" style="margin-top:12px;">
+          <div class="panel" style="margin-top:12px;border:2px solid ${p.open ? '#b7e7c5' : '#f0c9cf'};background:${p.open ? '#f1fff5' : '#fff8f9'};">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <div><h3 style="margin:0 0 4px;">${p.open ? '🟢 Sua loja está aberta' : '🔴 Sua loja está fechada'}</h3><p class="hint" style="margin:0;">Altere aqui sem entrar nos dados da loja.</p></div>
+              <button class="btn ${p.open ? 'red' : 'green'}" style="width:auto;min-width:150px;font-size:14px;padding:13px 16px;" onclick="toggleStoreOpen()">${p.open ? 'Fechar loja agora' : 'Abrir loja agora'}</button>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:12px;background:#fff8f9;border-color:#f0c9cf;">
+            <h3>Regra comercial</h3>
+            <p class="hint"><b>${activeProducts} produtos ativos</b> · até 15 gratuitos. Acima disso, 3% somente sobre vendas de produtos. Entrega e motoboy ficam separados.</p>
+          </div>
+<div class="panel" style="margin-top:12px;">
             <h3>Seu Link de Compartilhamento Direto</h3>
             <p class="hint">Envie este link para seus clientes abrirem direto o seu catálogo:</p>
             <div style="display:flex;gap:6px;margin-top:6px;">
               <input value="${window.location.origin}${window.location.pathname}?loja=${p.id}" readonly id="myDirectStoreLink">
               <button class="btn dark" style="width:auto;padding:8px 12px;" onclick="copyDirectLink()">Copiar</button>
+              <button class="btn outline" style="width:auto;padding:8px 12px;" onclick="openQrPanel(${p.id})">QR Code</button>
             </div>
+            <div id="storeQrPanel" style="margin-top:10px;display:none;"></div>
           </div>
         `;
+      } else if (tab === "Cardápio & Produtos") {
+        renderProductManager(body, false);
       } else if (tab === "Produtos & Promoções") {
         renderProductManager(body, false);
       } else if (tab === "Importar Catálogo (Lote)") {
@@ -4427,12 +4901,20 @@
 
         <div class="panel">
           <h3>➕ Cadastrar Novo Produto em ${p.name}</h3>
+          <div class="spec-card" style="margin:8px 0 12px;">
+            <b>Produtos ativos:</b> ${(p.categories || []).reduce((n,c)=>n+(c.products||[]).filter(x=>!x.paused).length,0)} / 15 gratuitos
+            <small style="display:block;margin-top:4px;color:var(--muted);">Acima de 15, aplica-se a comissão interna de 3% somente sobre vendas de produtos. A entrega fica separada.</small>
+          </div>
           <div class="form">
             <div class="field">
               <label>1. Categoria do Produto</label>
-              <select id="newCat">
-                ${(p.categories || []).map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
-              </select>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <select id="newCat" style="flex:1;">
+                  ${(p.categories || []).map(c => `<option value="${c.name}">${c.name}</option>`).join("") || '<option value="GERAL">GERAL</option>'}
+                </select>
+                <button type="button" class="btn outline" style="width:auto;padding:10px 12px;white-space:nowrap;" onclick="addCategoryInline()">+ Categoria</button>
+              </div>
+              <small class="hint">Crie a categoria e já selecione aqui para cadastrar o produto.</small>
             </div>
             <div class="field">
               <label>2. Nome do Produto / Item</label>
@@ -4445,7 +4927,7 @@
             <div class="field-checkbox">
               <input type="checkbox" id="newIsPromo">
               <label for="newIsPromo" style="cursor:pointer;margin:0;">
-                <b>🔥 Destacar na "Promoção do Dia" (Carrossel da Tela Inicial)</b>
+                <b>🔥 Destacar na "Ofertas do Dia" (Carrossel da Tela Inicial)</b>
               </label>
             </div>
             <div class="field">
@@ -4454,13 +4936,22 @@
             </div>
             <div class="field">
               <label>5. Foto do Produto (Link direto URL)</label>
+              <small class="hint">Recomendado: 800 × 800 px, formato quadrado 1:1.</small>
               <input id="newImgUrl" placeholder="Cole o link da foto (https://...)" oninput="previewDirect('newImgUrl', 'productImgPreview')">
             </div>
             <div class="field">
               <label>Ou faça Upload da Foto (1:1)</label>
+              <small class="hint">Use uma imagem nítida, sem cortar o produto. A prévia aparece antes de salvar.</small>
               <input type="file" accept="image/*" onchange="previewUpload(this, 'productImgPreview', 'newImgUrl', 400)">
               <div id="productImgPreview" class="file-preview">Prévia da Foto</div>
             </div>
+            ${/aliment|restaurante|lanch|pizz|sorvet|cardápio/i.test(p.category || '') ? `
+            <div class="field" style="border:1px solid #f0c9cf;border-radius:10px;padding:10px;background:#fff8f9;">
+              <label>6. Adicionais do produto (opcional)</label>
+              <small class="hint">Um por linha no formato: Nome do adicional | Preço. Ex.: Bacon | 5,00</small>
+              <textarea id="newAddons" placeholder="Bacon | 5,00
+Cheddar | 3,00"></textarea>
+            </div>` : ''}
             <button class="btn red" onclick="addProductToStore()">+ Adicionar Produto ao Cardápio</button>
           </div>
         </div>
@@ -4505,6 +4996,15 @@
       centralTab(returnTab || "Produtos da Loja");
     }
 
+    function parseProductAddons(text){
+      return String(text||'').split(/\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
+        let name='', raw='0';
+        if(line.includes('|')){const a=line.split('|');name=(a[0]||'').trim();raw=a.slice(1).join('|').trim();}
+        else {const m=line.match(/^(.*?)[\s:-]+R?\$?\s*([0-9]+(?:[.,][0-9]{1,2})?)$/);name=m?m[1].trim():line;raw=m?m[2]:'0';}
+        return {name,price:Number(String(raw).replace(',','.'))||0};
+      }).filter(x=>x.name);
+    }
+
     function addProductToStore() {
       const p = getTargetPartner();
       if (!p) return;
@@ -4514,6 +5014,7 @@
       const desc = document.getElementById("newDesc").value.trim();
       const isPromo = document.getElementById("newIsPromo").checked;
       const imgUrl = document.getElementById("newImgUrl").value.trim();
+      const addons = parseProductAddons(document.getElementById("newAddons")?.value || "");
 
       if (!n || isNaN(price) || price <= 0) return toast("Preencha nome e preço válido.");
 
@@ -4531,6 +5032,7 @@
         desc: desc,
         price: price,
         image: imgUrl || "",
+        addons: addons,
         paused: false
       });
 
@@ -4556,6 +5058,7 @@
       document.getElementById("editProdImg").value = prod.image || "";
       document.getElementById("editProdIsPromo").checked = !!prod.isPromo;
       document.getElementById("editProdPaused").checked = !!prod.paused;
+      document.getElementById("editProdAddons").value = (prod.addons || []).map(a=>`${a.name} | ${String(a.price).replace('.',',')}`).join("\n");
       
       const prevEl = document.getElementById("editProdPreview");
       prevEl.innerHTML = prod.image ? `<img src="${prod.image}">` : "Sem Foto";
@@ -4578,6 +5081,7 @@
         prod.image = document.getElementById("editProdImg").value.trim();
         prod.isPromo = document.getElementById("editProdIsPromo").checked;
         prod.paused = document.getElementById("editProdPaused").checked;
+        prod.addons = parseProductAddons(document.getElementById("editProdAddons").value);
 
         save();
         renderHome();
@@ -4658,6 +5162,17 @@
       `;
     }
 
+    function addCategoryInline(){
+      const p=getTargetPartner(); if(!p)return;
+      const name=prompt("Nome da nova categoria:"); if(!name||!name.trim())return;
+      if(!p.categories)p.categories=[];
+      const clean=name.trim().toUpperCase();
+      if(p.categories.some(c=>String(c.name).toUpperCase()===clean))return toast("Essa categoria já existe.");
+      p.categories.push({name:clean,products:[]}); save();
+      const body=document.getElementById("adminBody");
+      renderProductManager(body,adminMode==="central"); toast("Categoria criada. Agora cadastre o produto nela.");
+    }
+
     function addCategoryToStore() {
       const p = getTargetPartner();
       if (!p) return;
@@ -4698,6 +5213,7 @@
           </div>
         ` : ''}
 
+        <details class="panel help-fold" style="margin-bottom:10px;"><summary style="cursor:pointer;font-weight:900;color:var(--primary);">ℹ️ Como escolher a imagem ou vídeo? <span style="float:right;">▼</span></summary><div class="hint" style="padding-top:10px;"><b>Status e AO VIVO:</b> grave com o celular em pé, formato vertical 9:16. Use a câmera frontal para selfie ou a traseira para mostrar produtos e o local. <br><b>Vídeo recomendado:</b> MP4, boa iluminação e poucos segundos. <br><b>Onde aparece:</b> na área de Status/AO VIVO da loja.</div></details>
         <div class="panel">
           <h3>📱 1. Status / Stories de ${p.name}</h3>
           <div class="form">
@@ -4713,12 +5229,34 @@
               </select>
             </div>
             <div class="field">
+              <label>Publicação</label>
+              <select id="newStatusMode"><option value="normal">Status normal</option><option value="live">🔴 AO VIVO</option></select>
+            </div>
+            <div class="field">
+              <label>Tempo de exibição</label>
+              <select id="newStatusDuration"><option value="1">1 hora</option><option value="3">3 horas</option><option value="5">5 horas</option><option value="12">12 horas</option><option value="24">24 horas</option></select>
+            </div>
+            <div class="field">
+              <label>Ação opcional ao tocar</label>
+              <select id="newStatusAction"><option value="none">Nenhuma</option><option value="product">Abrir produto/cardápio</option><option value="whatsapp">Abrir WhatsApp</option><option value="link">Abrir link</option></select>
+              <input id="newStatusTarget" placeholder="Produto ou link (opcional)">
+            </div>
+            <div class="field">
               <label>Link Direto URL da Mídia</label>
               <input id="newStatusUrl" placeholder="https://exemplo.com/video.mp4 ou https://exemplo.com/foto.jpg" oninput="previewDirect('newStatusUrl', 'statusPreviewBox')">
             </div>
             <div class="field">
               <label>Ou faça Upload do Arquivo</label>
               <input type="file" accept="video/mp4,video/*,image/*" onchange="previewUpload(this, 'statusPreviewBox', 'newStatusUrl', 400)">
+              <div style="margin-top:8px;padding:10px;border:1px dashed #d9233e;border-radius:10px;background:#fff8f9;">
+                <b style="display:block;margin-bottom:6px;">🔴 Criar vídeo AO VIVO pelo celular</b>
+                <small class="hint" style="display:block;margin-bottom:8px;">Grave na vertical usando a câmera frontal ou traseira. O vídeo será pré-visualizado antes de publicar.</small>
+                <video id="liveCameraPreview" muted playsinline style="display:none;width:100%;max-height:260px;border-radius:8px;background:#111;"></video>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button type="button" class="btn dark" style="width:auto;padding:9px 12px;" onclick="startLiveCapture()">▶ Iniciar gravação</button>
+                  <button type="button" class="btn red" id="stopLiveCaptureBtn" style="display:none;width:auto;padding:9px 12px;" onclick="stopLiveCapture()">⏹ Parar gravação</button>
+                </div>
+              </div>
               <div id="statusPreviewBox" class="file-preview">Prévia do Status</div>
             </div>
             <button class="btn red" onclick="addStatusToStore(${isCentral})">+ Publicar Status Stories</button>
@@ -4735,7 +5273,7 @@
                     ${st.type === 'video' ? '<span style="color:#fff;font-size:10px;">VÍDEO</span>' : `<img src="${st.url}" style="width:100%;height:100%;object-fit:cover;">`}
                   </div>
                   <span>
-                    <b>${st.title || (st.type === 'video' ? 'Vídeo' : 'Foto')}</b><br>
+                    <b>${st.isLive ? '🔴 AO VIVO · ' : ''}${st.title || (st.type === 'video' ? 'Vídeo' : 'Foto')}</b><br>
                     <small style="color:var(--muted);max-width:220px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${st.url}</small>
                   </span>
                 </div>
@@ -4745,8 +5283,9 @@
           </div>
         </div>
 
+        <details class="panel help-fold" style="margin-bottom:10px;"><summary style="cursor:pointer;font-weight:900;color:var(--primary);">ℹ️ Qual é a imagem da capa? <span style="float:right;">▼</span></summary><div class="hint" style="padding-top:10px;"><b>Capa do catálogo:</b> imagem horizontal da própria loja, não é promoção e não é o banner da Central. <br><b>Tamanho recomendado:</b> 1450 × 350 px, proporção 4:1, JPG ou PNG. <br><b>Onde aparece:</b> no topo do cardápio ou catálogo da loja.</div></details>
         <div class="panel">
-          <h3>🖼️ 2. Banner de Capa do Catálogo (Proporção Horizontal)</h3>
+          <h3>🖼️ 2. Capa do Catálogo da Loja — imagem horizontal</h3>
           <div class="form">
             <div class="field">
               <label>Link da Imagem da Capa</label>
@@ -4763,6 +5302,32 @@
       `;
     }
 
+    let liveCaptureStream=null, liveRecorder=null, liveChunks=[];
+    async function startLiveCapture(){
+      try{
+        if(!window.isSecureContext && location.hostname !== "localhost") return toast("A câmera precisa ser autorizada em endereço HTTPS. Abra a versão publicada da R1.");
+        if(!navigator.mediaDevices?.getUserMedia) return toast("A câmera não está disponível neste navegador.");
+        if(!window.MediaRecorder) return toast("Este navegador não suporta gravação de vídeo. Tente Chrome ou Safari atualizado.");
+        liveCaptureStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:true});
+        const video=document.getElementById("liveCameraPreview"); video.srcObject=liveCaptureStream; video.style.display="block"; await video.play();
+        liveChunks=[]; liveRecorder=new MediaRecorder(liveCaptureStream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")?"video/webm;codecs=vp8,opus":"video/webm"});
+        liveRecorder.ondataavailable=e=>{if(e.data.size)liveChunks.push(e.data)};
+        liveRecorder.onstop=()=>{const blob=new Blob(liveChunks,{type:"video/webm"}); const reader=new FileReader(); reader.onload=()=>{document.getElementById("newStatusUrl").value=reader.result; document.getElementById("statusPreviewBox").innerHTML='<video controls playsinline style="max-width:100%;max-height:220px;border-radius:8px;" src="'+reader.result+'"></video>'; toast("Vídeo gravado. Confira a prévia e publique.");}; reader.readAsDataURL(blob);};
+        liveRecorder.onerror=()=>toast("A gravação foi interrompida pelo navegador.");
+        liveRecorder.start(250); document.getElementById("stopLiveCaptureBtn").style.display="inline-block"; toast("Gravação iniciada. A tela permanecerá aberta.");
+      }catch(e){
+        if(liveCaptureStream) liveCaptureStream.getTracks().forEach(t=>t.stop());
+        liveCaptureStream=null; liveRecorder=null;
+        toast("Não foi possível iniciar a gravação. Permita câmera e microfone e tente novamente.");
+      }
+    }
+    function stopLiveCapture(){
+      if(liveRecorder&&liveRecorder.state!=="inactive")liveRecorder.stop();
+      if(liveCaptureStream)liveCaptureStream.getTracks().forEach(t=>t.stop());
+      const video=document.getElementById("liveCameraPreview"); if(video){video.pause();video.srcObject=null;video.style.display="none";}
+      const btn=document.getElementById("stopLiveCaptureBtn"); if(btn)btn.style.display="none";
+    }
+
     function addStatusToStore(isCentral) {
       const p = getTargetPartner();
       if (!p) return;
@@ -4771,10 +5336,14 @@
       const title = document.getElementById("newStatusTitle").value.trim();
       const type = document.getElementById("newStatusType").value;
       const url = document.getElementById("newStatusUrl").value.trim();
+      const mode = document.getElementById("newStatusMode")?.value || "normal";
+      const duration = Number(document.getElementById("newStatusDuration")?.value || 24);
+      const actionType = document.getElementById("newStatusAction")?.value || "none";
+      const actionTarget = document.getElementById("newStatusTarget")?.value.trim() || "";
 
       if (!url) return toast("Selecione um arquivo ou link.");
 
-      p.statuses.push({ title, type, url });
+      p.statuses.push({ title, type, url, isLive: mode === "live", durationHours: duration, expiresAt: new Date(Date.now()+duration*3600000).toISOString(), actionType, actionTarget });
       save();
       renderHome();
       
@@ -4805,6 +5374,22 @@
       toast("Banner gravado com sucesso!");
     }
 
+    function calculateR1Commission(order){
+      const partner=(db.partners||[]).find(x=>String(x.id)===String(order.storeId));
+      const active=(partner?.categories||[]).reduce((n,c)=>n+(c.products||[]).filter(x=>!x.paused).length,0);
+      const products=(order.items||[]).reduce((n,i)=>n+(Number(i.price)||0)*(Number(i.qty)||1),0);
+      return active>15 ? products*0.03 : 0;
+    }
+
+    function renderSettlementManager(container,p){
+      const now=new Date(); const day=now.getDay(); const monday=new Date(now); monday.setDate(now.getDate()-((day+6)%7)); monday.setHours(0,0,0,0);
+      const orders=(db.orders||[]).filter(o=>o.storeId===p.id && o.status!=='Cancelado' && new Date(o.date)>=monday);
+      const active=(p.categories||[]).reduce((n,c)=>n+(c.products||[]).filter(x=>!x.paused).length,0);
+      const productValue=orders.reduce((n,o)=>n+(o.items||[]).reduce((a,i)=>a+(Number(i.price)||0)*(Number(i.qty)||1),0),0);
+      const commission=active>15?productValue*.03:0;
+      container.innerHTML=`<div class="panel"><h3>💰 Acertos internos</h3><p class="hint">Fechamento padrão: segunda-feira. A comissão é calculada uma vez sobre o total dos produtos dos pedidos do período. Entrega e motoboy não entram.</p><div class="admin-grid"><div class="metric"><small>Pedidos no período</small><strong>${orders.length}</strong></div><div class="metric"><small>Produtos vendidos</small><strong>${money(productValue)}</strong></div><div class="metric"><small>Comissão R1 (3%)</small><strong style="color:var(--warning);">${money(commission)}</strong></div><div class="metric"><small>Status</small><strong style="color:var(--primary);">Pendente</strong></div></div><div class="panel" style="margin-top:12px;background:#fff8f9;border-color:#f0c9cf;"><b>Regra:</b> até 15 produtos ativos gratuitos. Acima disso, 3% sobre o total de produtos vendidos no período. A taxa de entrega fica separada.<br><small>Período iniciado em ${monday.toLocaleDateString('pt-BR')} · vencimento padrão na próxima segunda-feira.</small></div><button class="btn dark" onclick="printReport()">🧾 Imprimir / salvar recibo em PDF</button></div>`;
+    }
+
     function renderReportsManager(container, isCentral) {
       ensureDbIntegrity();
       let p = getTargetPartner();
@@ -4833,7 +5418,7 @@
       }
 
       const totalVal = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-      const totalCommission = orders.reduce((acc, o) => acc + (o.commissionVal || 0), 0);
+      const totalCommission = orders.reduce((acc, o) => acc + calculateR1Commission(o), 0);
       const avgTicket = orders.length ? totalVal / orders.length : 0;
 
       container.innerHTML = `
@@ -4891,7 +5476,7 @@
                 ${o.customerAddress ? `<div><b>Endereço:</b> ${o.customerAddress}</div>` : ''}
                 <div><b>Pagamento:</b> ${o.payment} · <b>Entrega:</b> ${o.delivery === 'R1' ? 'Motoboy R1' : (o.delivery === 'Balcão' ? 'Balcão' : 'Entrega da Loja')}</div>
                 <div style="background:#fff7f8;padding:4px 8px;border-radius:6px;margin:4px 0;font-size:12px;color:var(--primary);font-weight:700;">
-                  📊 Comissão Plataforma R1: ${o.commissionText || money(o.commissionVal || 0)}
+                  📊 Comissão R1 (3% sobre vendas de produtos): ${money(calculateR1Commission(o))}
                 </div>
                 <div style="margin-top:4px;color:#555;"><b>Itens:</b> ${(o.items || []).map(it => `${it.qty}x ${it.name}`).join(", ")}</div>
                 
@@ -4901,6 +5486,8 @@
                     ${o.status || 'Novo'}
                   </span>
                   <button class="btn dark" style="width:auto;padding:3px 8px;font-size:10px;" onclick="openClientTracking('${o.id}')">📍 Ver no Mapa</button>
+                  <button class="btn outline" style="width:auto;padding:3px 8px;font-size:10px;" onclick="printSingleOrder('${o.id}','comanda')">🖨️ Comanda</button>
+                  <button class="btn outline" style="width:auto;padding:3px 8px;font-size:10px;" onclick="printSingleOrder('${o.id}','completo')">📄 Pedido</button>
                   <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="shareOrderToMotoboysGroup('${o.id}')">📢 Chamar Grupo Motoboys</button>
                   <button class="btn warning" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Despachado', ${isCentral})">🛵 Despachar</button>
                   <button class="btn green" style="width:auto;padding:3px 8px;font-size:10px;" onclick="updateOrderStatus('${o.id}', 'Entregue', ${isCentral})">✓ Concluído</button>
@@ -4955,6 +5542,23 @@
       }
     }
 
+    function publicStoreLink(id){ const base='https://cesar-creator-coder.github.io/r1parceiros/'; return base + '?loja=' + encodeURIComponent(id); }
+    function openQrPanel(id){
+      const box=document.getElementById('storeQrPanel'); if(!box) return;
+      const link=publicStoreLink(id); box.style.display='block';
+      box.innerHTML='<div style="background:#fff;padding:12px;border:1px solid #e2e5e9;border-radius:10px;text-align:center;"><div id="r1QrCanvas" style="display:flex;justify-content:center;margin:8px 0;"></div><small style="word-break:break-all;color:#555;">'+link+'</small><div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px;"><button class="btn dark" style="width:auto;padding:7px 10px;" onclick="downloadQr()">Baixar PNG</button><button class="btn outline" style="width:auto;padding:7px 10px;" onclick="printQr()">Imprimir QR</button><button class="btn green" style="width:auto;padding:7px 10px;" onclick="copyTextValue(\''+link+'\')">Copiar link</button></div></div>';
+      const target=document.getElementById('r1QrCanvas'); if(window.QRCode && target){ new QRCode(target,{text:link,width:180,height:180,colorDark:'#121417',colorLight:'#ffffff'}); trackMetric('qr_open'); }
+    }
+    function downloadQr(){ const img=document.querySelector('#r1QrCanvas img'); if(!img) return toast('QR Code ainda não foi gerado.'); const a=document.createElement('a'); a.href=img.src; a.download='r1-shop-qr-code.png'; a.click(); trackMetric('qr_download'); }
+    function printQr(){ const box=document.getElementById('r1QrCanvas'); if(!box) return; const w=window.open('','_blank','width=500,height=650'); w.document.write('<html><head><title>QR Code R1 SHOP</title></head><body style="text-align:center;font-family:Arial;padding:30px"><h2>R1 SHOP DELIVERY</h2>'+box.outerHTML+'<p>Escaneie para acessar</p><script>window.onload=function(){window.print()}<\/script></body></html>'); w.document.close(); trackMetric('qr_print'); }
+    function copyTextValue(v){ navigator.clipboard?.writeText(v).then(()=>toast('Link copiado!')).catch(()=>prompt('Copie o link:',v)); }
+    function printSingleOrder(id, mode='completo'){
+      const o=(db.orders||[]).find(x=>String(x.id)===String(id)); if(!o) return toast('Pedido não encontrado.');
+      const items=(o.items||[]).map(i=>'<tr><td>'+i.qty+'x '+i.name+'</td><td style="text-align:right">'+money((Number(i.price)||0)*(Number(i.qty)||1))+'</td></tr>').join('');
+      const title=mode==='comanda'?'COMANDA DE PREPARO':'PEDIDO COMPLETO'; const extra=mode==='comanda'?'Itens para preparar.':'Cliente: '+(o.customerName||'')+'<br>Telefone: '+(o.customerPhone||'')+'<br>Endereço: '+(o.customerAddress||'Retirada no balcão')+'<br>Pagamento: '+(o.payment||'Não informado');
+      const w=window.open('','_blank','width=500,height=700'); if(!w) return toast('Permita a abertura da janela de impressão.');
+      w.document.write('<html><head><title>'+title+' '+o.id+'</title><style>@page{size:auto;margin:10mm}body{font-family:Arial;margin:0;max-width:760px}h2{text-align:center;border-bottom:2px solid #000;padding-bottom:8px}table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px dashed #aaa}.total{font-size:18px;font-weight:bold;margin-top:12px;text-align:right}.obs{margin-top:14px;border-top:1px solid #000;padding-top:8px}</style></head><body><h2>R1 SHOP DELIVERY<br><small>'+title+'</small></h2><b>Pedido: '+o.id+'</b><p>'+extra+'</p><table>'+items+'</table><div class="total">Total: '+money(o.total)+'</div><div class="obs">Observações: '+(o.notes||'Nenhuma')+'</div><script>window.onload=function(){window.print()}<\/script></body></html>'); w.document.close(); trackMetric('order_print');
+    }
     function printReport() {
       window.print();
     }
@@ -5120,17 +5724,29 @@
       toast("Dados salvos e gravados com sucesso!");
     }
 
+    function toggleCustomPartnerCategory(){
+      const select=document.getElementById("pCategory"), input=document.getElementById("pCustomCategory");
+      if(input) input.style.display=(select&&select.value==="Outro")?"block":"none";
+    }
+
     function submitPartner() {
       const name = document.getElementById("pName").value.trim();
       const owner = document.getElementById("pOwner").value.trim();
       const doc = document.getElementById("pDocument").value.trim();
       const whats = document.getElementById("pWhats").value.trim();
       const address = document.getElementById("pAddress").value.trim();
-      const category = document.getElementById("pCategory").value;
-      const plan = document.getElementById("pPlan").value || "flex";
+      const selectedCategory = document.getElementById("pCategory").value;
+      const customCategory = document.getElementById("pCustomCategory")?.value.trim() || "";
+      const category = selectedCategory === "Outro" ? (customCategory || "Outros") : selectedCategory;
+      const profileType = document.getElementById("pProfileType")?.value || "cardapio";
+      const cityId = document.getElementById("pCityId")?.value || "assis-sp";
+      const open24h = !!document.getElementById("pOpen24h")?.checked;
+      const termsAccepted = document.getElementById("pTerms")?.checked;
+      const plan = "flex";
       const logo = document.getElementById("pLogoUrl").value.trim() || "";
 
       if (!name || !owner || !whats || !address) return toast("Preencha os campos obrigatórios.");
+      if (!termsAccepted) return toast("Aceite os Termos do Lojista para enviar o cadastro.");
 
       if (!db.pending) db.pending = [];
       db.pending.push({
@@ -5142,6 +5758,10 @@
         pixKey: whats.replace(/\D/g, ""),
         address,
         category,
+        profileType,
+        cityId: cityId,
+        open24h: open24h,
+        termsAcceptedAt: new Date().toISOString(),
         plan: plan,
         logo: logo,
         statuses: [],
@@ -5158,10 +5778,19 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       initDatabase();
+      document.querySelectorAll('[data-cat-icon]').forEach(el => { el.innerHTML = r1Icon(el.dataset.catIcon); });
       const params = new URLSearchParams(window.location.search);
       const storeParam = params.get("loja");
       const trackParam = params.get("rastreio");
       const corridaParam = params.get("corrida");
+      if (params.get("painel")) {
+        setTimeout(() => {
+          const s = document.getElementById("loginType");
+          if (s) s.value = "store";
+          updateLoginHint();
+          openModal("loginModal");
+        }, 300);
+      }
 
       if (storeParam) {
         const found = (db.partners || []).find(p => p.id.toString() === storeParam);
@@ -5192,8 +5821,32 @@ function copiarLinkCadastro() {
   });
 }
 
+const R1_METRIC_KEY = "r1_metrics_v1";
+function trackMetric(name, extra = {}) {
+  try {
+    const local = JSON.parse(localStorage.getItem(R1_METRIC_KEY) || "{}");
+    local[name] = (local[name] || 0) + 1;
+    localStorage.setItem(R1_METRIC_KEY, JSON.stringify(local));
+  } catch(e) {}
+  if (isFirebaseReady && fsDb) {
+    fsDb.collection("r1_metrics_events").add({name, extra, createdAt: new Date().toISOString()}).catch(()=>{});
+  }
+}
+async function renderMetricsPanel() {
+  const box = document.getElementById("metricsPanelCards");
+  if (!box) return;
+  const labels = {page_view:"Acessos", invite_whatsapp:"Convites WhatsApp", invite_copy_link:"Links copiados", terms_open:"Termos abertos", privacy_open:"Privacidade aberta"};
+  const counts = {};
+  try { Object.assign(counts, JSON.parse(localStorage.getItem(R1_METRIC_KEY) || "{}")); } catch(e) {}
+  if (isFirebaseReady && fsDb) {
+    try { const snap = await fsDb.collection("r1_metrics_events").get(); snap.forEach(d => { const n=d.data().name; counts[n]=(counts[n]||0)+1; }); } catch(e) {}
+  }
+  box.innerHTML = Object.keys(labels).map(k => `<div class="metric"><small>${labels[k]}</small><strong>${counts[k] || 0}</strong></div>`).join("");
+}
 window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
+  trackMetric('page_view');
+  if (adminMode === 'central') setTimeout(renderMetricsPanel, 500);
   if (urlParams.get('cadastro') === 'loja') {
     if (typeof openModal === 'function') {
       openModal('partnerModal');
@@ -5204,5 +5857,31 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
   </script>
+  <script>
+  (() => {
+    const splash = document.getElementById('r1Splash');
+    const sound = new Audio('./alerta.mp3');
+    sound.preload = 'auto';
+    let opened = false;
+    function openR1Splash(){
+      if(opened) return; opened = true;
+      sound.currentTime = 0;
+      sound.play().catch(()=>{});
+      splash.classList.add('r1SplashOut');
+      setTimeout(()=>splash.remove(), 550);
+    }
+    splash.addEventListener('click', openR1Splash);
+    setTimeout(()=>{ if(!opened) sound.load(); }, 100);
+  })();
+  </script>
+<script>
+function r1Icon(type){
+  const p={todos:'<path d="M12 3v18M3 12h18M5 5l14 14M19 5L5 19"/>',alimentacao:'<path d="M5 10h14v3H5zM7 13v5M17 13v5M4 10l2-4h12l2 4M9 6V4M12 6V3"/>',mercado:'<circle cx="9" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/><path d="M3 4h3l2 10h10l3-7H7M8 14h10"/>',servicos:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.4 2.4-2.6-2.6z"/>',sorvete:'<path d="M7 11h10l-2 10H9L7 11zM8 11a4 4 0 0 1 8 0"/>',acai:'<path d="M6 9h12l-1 11H7L6 9zM8 9a4 4 0 0 1 8 0M9 5c1-2 3-2 4 0"/>',pizza:'<path d="M4 5c7-3 13-1 16 3L7 20 4 5zM8 8l1 1M13 9l1 1M10 14l1 1"/>',moto:'<circle cx="7" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M7 17l4-7h4l3 7M11 10h-3M15 10l2-3h3"/>',entrega:'<path d="M3 6h11v10H3zM14 10h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4M18 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>',clinica:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>' ,laboratorio:'<path d="M9 3v7l-5 8a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-8V3M7 14h10M8 3h8"/>' ,advocacia:'<path d="M12 4v16M5 20h14M4 8h16M7 8l-3 6h6zM17 8l-3 6h6z"/>' ,conveniencia:'<path d="M4 10h16v10H4zM6 10V7h12v3M8 14h8M12 14v4"/>' ,adega:'<path d="M9 3h6M10 3v6l-3 9a2 2 0 0 0 2 3h6a2 2 0 0 0 2-3l-3-9V3M8 15h8"/>' ,'24h':'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${p[type]||p.todos}</svg>`;
+}
+function setR1Category(category){const input=document.getElementById('search');if(input){input.value=category;searchAll();}setTimeout(()=>document.getElementById('stores')?.scrollIntoView({behavior:'smooth',block:'start'}),120);}
+(()=>{const slides=[...document.querySelectorAll('.r1-promo-slide')],dots=[...document.querySelectorAll('.r1-promo-dot')];let i=0;if(slides.length){setInterval(()=>{slides[i].classList.remove('active');dots[i]?.classList.remove('active');i=(i+1)%slides.length;slides[i].classList.add('active');dots[i]?.classList.add('active')},5000)}})();
+</script>
+
 </body>
 </html>
